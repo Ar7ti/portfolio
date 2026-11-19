@@ -11,3 +11,8 @@
 2026-11-19 20:10, Junction Moments and Winter-Toss are not shown anywhere; Kirill decided not to finish Junction Moments now.
 2026-11-19 20:10, Ocean Radar + Life Simulator presented as "two solo projects at one hackathon" (Junction X Turku).
 2026-11-19 20:10, Location shown as "Kanta-Häme, Finland" only.
+2026-11-19 21:30, Concept chosen by Kirill: A "Stud Tide" (full 3D) + tsunami wipe from A' + receipts system from B. A' side-view sea is NOT the main visual (reads as a bar chart).
+2026-11-19 21:30, Performance tiers: full three.js on capable desktops; A'-style 2D shader on mobile/weak devices (deviceMemory, hardwareConcurrency, first-frames timing); static image under prefers-reduced-motion. 3D lazy-loads after hero text paints; LCP = hero text. Lighthouse mobile >= 90 is a hard gate.
+2026-11-19 21:30, New motif from Junction photos: day sea + Sky Island at the top, sea turns to night toward the hackathon section, neon light sticks (#8823b5 / #e0685b / #cf2672 on #090709) reflect in the water.
+2026-11-19 21:30, Hackathon count confirmed: 3 hackathons, 4 projects. Guardio = Junction X Vaasa = repo Junction-Hackaton (same project, not two).
+2026-11-19 21:30, Junction photos: only 03 and 05 committed. 01/02 wait for teammates' photo consent; 02/04/06 wait for a license: Junction Flickr shows no license text (only a Closing Ceremony 2026 album credited to Phuong Hoang), so we ask Junction or Kirill before publishing.
