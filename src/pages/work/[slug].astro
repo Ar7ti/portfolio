@@ -3,6 +3,8 @@
 import type { GetStaticPaths } from 'astro';
 import Base from '../../layouts/Base.astro';
 import CaseStudy from '../../components/case/CaseStudy.astro';
+import Contact from '../../components/sections/Contact.astro';
+import StickyContact from '../../components/sections/StickyContact.astro';
 import { cases, type CaseData } from '../../lib/cases';
 import { plain } from '../../lib/rich';
 
@@ -24,4 +26,6 @@ const { study } = Astro.props;
   <div id="point" tabindex="-1">
     <CaseStudy study={study} level={1} />
   </div>
+  <Contact />
+  <StickyContact />
 </Base>

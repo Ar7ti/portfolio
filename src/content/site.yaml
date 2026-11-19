@@ -61,5 +61,8 @@ site:
     body: The page you wanted isn't here.
     button: { label: Back to the surface, href: '/' }
 
+  # Copy-to-clipboard next to the email button (contact section).
+  copyEmail: { button: Copy, done: Copied, status: Email address copied }
+
   cta: Want to build something together?
   receipts: { summary: Receipts, checked: checked, markLabel: 'Receipt:' }
