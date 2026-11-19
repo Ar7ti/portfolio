@@ -1,0 +1,57 @@
+---
+/**
+ * Small mark after a claim that links to its receipt ("verified", "source", …).
+ * The ink drip (src/scripts/ink-drip.ts) starts from these on desktop.
+ */
+import { data } from '../../lib/content';
+import type { ReceiptRef } from '../../lib/receipts';
+
+interface Props {
+  receipt: ReceiptRef;
+}
+
+const { receipt } = Astro.props;
+const site = await data('site', 'site');
+---
+
+<a class:list={['receipt-mark', 'label', receipt.kind]} href={receipt.href} data-receipt-mark>
+  <span class="visually-hidden">{`${site.receipts.markLabel} `}</span>
+  {receipt.kind}
+</a>
+
+<style>
+  .receipt-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 24px;
+    padding: 0 7px;
+    border-radius: 4px;
+    background: var(--c-hl);
+    color: #1c2a0a;
+    font-size: 10.5px;
+    text-decoration: none;
+    vertical-align: 1px;
+    white-space: nowrap;
+  }
+
+  .receipt-mark::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .receipt-mark:not(.verified) {
+    background: transparent;
+    outline: 1px solid currentColor;
+    outline-offset: -1px;
+    color: var(--label);
+  }
+
+  .receipt-mark:hover,
+  .receipt-mark:focus-visible {
+    text-decoration: underline;
+  }
+</style>

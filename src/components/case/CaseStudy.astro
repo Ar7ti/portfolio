@@ -6,6 +6,7 @@
  */
 import type { CollectionEntry } from 'astro:content';
 import { data } from '../../lib/content';
+import { matchReceipt } from '../../lib/receipts';
 import Claim from '../content/Claim.astro';
 import BigFigures from '../type/BigFigures.astro';
 import CaseBody from './CaseBody.astro';
@@ -25,6 +26,10 @@ const SubTitle = level === 1 ? 'h2' : 'h3';
 const titleId = `case-${study.slug}-title`;
 const long = study.title.length > 16;
 const href = `/work/${study.slug}`;
+const results = study.results.map((figure) => ({
+  ...figure,
+  receipt: matchReceipt(study.slug, figure.facts, study.receipts),
+}));
 /** Two-sentence titles break after the first sentence ("Two solo projects. / One hackathon."). */
 const titleLines = study.title.split(/(?<=\.)\s+/);
 ---
@@ -44,10 +49,16 @@ const titleLines = study.title.split(/(?<=\.)\s+/);
       )}
     </Title>
     <Claim as="p" class="oneliner case-oneliner" claim={study.oneliner} />
-    <BigFigures class="case-results" items={study.results} />
+    <BigFigures class="case-results" items={results} />
 
     {(study.media.length > 0 || study.blocks.length > 0) && (
-      <CaseBody media={study.media} blocks={study.blocks} links={study.links} />
+      <CaseBody
+        media={study.media}
+        blocks={study.blocks}
+        links={study.links}
+        slug={study.slug}
+        receipts={study.receipts}
+      />
     )}
 
     {study.subprojects && study.subprojects.length > 0 && (
@@ -62,7 +73,9 @@ const titleLines = study.title.split(/(?<=\.)\s+/);
       </div>
     )}
 
-    {study.receipts && study.receipts.length > 0 && <Receipts receipts={study.receipts} />}
+    {study.receipts && study.receipts.length > 0 && (
+      <Receipts slug={study.slug} receipts={study.receipts} />
+    )}
 
     <p class="case-cta">
       <span class="lead">{site.cta}</span>

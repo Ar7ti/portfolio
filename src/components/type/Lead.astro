@@ -4,6 +4,8 @@
  * `people` turns each listed name in the text into a link (team credits).
  */
 import { rich } from '../../lib/rich';
+import type { ReceiptRef } from '../../lib/receipts';
+import ReceiptMark from '../receipts/ReceiptMark.astro';
 
 interface Props {
   block: {
@@ -12,9 +14,11 @@ interface Props {
     facts?: readonly string[];
     people?: readonly { name: string; href: string }[] | undefined;
   };
+  /** Link to the receipt behind this block (case studies). */
+  receipt?: ReceiptRef | undefined;
 }
 
-const { block } = Astro.props;
+const { block, receipt } = Astro.props;
 const facts = block.facts?.length ? block.facts.join(' ') : undefined;
 
 let html = rich(block.text);
@@ -29,6 +33,7 @@ for (const person of block.people ?? []) {
 <p class="body lead-block" data-facts={facts}>
   <span class="lead">{block.lead}</span>
   <Fragment set:html={html} />
+  {receipt && <ReceiptMark receipt={receipt} />}
 </p>
 
 <style>

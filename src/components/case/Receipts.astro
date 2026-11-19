@@ -1,35 +1,79 @@
 ---
 /**
  * Receipts of a case: the sources behind its claims, collapsed in a native <details>
- * (keyboard accessible, works without JS). Each receipt carries its FACTS ids.
+ * (keyboard accessible, works without JS). Each receipt has an id that claim marks link to,
+ * its kind tag, the source link and the date the facts were checked.
  */
 import type { CollectionEntry } from 'astro:content';
 import { data } from '../../lib/content';
+import { formatDate } from '../../lib/dates';
+import { receiptId } from '../../lib/receipts';
 
 interface Props {
+  slug: string;
   receipts: NonNullable<CollectionEntry<'cases'>['data']['receipts']>;
 }
 
-const { receipts } = Astro.props;
+const { slug, receipts } = Astro.props;
 const site = await data('site', 'site');
+const checkedOn = site.footer.checkedOn;
 ---
 
-<details class="receipts">
+<details class="receipts" id={`${slug}-receipts`} data-receipts>
   <summary>
     <span class="label">
-      {`${site.receipts} `}
+      {`${site.receipts.summary} `}
       <span data-nofacts="count of the receipts in this list">({receipts.length})</span>
     </span>
   </summary>
-  <ul>
-    {receipts.map((receipt) => (
-      <li data-facts={receipt.facts.join(' ')}>
+  <ol>
+    {receipts.map((receipt, index) => (
+      <li id={receiptId(slug, index)} data-facts={receipt.facts.join(' ')} tabindex="-1">
         <span class:list={['label', 'kind', receipt.kind]}>{receipt.kind}</span>
         <a href={receipt.href}>{receipt.text}</a>
+        <span class="label checked" data-nofacts="date the sources were last checked">
+          {`${site.receipts.checked} `}
+          <time datetime={checkedOn.toISOString().slice(0, 10)}>{formatDate(checkedOn)}</time>
+        </span>
       </li>
     ))}
-  </ul>
+  </ol>
 </details>
+
+<script>
+  // Following a claim mark opens the list and highlights the receipt. Browsers that already
+  // auto-expand <details> on fragment navigation do the same without this script.
+  function openTarget() {
+    const id = decodeURIComponent(location.hash.slice(1));
+    const target = id ? document.getElementById(id) : null;
+    const details = target?.closest<HTMLDetailsElement>('details[data-receipts]');
+    if (!target || !details) return;
+    details.open = true;
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({
+      block: 'center',
+      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    });
+  }
+  addEventListener('hashchange', openTarget);
+  openTarget();
+
+  // Ink drip: desktop pointers only, never under reduced motion; loaded on first use.
+  const fine = matchMedia('(hover: hover) and (pointer: fine)');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  if (fine.matches && !reduce.matches && document.querySelector('[data-receipt-mark]')) {
+    const start = () => {
+      removeEventListener('pointerover', onFirst);
+      removeEventListener('focusin', onFirst);
+      void import('../../scripts/ink-drip').then((m) => m.initInkDrip());
+    };
+    const onFirst = (event: Event) => {
+      if ((event.target as Element | null)?.closest?.('[data-receipt-mark]')) start();
+    };
+    addEventListener('pointerover', onFirst);
+    addEventListener('focusin', onFirst);
+  }
+</script>
 
 <style>
   .receipts {
@@ -65,21 +109,32 @@ const site = await data('site', 'site');
     transform: rotate(90deg);
   }
 
-  ul {
+  ol {
     display: grid;
-    gap: 12px;
-    margin: 14px 0 0;
+    gap: 6px;
+    margin: 10px 0 0;
     padding: 0;
     list-style: none;
   }
 
   li {
     display: grid;
-    grid-template-columns: 10ch minmax(0, 1fr);
+    grid-template-columns: 10ch minmax(0, 1fr) auto;
     gap: 12px;
     align-items: baseline;
+    padding: 8px 10px;
+    margin-inline: -10px;
+    border-radius: var(--radius-s);
     font-size: var(--size-small);
     line-height: 1.45;
+    transition: background-color 0.4s;
+  }
+
+  li:target,
+  li:focus,
+  li.is-dripped {
+    outline: none;
+    background: rgb(200 245 96 / 0.14);
   }
 
   li a {
@@ -95,9 +150,21 @@ const site = await data('site', 'site');
     color: #1c2a0a;
   }
 
-  .kind.source {
+  .kind:not(.verified) {
     background: transparent;
     outline: 1px solid var(--label);
+    outline-offset: -1px;
     color: var(--label);
+  }
+
+  .checked {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 700px) {
+    li {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 4px;
+    }
   }
 </style>

@@ -62,4 +62,4 @@ site:
     button: { label: Back to the surface, href: '/' }
 
   cta: Want to build something together?
-  receipts: Receipts
+  receipts: { summary: Receipts, checked: checked, markLabel: 'Receipt:' }
