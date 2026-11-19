@@ -1,0 +1,55 @@
+---
+/**
+ * "More work" cards (plan/COPY.md §6): YouTube, Guardio, Throw Treats (= "Now building").
+ * Cards come from src/content/projects, in their `order`.
+ */
+import { getCollection } from 'astro:content';
+import { data } from '../../lib/content';
+import ProjectCard from '../cards/ProjectCard.astro';
+import Heading from '../type/Heading.astro';
+import Label from '../type/Label.astro';
+
+const site = await data('site', 'site');
+const projects = (await getCollection('projects'))
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order);
+---
+
+<section id="more" class="section theme-day" aria-labelledby="more-title">
+  <div class="inner">
+    <Label>{site.more.label}</Label>
+    <Heading level={2} size="h2-sec" id="more-title" class="more-title">
+      {site.more.h2}
+    </Heading>
+    <div class="cards">
+      {projects.map((project) => (
+        <ProjectCard project={project} />
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  section :global(.more-title) {
+    margin: 14px 0 30px;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  @media (max-width: 1060px) {
+    .cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 700px) {
+    .cards {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

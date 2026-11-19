@@ -1,7 +1,8 @@
 # Card. Source: plan/COPY.md §6 "YouTube: Sharky_blox".
 order: 1
 title: Sharky_blox
-label: { text: YouTube · Roblox Shorts · since 2023, facts: [P8] }
+# `{asOf}` in a label is filled from `asOf` (the date the numbers were checked).
+label: { text: 'YouTube · Roblox Shorts · since 2023 · as of {asOf}', facts: [P8, YT1, YT2] }
 asOf: 2026-11-19
 big: { value: 2.6M, label: views, facts: [YT2] }
 row: { text: 9.95K subscribers · 33 Shorts, facts: [YT1] }

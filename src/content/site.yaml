@@ -50,6 +50,9 @@ site:
       - { text: Applying to Aalto University in 2027, facts: [P12] }
       - { text: 'Kanta-Häme, Finland', facts: [P2] }
 
+  # Not in COPY.md: from the approved mock (concepts/f-full-copy.html), DECISIONS.log 2026-11-20.
+  more: { label: More work, h2: Also built. }
+
   timeline: { label: Timeline, h2: 'What I shipped, when.' }
 
   notFound:
