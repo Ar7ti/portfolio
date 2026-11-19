@@ -43,7 +43,10 @@
   /* hackathons strip */
   .strip { background: linear-gradient(90deg, rgba(9,7,9,.92), rgba(9,7,9,.55) 60%, rgba(9,7,9,.25)), var(--night) url(../public/media/junction-2026/04-main-hall-wide-lg.webp) center / cover; min-height: 80vh; display: flex; align-items: flex-end; }
   .strip .inner { width: 100%; min-width: 0; }
-  .display { overflow-wrap: anywhere; }
+  .display { overflow-wrap: normal; word-break: normal; hyphens: none; }
+  .tagx { background: #e4e2dc; color: #333; padding: 1px 6px; border-radius: 4px; font-size: 10px; vertical-align: 2px; }
+  .card .big.yt { white-space: nowrap; display: flex; align-items: baseline; gap: 10px; font-size: clamp(48px, 5vw, 64px); }
+  .card .big.yt span { font-size: .42em; }
   .strip h2 { font-size: clamp(44px, 8vw, 128px); color: #fff; margin: 14px 0 34px; }
   .events { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; max-width: 980px; }
   .ev { border-top: 2px solid #ffffff40; padding-top: 12px; }
@@ -140,7 +143,22 @@
   .notfound p { font-size: 22px; margin: 0 0 24px; }
   .mocknote { background: #111; color: #fff; text-align: center; padding: 10px; }
 
-  @media (max-width: 860px) { .two, .subs, .cards, .events { grid-template-columns: 1fr; } .results { gap: 10px; } .results p { font-size: 13px; } .tl li { grid-template-columns: 1fr; gap: 2px; } }
+  @media (max-width: 860px) {
+    .two, .subs, .cards, .events { grid-template-columns: 1fr; }
+    .tl li { grid-template-columns: 1fr; gap: 2px; }
+    /* big figures: one per row, figure + label side by side */
+    .results { grid-template-columns: 1fr; gap: 14px; }
+    .results > div { display: grid; grid-template-columns: 7.8rem minmax(0, 1fr); align-items: center; gap: 12px; }
+    .results .big { font-size: clamp(34px, 10vw, 52px); white-space: nowrap; }
+    .results p { margin: 0; font-size: 16px; }
+    /* headings: longest word must fit at 360 px */
+    .hero h1 { font-size: clamp(38px, 11.5vw, 116px); }
+    .case h2, #case-03 h2, #case-02 h2 { font-size: clamp(34px, 10.4vw, 100px); }
+    .strip h2 { font-size: clamp(36px, 10.6vw, 128px); }
+    h2.sec { font-size: clamp(34px, 10.4vw, 88px); }
+    .contact h2, .notfound h1 { font-size: clamp(38px, 11.6vw, 150px); }
+    .sub h3 { font-size: clamp(28px, 8.6vw, 48px); }
+  }
 </style>
 </head>
 <body>
@@ -241,7 +259,6 @@
         </div>
       </div>
     </div>
-    <div class="blocks" style="margin-top:44px"><div class="block"><p><span class="lead">Next time.</span><span class="todo">[Kirill: one sentence for the Turku weekend]</span></p></div></div>
     <div class="cta">Want to build something together? <a class="mail" href="mailto:k.jegosin@gmail.com">k.jegosin@gmail.com</a></div>
   </div>
 </section>
@@ -266,9 +283,9 @@
       </div>
       <div class="blocks">
         <div class="block"><p><span class="lead">My part.</span><b>Everything</b>: game design, all the Luau code, the UI in React-lua.</p></div>
-        <div class="block"><p><span class="lead">Hardest call.</span><b>The server decides.</b> The player only asks to place a tower; the server checks the spot and takes the cash first.</p></div>
+        <div class="block"><p><span class="lead">Hardest call.</span>The UI is <b>more than half the game</b>: ~23K lines of React-lua, touched in <b>96 of 223 commits</b>. In July I dropped plain Roblox GUIs and rebuilt it in React-lua, so new screens like summons and rewards could keep coming.</p></div>
         <div class="block"><p><span class="lead">Proof it works.</span>My <b>Python scripts drive Roblox Studio</b>: they play a match, try bad placements, check phone layouts and measure frame times.</p></div>
-        <div class="block"><p><span class="lead">Next time.</span><span class="todo">[Kirill: one sentence]</span></p></div>
+        <div class="block"><p><span class="lead">Next time.</span>Get <b>real players testing before launch</b>, not after.</p></div>
         <div class="block"><p><span class="lead">Code.</span>Waves, enemy movement and the UI are <b>public</b>. Combat and economy stay private, so cheaters can't read them.</p></div>
         <div class="btnrow"><a class="pill" href="https://www.roblox.com/games/86140743290043/Sky-Island-Tower-Defense">Play on Roblox</a><a class="pill" href="https://github.com/Ar7ti/sky-island-td-showcase">Read the code</a></div>
       </div>
@@ -286,7 +303,7 @@
       <article class="card">
         <div class="label">YouTube · Roblox Shorts · since 2023 · as of 19 Nov 2026</div>
         <h3>Sharky_blox</h3>
-        <div class="big">2.6M <span style="font-size:.4em">views</span></div>
+        <div class="big yt">2.6M<span>views</span></div>
         <div class="row">9.95K subscribers · 33 Shorts</div>
         <p>My top Short has <b>1.19M views</b>. Same audience my games are for.</p>
         <div class="shorts">
@@ -309,8 +326,8 @@
         <h3>Throw Treats, Tame Pets!</h3>
         <p><span class="wip label">In progress</span></p>
         <p>A Roblox game: <b>throw treats</b>, tame the pets that land, grow your yard.</p>
-        <p><b>Works now:</b> <span class="todo">[Kirill]</span></p>
-        <p><b>Next:</b> <span class="todo">[Kirill]</span></p>
+        <p><b>Works now:</b> core game systems.</p>
+        <p><b>Next:</b> the throw mechanic, animations and pet models.</p>
       </article>
     </div>
   </div>
@@ -342,9 +359,9 @@
     <details open><summary>More small things I built (6)</summary>
       <ul>
         <li><span><b>Resale ticket checker bot</b> · finds cheaper resale concert tickets for me</span><a href="https://github.com/Ar7ti/Ticketmaster_autochecker_bot">Code</a></li>
-        <li><span><b>Blockfect ticket checker bot</b> · <span class="todo">[Kirill: one line]</span></span><a href="https://github.com/Ar7ti/BlockfectTicketChecker_bot">Code</a></li>
-        <li><span><b>AI Food Checker</b> · <span class="todo">[Kirill: one line]</span></span><a href="https://github.com/Ar7ti/Ai_FoodChecker">Code</a></li>
-        <li><span><b>HealMe</b> · Flutter health app prototype</span><a href="https://github.com/Ar7ti/heal_me">Code</a></li>
+        <li><span><b>Blockfect ticket checker bot</b> · an early bot that watched a summer concert's ticket sales</span><a href="https://github.com/Ar7ti/BlockfectTicketChecker_bot">Code</a></li>
+        <li><span><b>AI Food Checker</b> <span class="tagx label">paused</span> · an early prototype of a bigger health checker</span><a href="https://github.com/Ar7ti/Ai_FoodChecker">Code</a></li>
+        <li><span><b>HealMe</b> <span class="tagx label">planned</span> · workouts, health info and an AI food tracker; early Flutter prototype</span><a href="https://github.com/Ar7ti/heal_me">Code</a></li>
         <li><span><b>First Roblox experiments</b> · learning Rojo and React-lua</span><span class="label">2026</span></li>
         <li><span><b>Old portfolio</b> · the site this one replaced</span><a href="https://home.kirills-portfolio.workers.dev/">Visit</a></li>
       </ul>
