@@ -1,0 +1,19 @@
+---
+/**
+ * H1/H2/H3 in Anybody. `level` sets the HTML element, `size` sets the look,
+ * so the outline stays correct whatever the visual size.
+ */
+interface Props {
+  level: 1 | 2 | 3;
+  size?: 'h1' | 'h2' | 'h2-long' | 'h2-xl' | 'h2-sec' | 'h3';
+  id?: string;
+  class?: string;
+}
+const { level, size, id, class: className } = Astro.props;
+const Tag = `h${level}` as const;
+const look = size ?? (level === 1 ? 'h1' : level === 2 ? 'h2' : 'h3');
+---
+
+<Tag id={id} class:list={[look, className]}>
+  <slot />
+</Tag>

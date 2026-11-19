@@ -1,0 +1,93 @@
+---
+/**
+ * BIG figures row ("Won / 3rd / 3–4×"). Desktop: up to three in a row.
+ * Phones: one per line, figure and label side by side. Figures never wrap.
+ * `facts` carries the FACTS.md ids behind each figure (checked by the content tests).
+ */
+export interface Figure {
+  value: string;
+  label: string;
+  note?: string;
+  facts: readonly string[];
+}
+
+interface Props {
+  items: readonly Figure[];
+  class?: string;
+}
+
+const { items, class: className } = Astro.props;
+---
+
+<ul class:list={['big-figures', className]}>
+  {items.map((item) => (
+    <li data-facts={item.facts.join(' ')}>
+      <span class="big">{item.value}</span>
+      <span class="big-label">
+        {item.label}
+        {item.note && <small class="label">{item.note}</small>}
+      </span>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .big-figures {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    max-width: 860px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .big-figures li {
+    min-width: 0;
+  }
+
+  .big-figures li:nth-child(1) .big {
+    color: var(--big-1);
+  }
+
+  .big-figures li:nth-child(2) .big {
+    color: var(--big-2);
+  }
+
+  .big-figures li:nth-child(3) .big {
+    color: var(--big-3);
+  }
+
+  .big-label {
+    display: block;
+    margin-top: 8px;
+    font-size: var(--size-small);
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--fg-body);
+  }
+
+  .big-label small {
+    display: block;
+    margin-top: 4px;
+  }
+
+  @media (max-width: 860px) {
+    /* The figure column is as wide as the widest figure, so labels line up and nothing overflows. */
+    .big-figures {
+      grid-template-columns: max-content minmax(0, 1fr);
+      gap: 14px 16px;
+    }
+
+    .big-figures li {
+      display: grid;
+      grid-column: 1 / -1;
+      grid-template-columns: subgrid;
+      align-items: center;
+    }
+
+    .big-label {
+      margin-top: 0;
+    }
+  }
+</style>
