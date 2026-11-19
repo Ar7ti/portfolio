@@ -10,6 +10,7 @@ const PAGES = [
   '/work/shill-or-chill',
   '/work/junction-x-turku',
   '/work/sky-island-tower-defense',
+  '/cv',
 ];
 
 for (const path of PAGES) {
