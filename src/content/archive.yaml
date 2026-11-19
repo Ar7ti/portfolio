@@ -1,4 +1,5 @@
 # Archive (collapsed by default). Source: plan/COPY.md §8.
+# No "Code" link where the repo is private (Blockfect bot, AI Food Checker, HealMe): it would be a 404 for visitors.
 - id: summary
   summary: More small things I built # the count is rendered from items.length
   items:
@@ -13,7 +14,6 @@
         name: Blockfect ticket checker bot,
         year: '2026',
         text: "an early bot that watched a summer concert's ticket sales",
-        link: { label: Code, href: 'https://github.com/Ar7ti/BlockfectTicketChecker_bot' },
         facts: [X5],
       }
     - {
@@ -21,7 +21,6 @@
         year: '2026',
         tag: paused,
         text: an early prototype of a bigger health checker,
-        link: { label: Code, href: 'https://github.com/Ar7ti/Ai_FoodChecker' },
         facts: [X2],
       }
     - {
@@ -29,7 +28,6 @@
         year: '2026',
         tag: planned,
         text: 'workouts, health info and an AI food tracker; early Flutter prototype',
-        link: { label: Code, href: 'https://github.com/Ar7ti/heal_me' },
         facts: [X3],
       }
     - {
