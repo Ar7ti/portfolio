@@ -2,6 +2,8 @@
 
 Source of the portfolio site of Kirill Jegosin: games, web products and AI tools.
 
+**Live:** https://portfolio.kirills-portfolio.workers.dev (production, deployed from `main`; every PR gets its own preview link in a comment).
+
 Built with [Astro](https://astro.build) (static output, TypeScript strict). Heavy visuals (the WebGL sea) load later as islands, so the page is plain HTML first and readable with JS off.
 
 ## Run it
