@@ -1,0 +1,359 @@
+---
+/**
+ * One-page CV (#22), from src/content/cv.yaml + contacts.yaml, in the site's type system.
+ * Screen: an A4 sheet (fluid on phones). Print / `npm run cv`: exactly one A4 page.
+ * Pending sections are not rendered. The portfolio link is `site` from astro.config.mjs.
+ */
+import { getCollection } from 'astro:content';
+import '../styles/global.css';
+import Claim from '../components/content/Claim.astro';
+import { data } from '../lib/content';
+import { fillAsOf } from '../lib/dates';
+
+const cv = await data('cv', 'cv');
+const contacts = new Map((await getCollection('contacts')).map((e) => [e.id, e.data]));
+const contactLinks = cv.contacts.flatMap((id) => {
+  const c = contacts.get(id);
+  if (!c?.href) return [];
+  const text = c.display ?? c.href.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+  return [{ id: id as string, href: c.href, text, facts: c.facts }];
+});
+if (cv.website && Astro.site) {
+  contactLinks.push({
+    id: 'website',
+    href: Astro.site.href,
+    text: Astro.site.host,
+    facts: ['P21'],
+  });
+}
+
+const shown = <T extends { pending?: string | undefined }>(list: readonly T[]) =>
+  list.filter((x) => !x.pending);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{`CV · ${cv.name}`}</title>
+    <meta name="description" content={`${cv.name}: ${cv.headline}. One-page CV.`} />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <main class="sheet theme-day">
+      <header class="cv-head">
+        <img
+          class="cv-photo"
+          src={cv.photo.src}
+          alt={cv.photo.alt}
+          width="240"
+          height="240"
+          data-facts={cv.photo.facts.join(' ')}
+        />
+        <div class="cv-title">
+          <h1 class="cv-name">{cv.name}</h1>
+          <p class="cv-headline">{cv.headline}</p>
+          <p class="label cv-where">
+            <Claim claim={cv.location} /> · <Claim claim={cv.licence} />
+          </p>
+          <ul class="cv-contacts">
+            {contactLinks.map((c) => (
+              <li data-facts={c.facts.join(' ')}>
+                <a href={c.href}>{c.text}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </header>
+
+      <Claim as="p" class="cv-summary" claim={cv.summary} />
+      <Claim as="p" class="cv-availability" claim={cv.availability} />
+
+      <div class="cv-cols">
+        {[cv.main, cv.side].map((column, col) => (
+          <div class:list={['cv-col', col === 0 ? 'main' : 'side']}>
+            {shown(column).map((section) => (
+              <section class="cv-section" aria-labelledby={`cv-${section.id}`}>
+                <h2 class="label cv-section-title" id={`cv-${section.id}`}>
+                  {section.title}
+                </h2>
+                {shown(section.items).map((item) => (
+                  <article class="cv-item">
+                    <h3 class="cv-item-title">{item.title}</h3>
+                    <Claim as="p" class="cv-meta" claim={item.meta} />
+                    {item.lines.length > 0 && (
+                      <ul class="cv-lines">
+                        {item.lines.map((line) => (
+                          <Claim as="li" claim={fillAsOf(line, item.asOf)} />
+                        ))}
+                      </ul>
+                    )}
+                    {item.tech && <Claim as="p" class="label cv-tech" claim={item.tech} />}
+                    {item.link && (
+                      <a
+                        class="cv-link"
+                        href={item.link.href}
+                        data-facts={item.link.facts?.join(' ')}
+                      >
+                        {item.link.label}
+                      </a>
+                    )}
+                  </article>
+                ))}
+              </section>
+            ))}
+          </div>
+        ))}
+      </div>
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    background: #d9e6ee;
+  }
+
+  body {
+    margin: 0;
+    padding: 24px 0;
+  }
+
+  .sheet {
+    box-sizing: border-box;
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    padding: 12mm 13mm 10mm;
+    background: #fff;
+    color: var(--c-ink);
+    font-family: var(--font-body);
+    font-size: 9.6pt;
+    line-height: 1.36;
+    box-shadow: 0 10px 40px rgb(14 59 87 / 0.18);
+  }
+
+  .cv-head {
+    display: flex;
+    align-items: center;
+    gap: 6mm;
+    padding-bottom: 5mm;
+    border-bottom: 2.5px solid var(--c-deep);
+  }
+
+  .cv-photo {
+    width: 24mm;
+    height: 24mm;
+    flex: none;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .cv-title {
+    flex: 1;
+  }
+
+  .cv-tech {
+    margin: 1mm 0 0;
+    font-size: 7pt;
+    letter-spacing: 0.03em;
+  }
+
+  .cv-name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 28pt;
+    white-space: nowrap;
+    font-weight: 850;
+    font-stretch: 112%;
+    line-height: 0.95;
+    color: var(--c-deep);
+  }
+
+  .cv-headline {
+    margin: 1.2mm 0 0;
+    font-size: 11.5pt;
+    font-weight: 700;
+    color: var(--c-deep);
+  }
+
+  .cv-where {
+    margin: 1.6mm 0 0;
+    font-size: 7.5pt;
+  }
+
+  .cv-contacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6mm 0;
+    margin: 1mm 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 9pt;
+  }
+
+  .cv-contacts li:not(:last-child)::after {
+    content: '·';
+    margin: 0 2.2mm;
+    color: var(--c-mute);
+  }
+
+  .cv-contacts a {
+    color: var(--c-deep);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .cv-summary {
+    margin: 4mm 0 1.2mm;
+    font-size: 11pt;
+    line-height: 1.4;
+  }
+
+  .cv-summary b,
+  .cv-availability b,
+  .cv-lines b {
+    font-weight: 800;
+    color: var(--c-deep);
+  }
+
+  .cv-summary b {
+    background: linear-gradient(transparent 62%, var(--c-signal) 62%);
+  }
+
+  .cv-availability {
+    margin: 0 0 4.5mm;
+    font-size: 9.6pt;
+  }
+
+  .cv-cols {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 55mm;
+    gap: 8mm;
+  }
+
+  .cv-section + .cv-section {
+    margin-top: 4mm;
+  }
+
+  .cv-section-title {
+    margin: 0 0 2.5mm;
+    padding-bottom: 1.2mm;
+    border-bottom: 1px solid #0e3b5733;
+    font-size: 7.5pt;
+    color: var(--c-mute);
+  }
+
+  .cv-item {
+    break-inside: avoid;
+  }
+
+  .cv-item + .cv-item {
+    margin-top: 2.8mm;
+  }
+
+  .cv-item-title {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 11pt;
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--c-deep);
+  }
+
+  .cv-meta {
+    margin: 0.3mm 0 0;
+    font-size: 8.5pt;
+    color: var(--c-mute);
+  }
+
+  .side .cv-meta {
+    font-size: 9pt;
+    color: var(--c-ink);
+  }
+
+  .side .cv-item-title {
+    font-size: 9.5pt;
+  }
+
+  .cv-lines {
+    margin: 1.2mm 0 0;
+    padding-left: 4mm;
+  }
+
+  .cv-lines li + li {
+    margin-top: 0.8mm;
+  }
+
+  .cv-link {
+    display: inline-block;
+    margin-top: 1mm;
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: var(--c-deep);
+  }
+
+  /* On screen, links get a 24 px tap target (WCAG 2.2); print keeps the tight layout. */
+  @media screen {
+    .cv-contacts a,
+    .cv-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+    }
+  }
+
+  @media screen and (max-width: 840px) {
+    body {
+      padding: 0;
+    }
+
+    .sheet {
+      width: auto;
+      min-height: 0;
+      padding: 24px 16px;
+      box-shadow: none;
+    }
+
+    .cv-head,
+    .cv-cols {
+      display: block;
+    }
+
+    .cv-contacts {
+      margin-top: 12px;
+      text-align: left;
+    }
+
+    .side {
+      margin-top: 20px;
+    }
+  }
+
+  @media print {
+    html,
+    body {
+      background: #fff;
+    }
+
+    body {
+      padding: 0;
+    }
+
+    .sheet {
+      width: 210mm;
+      height: 297mm;
+      min-height: 0;
+      overflow: hidden;
+      box-shadow: none;
+    }
+  }
+</style>

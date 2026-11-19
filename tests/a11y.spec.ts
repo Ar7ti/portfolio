@@ -9,6 +9,7 @@ const PAGES = [
   '/work/junction-x-turku',
   '/work/sky-island-tower-defense',
   '/404',
+  '/cv',
 ];
 
 for (const path of PAGES) {

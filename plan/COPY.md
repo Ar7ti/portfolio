@@ -179,7 +179,7 @@ LINKS           none (repo is private)
 LABEL   Timeline
 H2      What I shipped, when.
 2023 May      Started **Sharky_blox**, a Roblox Shorts channel             [P8]
-2025          Started **ICT at LHKK**                                      [P3]
+2025          Started **ICT at FAI (LHKK)**                                [P3]
 2026 Apr      A Short hits **1.19M views**                                 [YT3]
 2026 May      First commit on my **tower defense** game                    [ST10]
 2026 Oct      Junction X Vaasa: **Guardio**                                [H7]
@@ -214,7 +214,7 @@ H2      Let's build something.
 BODY    Open to **internships, summer jobs & junior roles**. Remote, or on-site **within ~1 hour of Forssa**.   [P11]
 BUTTON  k.jegosin@gmail.com  [Copy]                                      [P4]
 LINKS   LinkedIn · GitHub · CV (PDF) · Telegram                          [P6 P5 P7]
-SMALL   ICT student at LHKK, 2025–2027 · Applying to Aalto University in 2027 · Kanta-Häme, Finland   [P3 P12 P2]
+SMALL   ICT student at FAI (LHKK), since 2025 · Applying to Aalto University in 2027 · Kanta-Häme, Finland   [P3 P12 P2]
 ```
 
 ---

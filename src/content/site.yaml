@@ -46,7 +46,7 @@ site:
       facts: [P11]
     contacts: [email, linkedin, github, cv, telegram]
     small:
-      - { text: 'ICT student at LHKK, 2025–2027', facts: [P3] }
+      - { text: 'ICT student at FAI (LHKK), since 2025', facts: [P3] }
       - { text: Applying to Aalto University in 2027, facts: [P12] }
       - { text: 'Kanta-Häme, Finland', facts: [P2] }
 

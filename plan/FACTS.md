@@ -10,7 +10,7 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 |---|---|---|---|
 | P1 | Name: Kirill Jegosin | V | brief; https://github.com/JustinasLa/gemini-4-braincells (credits) |
 | P2 | Age 18, lives in Finland. Site location: **"Kanta-Häme, Finland"** (no town/village name) | S | brief; LinkedIn location per Kirill 2026-11-19 |
-| P3 | **ICT student at LHKK, 2025–2027 (expected)**. "FAI" in the brief/playbook is wrong, corrected | S | Kirill 2026-11-19; LinkedIn headline "Software Developer \| ICT Student @ LHKK \| 🏆 Junction 2026: 1st Oxylabs, 3rd Hostinger" |
+| P3 | **ICT student at FAI (LHKK), since Aug 2025**: Vocational Qualification in Information and Communications Technology, Forssan ammatti-instituutti (FAI), Forssa. FAI is an institute within LHKK; both names are correct. Planned graduation May 2028 (possibly earlier), so the site says "since 2025", never an end year. (Was "2025–2027 (expected)" until 2026-11-19.) | S | per Kirill, 2026-11-19 (answers to the CV questions, #22) |
 | P4 | Email: k.jegosin@gmail.com | V | brief; old site contact (mailto) |
 | P5 | GitHub: https://github.com/Ar7ti | V | gh CLI |
 | P6 | LinkedIn: https://www.linkedin.com/in/kirill-jegosin-807199412/ | S | brief; old site. Page is login-walled (HTTP 999), content not readable |
@@ -21,6 +21,14 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 | P11 | Open to: "Internships, summer jobs and junior roles. Remote, or on-site within ~1 hour of Forssa." | S | Kirill 2026-11-19 |
 | P12 | Applying to Aalto University in 2027 | S | Kirill 2026-11-19 |
 | P13 | Second YouTube account @KirillJegosin: "LifeSimulator. My startup idea for Junction Turku!" https://www.youtube.com/watch?v=1SZf0ZxGyEs | V | YouTube oEmbed |
+| P14 | Work placement: **Intern (Work Placement), FYK Forssan Yrityskehitys Oy, Forssa, 13.4–29.5.2026**. Helped with FRUSH at HAMK; prepared 12 banners and texts for a marketing plan; built a QR feedback form; prepared event materials incl. 350 name badges. No other work experience | S | per Kirill, 2026-11-19 (#22) |
+| P15 | Languages: Russian native, English B2, Finnish A2–B1 | S | per Kirill, 2026-11-19 (#22) |
+| P16 | CS50x (Harvard, online): self-study, in progress | S | per Kirill, 2026-11-19 (#22) |
+| P17 | Category B driving licence since Aug 2026 | S | per Kirill, 2026-11-19 (#22) |
+| P18 | Uses Git (all his repos on GitHub); Python level "basic" (his own wording) | S | per Kirill, 2026-11-19 (#22) |
+| P19 | CV photo: his GitHub avatar (https://github.com/Ar7ti.png), approved for the CV | S | per Kirill, 2026-11-19 (#22) |
+| P20 | Hobby: video editing; his Roblox Shorts have 2.6M total views (see YT2) | S | per Kirill, 2026-11-19 (#22) |
+| P21 | Kirill will buy his own domain for the portfolio; until then the site URL is a placeholder from astro.config (`site`) | S | per Kirill, 2026-11-19 (#22) |
 
 ## Hackathons
 
@@ -51,6 +59,7 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 | SC8 | Wording: **"at Junction 2026, a 48-hour hackathon"** (true of the event; never claim the code took exactly 48 h). Built with AI agents (Codex, Entire per team README) | V | Kirill 2026-11-19; team README |
 | SC9 | Teammates agreed to be linked: https://github.com/JustinasLa · https://github.com/akmet777 (Temuulen) · https://github.com/valtteripertila | S | Kirill 2026-11-19 |
 | SC10 | Junction 2026 had ~2,000 builders | S (Hostinger post wording "2000 builders") | Hostinger post |
+| SC11 | Kirill's code in the team repo is Python: `ingest/consumer.py`, `normalize.py`, `writer.py`, `signals/score.py`, `config.py` + tests (repo languages: Python, TypeScript, …) | V | GitHub API, his commits' files, read 2026-11-19 |
 
 ## Sky Island Tower Defense (Roblox)
 

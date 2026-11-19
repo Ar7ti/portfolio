@@ -6,7 +6,7 @@
     text: 'Started **Sharky_blox**, a Roblox Shorts channel',
     facts: [P8],
   }
-- { id: lhkk, order: 2, when: '2025', text: Started **ICT at LHKK**, facts: [P3] }
+- { id: lhkk, order: 2, when: '2025', text: Started **ICT at FAI (LHKK)**, facts: [P3] }
 - { id: short, order: 3, when: 2026 Apr, text: A Short hits **1.19M views**, facts: [YT3] }
 - {
     id: td-first-commit,
