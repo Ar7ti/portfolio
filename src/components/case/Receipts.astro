@@ -152,8 +152,8 @@ const checkedOn = site.footer.checkedOn;
 
   .kind:not(.verified) {
     background: transparent;
-    outline: 1px solid var(--label);
-    outline-offset: -1px;
+    /* A border drawn as a shadow, so the focus outline stays free. */
+    box-shadow: inset 0 0 0 1px var(--label);
     color: var(--label);
   }
 
