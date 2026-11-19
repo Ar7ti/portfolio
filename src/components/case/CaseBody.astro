@@ -2,8 +2,11 @@
 /**
  * Media + LEAD blocks + link pills of a case (or a sub-project).
  * Two columns on desktop (media left, text right); `stacked` puts media on top (sub-projects).
+ * Media kinds: image (optionally linked, e.g. a video thumbnail), YouTube Short, gameplay video.
  */
 import type { CollectionEntry } from 'astro:content';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { imageInfo } from '../../lib/media';
 import Claim from '../content/Claim.astro';
 import Lead from '../type/Lead.astro';
@@ -18,51 +21,120 @@ interface Props {
 }
 
 const { media, blocks, links, stacked = false } = Astro.props;
-const images = media.flatMap((item) => ('src' in item ? [item] : []));
-const shorts = media.flatMap((item) => ('kind' in item ? [item] : []));
+const inPublic = (path: string) => existsSync(join(process.cwd(), 'public', path));
+
+/** Short thumbnails live at /media/projects/short-<video id>.webp (SOURCES.md). */
+const shortThumb = (href: string) => {
+  const id = new URL(href).searchParams.get('v') ?? href.split('/').pop() ?? '';
+  const src = `/media/projects/short-${id}`;
+  return inPublic(`${src}.webp`) ? src : undefined;
+};
+const sizes = '(max-width: 860px) 100vw, 50vw';
 ---
 
 <div class:list={['case-body', { stacked }]}>
-  {(images.length > 0 || shorts.length > 0) && (
+  {media.length > 0 && (
     <div class="figs">
-      {images.map((image) => {
-        const info = imageInfo(image.src);
-        return (
-          <figure class:list={['fig', image.size ?? 'large']} data-facts={image.facts?.join(' ')}>
-            {image.href ? (
-              <a class="fig-link" href={image.href}>
+      {media.map((item) => {
+        if ('kind' in item && item.kind === 'video') {
+          const poster = imageInfo(item.poster);
+          const sources = (['webm', 'mp4'] as const).filter((ext) =>
+            inPublic(`${item.src}.${ext}`),
+          );
+          return (
+            <figure class="fig large video-slot" data-facts={item.facts?.join(' ')}>
+              {sources.length > 0 ? (
+                <video
+                  class="gameplay"
+                  muted
+                  loop
+                  playsinline
+                  controls
+                  preload="none"
+                  poster={poster.src}
+                  width={poster.width}
+                  height={poster.height}
+                  aria-label={item.alt}
+                >
+                  {sources.map((ext) => (
+                    <source src={`${item.src}.${ext}`} type={`video/${ext}`} />
+                  ))}
+                </video>
+              ) : (
+                <img
+                  src={poster.src}
+                  srcset={poster.srcset}
+                  sizes={sizes}
+                  width={poster.width}
+                  height={poster.height}
+                  alt={item.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+              {item.caption && <Claim as="figcaption" class="label" claim={item.caption} />}
+            </figure>
+          );
+        }
+        if ('kind' in item) {
+          const thumb = shortThumb(item.href);
+          if (!thumb) {
+            return (
+              <a class="pill short-pill" href={item.href} data-facts={item.facts.join(' ')}>
+                {item.label}
+              </a>
+            );
+          }
+          const info = imageInfo(thumb);
+          return (
+            <figure class="fig short" data-facts={item.facts.join(' ')}>
+              {/* The caption link below is the accessible one; the thumbnail is a mouse target. */}
+              <a class="fig-link" href={item.href} tabindex="-1" aria-hidden="true">
                 <img
                   src={info.src}
-                  srcset={info.srcset}
-                  sizes="(max-width: 860px) 100vw, 50vw"
                   width={info.width}
                   height={info.height}
-                  alt={image.alt}
+                  alt=""
                   loading="lazy"
                   decoding="async"
                 />
               </a>
+              <figcaption class="label">
+                <a href={item.href}>{item.label}</a>
+              </figcaption>
+            </figure>
+          );
+        }
+        const info = imageInfo(item.src);
+        const portrait = info.height > info.width;
+        const img = (
+          <img
+            src={info.src}
+            srcset={info.srcset}
+            sizes={sizes}
+            width={info.width}
+            height={info.height}
+            alt={item.alt}
+            loading="lazy"
+            decoding="async"
+          />
+        );
+        return (
+          <figure
+            class:list={['fig', item.size ?? 'large', { portrait }]}
+            data-facts={item.facts?.join(' ')}
+          >
+            {item.href ? (
+              <a class="fig-link" href={item.href}>
+                {img}
+              </a>
             ) : (
-              <img
-                src={info.src}
-                srcset={info.srcset}
-                sizes="(max-width: 860px) 100vw, 50vw"
-                width={info.width}
-                height={info.height}
-                alt={image.alt}
-                loading="lazy"
-                decoding="async"
-              />
+              img
             )}
-            {image.caption && <Claim as="figcaption" class="label" claim={image.caption} />}
+            {item.caption && <Claim as="figcaption" class="label" claim={item.caption} />}
           </figure>
         );
       })}
-      {shorts.map((short) => (
-        <a class="pill short-link" href={short.href} data-facts={short.facts.join(' ')}>
-          {short.label}
-        </a>
-      ))}
     </div>
   )}
   <div class="blocks">
@@ -81,6 +153,20 @@ const shorts = media.flatMap((item) => ('kind' in item ? [item] : []));
   </div>
 </div>
 
+<script>
+  // Gameplay loops: without JS they are plain videos with controls. With JS they play muted
+  // while on screen, unless the visitor asked for reduced motion.
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  for (const video of document.querySelectorAll<HTMLVideoElement>('video.gameplay')) {
+    if (reduce.matches) continue;
+    video.controls = false;
+    new IntersectionObserver(([entry]) => {
+      if (entry?.isIntersecting) void video.play().catch(() => (video.controls = true));
+      else video.pause();
+    }).observe(video);
+  }
+</script>
+
 <style>
   .case-body {
     display: grid;
@@ -94,13 +180,17 @@ const shorts = media.flatMap((item) => ('kind' in item ? [item] : []));
     gap: 26px;
   }
 
+  /* Two tracks: wide media spans both, a phone screenshot and a Short thumbnail sit side by side. */
   .figs {
     display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px;
+    align-items: start;
     min-width: 0;
   }
 
   .fig {
+    grid-column: 1 / -1;
     margin: 0;
   }
 
@@ -108,9 +198,24 @@ const shorts = media.flatMap((item) => ('kind' in item ? [item] : []));
     max-width: 70%;
   }
 
-  .fig img {
+  .fig.portrait,
+  .fig.short {
+    grid-column: auto;
+    max-width: none;
+  }
+
+  .fig img,
+  .fig video {
     width: 100%;
+    height: auto;
     border-radius: var(--radius-m);
+  }
+
+  .video-slot img,
+  .video-slot video {
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: var(--c-deep);
   }
 
   /* Linked media (a video thumbnail): a play badge over the image. */
@@ -146,6 +251,10 @@ const shorts = media.flatMap((item) => ('kind' in item ? [item] : []));
 
   .fig :global(figcaption) {
     margin-top: 10px;
+  }
+
+  .fig figcaption a {
+    color: inherit;
   }
 
   .blocks {
@@ -190,7 +299,7 @@ const shorts = media.flatMap((item) => ('kind' in item ? [item] : []));
     color: var(--bg);
   }
 
-  .short-link {
+  .short-pill {
     justify-self: start;
   }
 

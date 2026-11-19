@@ -138,8 +138,21 @@ const contacts = defineCollection({
   ),
 });
 
+/**
+ * A muted gameplay loop. Files: `<src>.webm` and/or `<src>.mp4` in public/.
+ * Until they exist the poster image is shown in the same slot (no layout change when the video lands).
+ */
+const video = z.strictObject({
+  kind: z.literal('video'),
+  src: z.string().startsWith('/media/'),
+  poster: z.string().startsWith('/media/'),
+  alt: z.string().min(1),
+  caption: claim.optional(),
+  facts: facts.optional(),
+});
+
 const caseBody = {
-  media: z.array(z.union([image, short])),
+  media: z.array(z.union([image, short, video])),
   blocks: z.array(lead),
   links: z.array(link),
 };
