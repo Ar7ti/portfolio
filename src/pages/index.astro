@@ -1,32 +1,14 @@
 ---
-import { data } from '../lib/content';
 import Base from '../layouts/Base.astro';
-import Claim from '../components/content/Claim.astro';
-import Heading from '../components/type/Heading.astro';
+import Hero from '../components/hero/Hero.astro';
 import Hackathons from '../components/sections/Hackathons.astro';
 import MoreWork from '../components/sections/MoreWork.astro';
 import Timeline from '../components/sections/Timeline.astro';
 import Archive from '../components/sections/Archive.astro';
-
-// Placeholder until the hero issue (#7). Copy comes from src/content/site.yaml.
-const site = await data('site', 'site');
-const email = await data('contacts', 'email');
 ---
 
 <Base>
-  <section id="point" class="section theme-day" aria-labelledby="hero-title" tabindex="-1">
-    <div class="inner">
-      <Heading level={1} id="hero-title">
-        {site.hero.h1.map((line, i) => (i === 0 ? line : [<br />, line]))}
-      </Heading>
-      <Claim as="p" class="body" claim={site.hero.line} />
-      <p>
-        <a class="button" href={email.href}>
-          {email.display}
-        </a>
-      </p>
-    </div>
-  </section>
+  <Hero />
   <Hackathons />
   <MoreWork />
   <Timeline />
