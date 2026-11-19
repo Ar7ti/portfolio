@@ -101,6 +101,7 @@ const site = defineCollection({
         contacts: z.array(contactId),
         small: z.array(claim),
       }),
+      more: z.strictObject({ label: z.string(), h2: z.string() }),
       timeline: z.strictObject({ label: z.string(), h2: z.string() }),
       notFound: z.strictObject({
         label: claim,
