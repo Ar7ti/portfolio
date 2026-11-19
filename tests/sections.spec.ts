@@ -66,3 +66,41 @@ test.describe('more work cards', () => {
     });
   }
 });
+
+test.describe('timeline and archive', () => {
+  test('timeline: dated rows, Junction 2026 emphasised, Aalto styled as next', async ({ page }) => {
+    await page.goto('/');
+    const rows = page.locator('#timeline .tl-row');
+    await expect(rows).toHaveCount(10);
+    const emphasis = page.locator('#timeline .tl-emphasis');
+    await expect(emphasis).toHaveCount(1);
+    await expect(emphasis).toContainText('won the Oxylabs challenge');
+    const next = page.locator('#timeline .tl-next');
+    await expect(next).toHaveCount(1);
+    await expect(next).toContainText('Aalto University');
+    await expect(next.locator('.tl-tag')).toHaveText('next');
+    expect(await next.evaluate((el) => getComputedStyle(el).borderTopStyle)).toBe('dashed');
+  });
+
+  test('archive: closed by default, opens, tags shown', async ({ page }) => {
+    await page.goto('/');
+    const details = page.locator('#archive details');
+    await expect(details).not.toHaveAttribute('open');
+    await expect(page.locator('#archive summary')).toContainText('(6)');
+    await expect(page.locator('#archive li').first()).toBeHidden();
+    await page.locator('#archive summary').click();
+    await expect(page.locator('#archive li')).toHaveCount(6);
+    await expect(page.locator('#archive li').first()).toBeVisible();
+    await expect(page.locator('#archive .archive-tag')).toHaveText(['paused', 'planned']);
+  });
+
+  test('archive opens without JS', async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+    await page.goto('/');
+    await page.locator('#archive summary').click();
+    await expect(page.locator('#archive li').first()).toBeVisible();
+    await expect(page.locator('#timeline .tl-row')).toHaveCount(10);
+    await context.close();
+  });
+});
