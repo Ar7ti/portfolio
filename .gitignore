@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.astro/
+.next/
+.wrangler/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+*.log
+!plan/DECISIONS.log
+.lighthouseci/
+# moodboard = other people's screenshots, never commit
+plan/moodboard/*
+!plan/moodboard/.gitkeep
