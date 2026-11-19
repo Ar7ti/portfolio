@@ -177,8 +177,7 @@ const links = hero.contacts
     width: 100%;
     max-width: calc(var(--content-max) + 2 * var(--gutter));
     margin: 0 auto;
-    /* Bottom padding leaves room for the sea toggle. */
-    padding: clamp(72px, 10vh, 120px) var(--gutter) calc(clamp(40px, 8vh, 96px) + 56px);
+    padding: clamp(72px, 10vh, 120px) var(--gutter) clamp(40px, 8vh, 96px);
   }
 
   .hero-text {
@@ -188,8 +187,8 @@ const links = hero.contacts
   /* Calm the water / Bring the water back. JS-only, so it starts hidden. */
   .sea-toggle {
     position: absolute;
+    top: 16px;
     right: var(--gutter);
-    bottom: 24px;
     z-index: 1;
     min-height: 44px;
     padding: 0 18px;
