@@ -104,7 +104,17 @@ const nowBuilding = project.status === 'in-progress';
         box-shadow 0.6s var(--card-ease);
     }
 
-    .card:hover {
+    /* Lift on hover (real hover only, so it never sticks after a tap) and on keyboard focus. */
+    @media (hover: hover) {
+      .card:hover {
+        translate: 0 -6px;
+        box-shadow:
+          0 1px 2px rgb(14 59 87 / 0.06),
+          0 36px 64px -32px rgb(14 59 87 / 0.45);
+      }
+    }
+
+    .card:focus-within {
       translate: 0 -6px;
       box-shadow:
         0 1px 2px rgb(14 59 87 / 0.06),
@@ -115,8 +125,14 @@ const nowBuilding = project.status === 'in-progress';
       transition: scale 0.8s var(--card-ease);
     }
 
-    .card:hover .card-media img {
+    .card:focus-within .card-media img {
       scale: 1.03;
+    }
+
+    @media (hover: hover) {
+      .card:hover .card-media img {
+        scale: 1.03;
+      }
     }
   }
 
