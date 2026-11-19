@@ -61,7 +61,9 @@ test.describe('hero without JS', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       /I build games,\s*web products\s*& AI tools\./,
     );
-    await expect(page.getByRole('link', { name: 'k.jegosin@gmail.com' })).toBeVisible();
+    await expect(
+      page.locator('#point').getByRole('link', { name: 'k.jegosin@gmail.com' }),
+    ).toBeVisible();
     await expect(page.getByRole('link', { name: 'LinkedIn' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'GitHub', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Copy' })).toBeHidden();

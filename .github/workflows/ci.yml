@@ -55,6 +55,7 @@ jobs:
           fail: true
           args: >-
             --no-progress
+            --fallback-extensions html
             --root-dir ${{ github.workspace }}/dist
             --exclude 'linkedin\.com'
             --max-retries 3
