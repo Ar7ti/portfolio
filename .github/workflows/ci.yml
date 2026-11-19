@@ -53,11 +53,14 @@ jobs:
         uses: lycheeverse/lychee-action@v2
         with:
           fail: true
+          # The site's own absolute URLs (canonical, og:url, sitemap) point at production, which
+          # isn't deployed for every PR; the same pages are checked as files under dist/.
           args: >-
             --no-progress
             --fallback-extensions html
             --root-dir ${{ github.workspace }}/dist
             --exclude 'linkedin\.com'
+            --exclude 'portfolio\.kirills-portfolio\.workers\.dev'
             --max-retries 3
             'dist/**/*.html'
 
