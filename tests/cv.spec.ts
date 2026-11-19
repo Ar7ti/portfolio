@@ -2,25 +2,23 @@ import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { parse } from 'yaml';
 
-// CV page (#22): one A4 page from src/content/cv.yaml; pending parts are never rendered.
-interface Section {
-  title: string;
-  pending?: string;
-  items?: { title: string; pending?: string }[];
-}
+// CV page (#22): one A4 page from src/content/cv.yaml; Kirill's brief: ~180 words, no paragraphs.
 const cv = (
-  parse(readFileSync('src/content/cv.yaml', 'utf8')) as { cv: { main: Section[]; side: Section[] } }
+  parse(readFileSync('src/content/cv.yaml', 'utf8')) as { cv: { sections: { title: string }[] } }
 ).cv;
-const sections = [...cv.main, ...cv.side];
 
-test('renders confirmed sections only', async ({ page }) => {
+test('renders every section, at most 180 words, no paragraph over 20 words', async ({ page }) => {
   await page.goto('/cv');
   await expect(page.locator('h1')).toHaveText('Kirill Jegosin');
-  for (const s of sections) {
-    const heading = page.getByRole('heading', { level: 2, name: s.title });
-    await expect(heading).toHaveCount(s.pending ? 0 : 1);
+  for (const s of cv.sections) {
+    await expect(page.getByRole('heading', { level: 2, name: s.title })).toHaveCount(1);
   }
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+  const text = (await page.locator('main').innerText()).replace(/s+/g, ' ');
+  expect(text.split(' ').filter(Boolean).length).toBeLessThanOrEqual(180);
+  for (const p of await page.locator('main p').allInnerTexts()) {
+    expect(p.split(/s+/).filter(Boolean).length, p).toBeLessThanOrEqual(20);
+  }
 });
 
 test('fits one A4 page when printed', async ({ page }) => {
