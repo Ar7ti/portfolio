@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 // Port of the mock's mobile type check (concepts/f-full-copy.html, COPY.md "Mobile type rules").
-const PAGES = ['/', '/styleguide', '/404'];
+const PAGES = ['/', '/styleguide', '/404', '/work/shill-or-chill'];
 const WIDTHS = [360, 390, 768, 1440];
 
 for (const path of PAGES) {

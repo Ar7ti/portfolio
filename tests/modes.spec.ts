@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-const PAGES = ['/', '/styleguide'];
+const PAGES = ['/', '/styleguide', '/work/shill-or-chill'];
 
 test.describe('JS off', () => {
   test.use({ javaScriptEnabled: false });
