@@ -1,0 +1,306 @@
+---
+/**
+ * Hero (plan/COPY.md §1). Plain HTML + CSS: readable with JS off, LCP = the H1.
+ * `.hero-sea` is a fixed-size layer behind the text; the WebGL tiers (#8–#10) mount their
+ * canvas into the same box, so nothing can shift.
+ *
+ * The static day sea: with JS off it is a plain <picture>. With JS on the <img> stays invisible
+ * (opacity 0, so it is never an LCP candidate) and its pixels are drawn into a <canvas> in the
+ * same box once loaded (still.ts). The H1 stays the largest contentful paint.
+ */
+import { getCollection } from 'astro:content';
+import { Picture } from 'astro:assets';
+import Claim from '../content/Claim.astro';
+import Label from '../type/Label.astro';
+import { data } from '../../lib/content';
+import seaDay from '../../assets/hero/sea-day.webp';
+
+const site = await data('site', 'site');
+const { hero } = site;
+const contacts = new Map((await getCollection('contacts')).map((entry) => [entry.id, entry.data]));
+const email = contacts.get('email');
+if (!email?.href || !email.display) throw new Error('contacts.yaml: email needs href and display');
+// Links after the email button. A contact without an href yet (CV until #22) is left out.
+const links = hero.contacts
+  .filter((id) => id !== 'email')
+  .map((id) => contacts.get(id))
+  .filter((c): c is NonNullable<typeof c> & { href: string } => Boolean(c?.href));
+---
+
+<section id="point" class="hero theme-day" aria-labelledby="hero-title" tabindex="-1">
+  <div class="hero-sea" data-sea-layer aria-hidden="true">
+    <Picture
+      src={seaDay}
+      formats={['avif', 'webp']}
+      fallbackFormat="webp"
+      widths={[640, 960, 1280, 1600]}
+      sizes="100vw"
+      alt=""
+      loading="eager"
+      decoding="async"
+      fetchpriority="low"
+      class="hero-sea-still"
+    />
+    <canvas class="hero-sea-canvas" data-sea-still-canvas></canvas>
+  </div>
+
+  <div class="hero-inner">
+    <div class="hero-text">
+      <Label as="p">
+        <Claim claim={hero.label} />
+      </Label>
+      <h1 id="hero-title" class="h1 hero-title">
+        {hero.h1.map((line, i) => (i === 0 ? line : [<br />, line]))}
+      </h1>
+      <Claim as="p" class="hero-line" claim={hero.line} />
+
+      <ul class="chips">
+        {hero.chips.map((chip) => (
+          <li data-facts={chip.facts.join(' ')}>
+            <span class:list={['chip-big', { 'chip-won': chip.highlight }]}>{chip.value}</span>
+            <span class="chip-label">{chip.label}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div class="contact-row">
+        <a class="button" href={email.href} data-facts={email.facts.join(' ')}>
+          {email.display}
+        </a>
+        <button class="copy" type="button" data-copy={email.display} hidden>
+          <span class="label copy-text">Copy</span>
+        </button>
+        <span class="copy-status visually-hidden" role="status" aria-live="polite"></span>
+        <ul class="links" aria-label="Elsewhere">
+          {links.map((link) => (
+            <li>
+              <a href={link.href} data-facts={link.facts.join(' ')}>
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { mountStill } from './still';
+
+  mountStill();
+
+  // Progressive enhancement: the Copy button only exists where the Clipboard API does.
+  for (const button of document.querySelectorAll<HTMLButtonElement>('button[data-copy]')) {
+    if (!navigator.clipboard) continue;
+    const text = button.querySelector('.copy-text');
+    const status = button.parentElement?.querySelector('.copy-status');
+    button.hidden = false;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset['copy'] ?? '');
+        if (text) text.textContent = 'Copied';
+        if (status) status.textContent = 'Email address copied';
+        setTimeout(() => {
+          if (text) text.textContent = 'Copy';
+          if (status) status.textContent = '';
+        }, 2000);
+      } catch {
+        // Clipboard blocked: the mailto button next to it still works.
+      }
+    });
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--sea-day-sky-a);
+  }
+
+  /* Fills the hero box exactly; the canvas tiers mount here later. */
+  .hero-sea {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .hero-sea :global(img),
+  .hero-sea :global(canvas) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+  }
+
+  .hero-sea :global(img) {
+    object-fit: cover;
+    object-position: 64% 100%;
+  }
+
+  /* JS on: the img only feeds the canvas (see still.ts). */
+  :global(.js) .hero-sea :global(img) {
+    opacity: 0;
+  }
+
+  .hero-sea-canvas {
+    opacity: 0;
+    transition: opacity 0.4s ease-out;
+  }
+
+  .hero-sea-canvas.is-ready {
+    opacity: 1;
+  }
+
+  .hero-inner {
+    width: 100%;
+    max-width: calc(var(--content-max) + 2 * var(--gutter));
+    margin: 0 auto;
+    padding: clamp(72px, 10vh, 120px) var(--gutter) clamp(40px, 8vh, 96px);
+  }
+
+  .hero-text {
+    max-width: 960px;
+  }
+
+  /* Sky-coloured scrim between the sea and the text: keeps every text pair AA
+     where the sea runs under the text, without boxing the text in. */
+  .hero-sea::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      100deg,
+      color-mix(in srgb, var(--sea-day-sky-a) 82%, transparent) 0%,
+      color-mix(in srgb, var(--sea-day-sky-a) 55%, transparent) 38%,
+      transparent 62%
+    );
+    pointer-events: none;
+  }
+
+  @media (max-width: 860px) {
+    .hero-sea::after {
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--sea-day-sky-a) 70%, transparent) 0%,
+        color-mix(in srgb, var(--sea-day-sky-a) 60%, transparent) 55%,
+        color-mix(in srgb, var(--sea-day-sky-a) 20%, transparent) 100%
+      );
+    }
+  }
+
+  .hero-title {
+    margin: 16px 0 22px;
+  }
+
+  .hero-line {
+    margin: 0 0 28px;
+    font-size: clamp(18px, 1.6vw, 22px);
+    font-weight: 500;
+    color: var(--fg);
+  }
+
+  .hero-line :global(b) {
+    font-weight: 800;
+    color: var(--fg-strong);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 0 0 30px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .chips li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 18px 10px 14px;
+    border: 2px solid var(--c-deep);
+    border-radius: 18px;
+    background: var(--c-foam);
+    box-shadow: 0 4px 0 var(--c-deep);
+  }
+
+  .chip-big {
+    font-family: var(--font-display);
+    font-size: var(--size-big-chip);
+    font-weight: 900;
+    font-stretch: 120%;
+    line-height: 1;
+    color: var(--c-deep);
+    white-space: nowrap;
+  }
+
+  .chip-won {
+    padding: 2px 8px;
+    border-radius: var(--radius-s);
+    background: var(--c-signal);
+  }
+
+  .chip-label {
+    max-width: 15ch;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  .contact-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 18px;
+  }
+
+  .copy {
+    min-height: 48px;
+    padding: 0 16px;
+    border: 2px solid currentColor;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--c-deep);
+    cursor: pointer;
+  }
+
+  .copy .label {
+    color: inherit;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .links a {
+    display: inline-block;
+    padding: 12px 0;
+    font-weight: 700;
+    color: var(--c-deep);
+  }
+
+  @media (max-width: 560px) {
+    .chips {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .chip-label {
+      max-width: none;
+    }
+  }
+</style>
