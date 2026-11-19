@@ -264,4 +264,39 @@ const archive = defineCollection({
   ),
 });
 
-export const collections = { site, contacts, cases, projects, hackathons, timeline, archive };
+const cvItem = z.strictObject({
+  title: z.string(),
+  meta: claim,
+  lines: z.array(claim),
+  link: link.optional(),
+  /** Fills `{asOf}` in the lines. */
+  asOf: z.coerce.date().optional(),
+  pending: z.string().optional(),
+});
+
+const cvSection = z.strictObject({
+  id: z.string(),
+  title: z.string(),
+  items: z.array(cvItem).default([]),
+  /** Waiting for Kirill's answer (question id); not rendered. */
+  pending: z.string().optional(),
+});
+
+/** One-page CV (#22), rendered at /cv and printed to PDF. */
+const cv = defineCollection({
+  loader: file('src/content/cv.yaml'),
+  schema: sourced(
+    z.strictObject({
+      name: z.string(),
+      headline: z.string(),
+      location: claim,
+      contacts: z.array(contactId),
+      summary: claim,
+      availability: claim,
+      main: z.array(cvSection),
+      side: z.array(cvSection),
+    }),
+  ),
+});
+
+export const collections = { cv, site, contacts, cases, projects, hackathons, timeline, archive };

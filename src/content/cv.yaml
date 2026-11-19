@@ -1,0 +1,102 @@
+# CV (#22): one A4 page, rendered at /cv and printed to public/cv/ by `npm run cv`.
+# Only confirmed facts: every number carries FACTS.md ids, same rule as the site.
+# `pending: Qn` = waiting for Kirill's answer to question n (see the #22 issue); pending
+# sections/items are NOT rendered. Nothing here is invented.
+cv:
+  name: Kirill Jegosin
+  headline: Games, web products & AI tools
+  location: { text: 'Kanta-Häme, Finland', facts: [P2] }
+  contacts: [email, github, linkedin, telegram]
+  summary:
+    text: >-
+      ICT student who ships: **won the Oxylabs challenge** at Junction 2026, built a **solo Roblox
+      game** that is live, and reached **2.6M views** with Roblox Shorts.
+    facts: [P3, H3, ST1, ST9, YT2]
+  availability:
+    text: 'Open to **internships, summer jobs & junior roles**. Remote, or on-site within ~1 hour of Forssa.'
+    facts: [P11]
+
+  main:
+    - id: projects
+      title: Projects & hackathons
+      items:
+        - title: Shill or Chill
+          meta: { text: Junction 2026 · Team of 4 · Nov 2026, facts: [H1, H2] }
+          lines:
+            - {
+                text: '**Won the Oxylabs challenge**; 3rd in the Hostinger challenge.',
+                facts: [H3, H4],
+              }
+            - text: Built the coordination detector and the Bluesky → Postgres ingest pipeline; tested it against real Bluesky takedowns.
+              facts: [SC5]
+          link:
+            { label: Live demo, href: 'https://noise-radar.srv2159172.hstgr.cloud', facts: [SC2] }
+        - title: Sky Island Tower Defense
+          meta: { text: Roblox · Solo · May–Nov 2026, facts: [ST10] }
+          asOf: 2026-11-18
+          lines:
+            - text: Co-op tower defense, **live on Roblox** since 25 Oct 2026; shipped update 1.1.
+              facts: [ST1, ST2, ST7]
+            - text: '**223 commits**, all mine (as of {asOf}). ~23K lines of React-lua UI; Python scripts that playtest it in Roblox Studio.'
+              facts: [ST10, ST14, ST12]
+          link:
+            {
+              label: Code showcase,
+              href: 'https://github.com/Ar7ti/sky-island-td-showcase',
+              facts: [ST12],
+            }
+        - title: 'Junction X Turku: two solo projects'
+          meta: { text: Solo · Oct 2026, facts: [H8] }
+          lines:
+            - text: '**Ocean Opportunity Radar**: AI research workspace for ocean funds, every answer has a source; 36 tests.'
+              facts: [OR1, OR4]
+            - text: '**Life Simulator**: AI copilot that turns a big life move into a plan, a budget and tasks; backend, frontend and Playwright tests.'
+              facts: [LS1, LS4]
+        - title: Guardio
+          meta: { text: Junction X Vaasa · Team of 4 · Oct 2026, facts: [H7, G4] }
+          lines:
+            - text: Safety mini-games for kids, 2-minute checks for parents. I built most of the web app.
+              facts: [G1, G4]
+        - title: Sharky_blox, Roblox Shorts on YouTube
+          meta: { text: Since 2023, facts: [P8] }
+          asOf: 2026-11-19
+          lines:
+            - text: '**2.6M views**, 9.95K subscribers, 33 Shorts (as of {asOf}). Same audience my games are for.'
+              facts: [YT1, YT2]
+    - id: experience
+      title: Work experience
+      pending: Q1
+
+  side:
+    - id: education
+      title: Education
+      items:
+        - title: ICT studies, LHKK
+          meta: { text: 2025–2027 (expected), facts: [P3] }
+          lines: []
+        - title: Aalto University
+          meta: { text: Applying for 2027, facts: [P12] }
+          lines: []
+    - id: skills
+      title: Built with
+      # Taken from the projects above (FACTS stacks); Kirill confirms or edits the list (Q3).
+      items:
+        - title: Languages
+          meta: { text: 'TypeScript, JavaScript, Luau, Python', facts: [OR3, LS4, ST11, ST9] }
+          lines: []
+        - title: Web
+          meta: { text: 'React, Vite, TanStack Start, Tailwind, Fastify', facts: [OR3, LS4] }
+          lines: []
+        - title: Roblox
+          meta: { text: 'Rojo, React-lua, Roblox Studio', facts: [ST11, ST12] }
+          lines: []
+        - title: AI, data, tests, deploy
+          meta:
+            {
+              text: 'OpenAI API, Postgres, Playwright, Vitest, Cloudflare Workers',
+              facts: [OR3, LS4, SC5],
+            }
+          lines: []
+    - id: languages
+      title: Languages
+      pending: Q2
