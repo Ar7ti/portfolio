@@ -269,6 +269,8 @@ const cvItem = z.strictObject({
   meta: claim,
   lines: z.array(claim),
   link: link.optional(),
+  /** The stack used in this project (one line). */
+  tech: claim.optional(),
   /** Fills `{asOf}` in the lines. */
   asOf: z.coerce.date().optional(),
   pending: z.string().optional(),
@@ -289,8 +291,12 @@ const cv = defineCollection({
     z.strictObject({
       name: z.string(),
       headline: z.string(),
+      photo: z.strictObject({ src: z.string().startsWith('/media/'), alt: z.string(), facts }),
       location: claim,
+      licence: claim,
       contacts: z.array(contactId),
+      /** Show the portfolio URL (`site` in astro.config.mjs). */
+      website: z.boolean().default(false),
       summary: claim,
       availability: claim,
       main: z.array(cvSection),

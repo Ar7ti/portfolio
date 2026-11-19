@@ -1,22 +1,37 @@
 # CV (#22): one A4 page, rendered at /cv and printed to public/cv/ by `npm run cv`.
 # Only confirmed facts: every number carries FACTS.md ids, same rule as the site.
-# `pending: Qn` = waiting for Kirill's answer to question n (see the #22 issue); pending
-# sections/items are NOT rendered. Nothing here is invented.
+# Kirill's answers of 2026-11-19 are FACTS P3, P14–P21. No age, no phone, no references.
 cv:
   name: Kirill Jegosin
-  headline: Games, web products & AI tools
+  headline: Software Development Student | Web & Game Development
+  photo: { src: /media/cv/avatar.jpg, alt: Kirill Jegosin, facts: [P19] }
   location: { text: 'Kanta-Häme, Finland', facts: [P2] }
-  contacts: [email, github, linkedin, telegram]
+  licence: { text: Category B driving licence, facts: [P17] }
+  # The portfolio URL comes from `site` in astro.config.mjs (placeholder until the domain, P21).
+  contacts: [email, linkedin, github]
+  website: true
   summary:
     text: >-
-      ICT student who ships: **won the Oxylabs challenge** at Junction 2026, built a **solo Roblox
-      game** that is live, and reached **2.6M views** with Roblox Shorts.
-    facts: [P3, H3, ST1, ST9, YT2]
+      ICT student building web applications and Roblox games. At Junction 2026 my team **won the
+      Oxylabs challenge** and placed **3rd in the Hostinger challenge** with the same project.
+    facts: [P3, H3, H4]
   availability:
     text: 'Open to **internships, summer jobs & junior roles**. Remote, or on-site within ~1 hour of Forssa.'
     facts: [P11]
 
   main:
+    - id: experience
+      title: Work experience
+      items:
+        - title: Intern (Work Placement)
+          meta: { text: 'FYK Forssan Yrityskehitys Oy, Forssa · Apr–May 2026', facts: [P14] }
+          lines:
+            - { text: Helped with FRUSH at HAMK., facts: [P14] }
+            - { text: Prepared 12 banners and the texts for a marketing plan., facts: [P14] }
+            - {
+                text: Built a QR feedback form; prepared event materials incl. 350 name badges.,
+                facts: [P14],
+              }
     - id: projects
       title: Projects & hackathons
       items:
@@ -29,74 +44,84 @@ cv:
               }
             - text: Built the coordination detector and the Bluesky → Postgres ingest pipeline; tested it against real Bluesky takedowns.
               facts: [SC5]
-          link:
-            { label: Live demo, href: 'https://noise-radar.srv2159172.hstgr.cloud', facts: [SC2] }
+          tech: { text: 'Python, Postgres, Bluesky Jetstream', facts: [SC5, SC11] }
         - title: Sky Island Tower Defense
           meta: { text: Roblox · Solo · May–Nov 2026, facts: [ST10] }
           asOf: 2026-11-18
           lines:
             - text: Co-op tower defense, **live on Roblox** since 25 Oct 2026; shipped update 1.1.
               facts: [ST1, ST2, ST7]
-            - text: '**223 commits**, all mine (as of {asOf}). ~23K lines of React-lua UI; Python scripts that playtest it in Roblox Studio.'
+            - text: '**223 commits**, all mine (as of {asOf}). ~23K lines of UI in React-lua; Python scripts that playtest it in Roblox Studio.'
               facts: [ST10, ST14, ST12]
-          link:
-            {
-              label: Code showcase,
-              href: 'https://github.com/Ar7ti/sky-island-td-showcase',
-              facts: [ST12],
-            }
-        - title: 'Junction X Turku: two solo projects'
-          meta: { text: Solo · Oct 2026, facts: [H8] }
+          tech: { text: 'Luau, Rojo, React-lua, Python (basic)', facts: [ST11, ST12, P18] }
+        - title: Ocean Opportunity Radar
+          meta: { text: Junction X Turku · Solo · Oct 2026, facts: [H8, OR5] }
           lines:
-            - text: '**Ocean Opportunity Radar**: AI research workspace for ocean funds, every answer has a source; 36 tests.'
+            - text: AI research workspace for ocean funds, every answer has a source; 36 tests.
               facts: [OR1, OR4]
-            - text: '**Life Simulator**: AI copilot that turns a big life move into a plan, a budget and tasks; backend, frontend and Playwright tests.'
+          tech:
+            {
+              text: 'React, TypeScript, TanStack Start, OpenAI API, Vitest, Cloudflare Workers',
+              facts: [OR3],
+            }
+        - title: Life Simulator
+          meta: { text: Junction X Turku · Solo · Oct 2026, facts: [H8, LS2] }
+          lines:
+            - text: AI copilot that turns a big life move into a plan, a budget and tasks; backend, frontend and tests.
               facts: [LS1, LS4]
+          tech: { text: 'React, TypeScript, Fastify, OpenAI API, Playwright', facts: [LS4] }
         - title: Guardio
           meta: { text: Junction X Vaasa · Team of 4 · Oct 2026, facts: [H7, G4] }
           lines:
             - text: Safety mini-games for kids, 2-minute checks for parents. I built most of the web app.
               facts: [G1, G4]
-        - title: Sharky_blox, Roblox Shorts on YouTube
-          meta: { text: Since 2023, facts: [P8] }
-          asOf: 2026-11-19
-          lines:
-            - text: '**2.6M views**, 9.95K subscribers, 33 Shorts (as of {asOf}). Same audience my games are for.'
-              facts: [YT1, YT2]
-    - id: experience
-      title: Work experience
-      pending: Q1
+          tech: { text: 'React, TypeScript', facts: [G3] }
 
   side:
     - id: education
       title: Education
       items:
-        - title: ICT studies, LHKK
-          meta: { text: 2025–2027 (expected), facts: [P3] }
+        - title: Vocational Qualification in Information and Communications Technology
+          meta:
+            {
+              text: 'Forssan ammatti-instituutti (FAI), LHKK, Forssa · Aug 2025–Present',
+              facts: [P3],
+            }
           lines: []
         - title: Aalto University
           meta: { text: Applying for 2027, facts: [P12] }
           lines: []
+    - id: courses
+      title: Courses
+      items:
+        - title: CS50x
+          meta: { text: 'Self-study, in progress', facts: [P16] }
+          lines: []
     - id: skills
-      title: Built with
-      # Taken from the projects above (FACTS stacks); Kirill confirms or edits the list (Q3).
+      title: Skills
       items:
         - title: Languages
-          meta: { text: 'TypeScript, JavaScript, Luau, Python', facts: [OR3, LS4, ST11, ST9] }
-          lines: []
-        - title: Web
-          meta: { text: 'React, Vite, TanStack Start, Tailwind, Fastify', facts: [OR3, LS4] }
-          lines: []
-        - title: Roblox
-          meta: { text: 'Rojo, React-lua, Roblox Studio', facts: [ST11, ST12] }
-          lines: []
-        - title: AI, data, tests, deploy
           meta:
-            {
-              text: 'OpenAI API, Postgres, Playwright, Vitest, Cloudflare Workers',
-              facts: [OR3, LS4, SC5],
-            }
+            { text: 'TypeScript, JavaScript, Luau, Python (basic)', facts: [OR3, LS4, ST11, P18] }
+          lines: []
+        - title: Tools
+          meta: { text: 'Git, React, Tailwind, Rojo, Roblox Studio', facts: [P18, OR3, ST11] }
           lines: []
     - id: languages
       title: Languages
-      pending: Q2
+      items:
+        - title: Russian
+          meta: { text: Native, facts: [P15] }
+          lines: []
+        - title: English
+          meta: { text: B2, facts: [P15] }
+          lines: []
+        - title: Finnish
+          meta: { text: A2–B1, facts: [P15] }
+          lines: []
+    - id: interests
+      title: Interests
+      items:
+        - title: Video editing
+          meta: { text: 2.6M total views across my Roblox Shorts, facts: [P20, YT2] }
+          lines: []

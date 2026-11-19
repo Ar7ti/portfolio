@@ -2,7 +2,7 @@
 /**
  * One-page CV (#22), from src/content/cv.yaml + contacts.yaml, in the site's type system.
  * Screen: an A4 sheet (fluid on phones). Print / `npm run cv`: exactly one A4 page.
- * Pending sections (waiting for Kirill's answers) are not rendered.
+ * Pending sections are not rendered. The portfolio link is `site` from astro.config.mjs.
  */
 import { getCollection } from 'astro:content';
 import '../styles/global.css';
@@ -16,8 +16,16 @@ const contactLinks = cv.contacts.flatMap((id) => {
   const c = contacts.get(id);
   if (!c?.href) return [];
   const text = c.display ?? c.href.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
-  return [{ id, href: c.href, text, facts: c.facts }];
+  return [{ id: id as string, href: c.href, text, facts: c.facts }];
 });
+if (cv.website && Astro.site) {
+  contactLinks.push({
+    id: 'website',
+    href: Astro.site.href,
+    text: Astro.site.host,
+    facts: ['P21'],
+  });
+}
 
 const shown = <T extends { pending?: string | undefined }>(list: readonly T[]) =>
   list.filter((x) => !x.pending);
@@ -31,23 +39,33 @@ const shown = <T extends { pending?: string | undefined }>(list: readonly T[]) =
     <title>{`CV · ${cv.name}`}</title>
     <meta name="description" content={`${cv.name}: ${cv.headline}. One-page CV.`} />
     <meta name="robots" content="noindex" />
-    <link rel="icon" href="data:," />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   </head>
   <body>
     <main class="sheet theme-day">
       <header class="cv-head">
-        <div>
+        <img
+          class="cv-photo"
+          src={cv.photo.src}
+          alt={cv.photo.alt}
+          width="240"
+          height="240"
+          data-facts={cv.photo.facts.join(' ')}
+        />
+        <div class="cv-title">
           <h1 class="cv-name">{cv.name}</h1>
           <p class="cv-headline">{cv.headline}</p>
+          <p class="label cv-where">
+            <Claim claim={cv.location} /> · <Claim claim={cv.licence} />
+          </p>
+          <ul class="cv-contacts">
+            {contactLinks.map((c) => (
+              <li data-facts={c.facts.join(' ')}>
+                <a href={c.href}>{c.text}</a>
+              </li>
+            ))}
+          </ul>
         </div>
-        <ul class="cv-contacts">
-          <Claim as="li" class="label" claim={cv.location} />
-          {contactLinks.map((c) => (
-            <li data-facts={c.facts.join(' ')}>
-              <a href={c.href}>{c.text}</a>
-            </li>
-          ))}
-        </ul>
       </header>
 
       <Claim as="p" class="cv-summary" claim={cv.summary} />
@@ -72,6 +90,7 @@ const shown = <T extends { pending?: string | undefined }>(list: readonly T[]) =
                         ))}
                       </ul>
                     )}
+                    {item.tech && <Claim as="p" class="label cv-tech" claim={item.tech} />}
                     {item.link && (
                       <a
                         class="cv-link"
@@ -113,27 +132,46 @@ const shown = <T extends { pending?: string | undefined }>(list: readonly T[]) =
     width: 210mm;
     min-height: 297mm;
     margin: 0 auto;
-    padding: 14mm 14mm 12mm;
+    padding: 12mm 13mm 10mm;
     background: #fff;
     color: var(--c-ink);
     font-family: var(--font-body);
-    font-size: 10pt;
-    line-height: 1.4;
+    font-size: 9.6pt;
+    line-height: 1.36;
     box-shadow: 0 10px 40px rgb(14 59 87 / 0.18);
   }
 
   .cv-head {
     display: flex;
-    justify-content: space-between;
-    gap: 8mm;
+    align-items: center;
+    gap: 6mm;
     padding-bottom: 5mm;
     border-bottom: 2.5px solid var(--c-deep);
+  }
+
+  .cv-photo {
+    width: 24mm;
+    height: 24mm;
+    flex: none;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .cv-title {
+    flex: 1;
+  }
+
+  .cv-tech {
+    margin: 1mm 0 0;
+    font-size: 7pt;
+    letter-spacing: 0.03em;
   }
 
   .cv-name {
     margin: 0;
     font-family: var(--font-display);
-    font-size: 30pt;
+    font-size: 28pt;
+    white-space: nowrap;
     font-weight: 850;
     font-stretch: 112%;
     line-height: 0.95;
@@ -141,20 +179,31 @@ const shown = <T extends { pending?: string | undefined }>(list: readonly T[]) =
   }
 
   .cv-headline {
-    margin: 2mm 0 0;
-    font-size: 12pt;
+    margin: 1.2mm 0 0;
+    font-size: 11.5pt;
     font-weight: 700;
     color: var(--c-deep);
   }
 
+  .cv-where {
+    margin: 1.6mm 0 0;
+    font-size: 7.5pt;
+  }
+
   .cv-contacts {
-    display: grid;
-    gap: 0.6mm;
-    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6mm 0;
+    margin: 1mm 0 0;
     padding: 0;
     list-style: none;
     font-size: 9pt;
-    text-align: right;
+  }
+
+  .cv-contacts li:not(:last-child)::after {
+    content: '·';
+    margin: 0 2.2mm;
+    color: var(--c-mute);
   }
 
   .cv-contacts a {
@@ -163,13 +212,9 @@ const shown = <T extends { pending?: string | undefined }>(list: readonly T[]) =
     text-decoration: none;
   }
 
-  .cv-contacts .label {
-    font-size: 7.5pt;
-  }
-
   .cv-summary {
-    margin: 5mm 0 1.5mm;
-    font-size: 11.5pt;
+    margin: 4mm 0 1.2mm;
+    font-size: 11pt;
     line-height: 1.4;
   }
 
@@ -185,8 +230,8 @@ const shown = <T extends { pending?: string | undefined }>(list: readonly T[]) =
   }
 
   .cv-availability {
-    margin: 0 0 6mm;
-    font-size: 10pt;
+    margin: 0 0 4.5mm;
+    font-size: 9.6pt;
   }
 
   .cv-cols {
@@ -196,7 +241,7 @@ const shown = <T extends { pending?: string | undefined }>(list: readonly T[]) =
   }
 
   .cv-section + .cv-section {
-    margin-top: 5mm;
+    margin-top: 4mm;
   }
 
   .cv-section-title {
@@ -212,7 +257,7 @@ const shown = <T extends { pending?: string | undefined }>(list: readonly T[]) =
   }
 
   .cv-item + .cv-item {
-    margin-top: 3.6mm;
+    margin-top: 2.8mm;
   }
 
   .cv-item-title {
