@@ -264,27 +264,18 @@ const archive = defineCollection({
   ),
 });
 
-const cvItem = z.strictObject({
+/** A CV row: a short label (left) and one or two short lines (right). */
+const cvRow = z.strictObject({
   title: z.string(),
-  meta: claim,
-  lines: z.array(claim),
-  link: link.optional(),
-  /** The stack used in this project (one line). */
-  tech: claim.optional(),
-  /** Fills `{asOf}` in the lines. */
+  /** Where / when, small. */
+  meta: claim.optional(),
+  lines: z.array(claim).max(2),
+  /** Stack, set in the label face. */
+  stack: z.string().optional(),
   asOf: z.coerce.date().optional(),
-  pending: z.string().optional(),
 });
 
-const cvSection = z.strictObject({
-  id: z.string(),
-  title: z.string(),
-  items: z.array(cvItem).default([]),
-  /** Waiting for Kirill's answer (question id); not rendered. */
-  pending: z.string().optional(),
-});
-
-/** One-page CV (#22), rendered at /cv and printed to PDF. */
+/** One-page CV (#22): short rows only, no paragraphs (~180 words in total). */
 const cv = defineCollection({
   loader: file('src/content/cv.yaml'),
   schema: sourced(
@@ -293,14 +284,19 @@ const cv = defineCollection({
       headline: z.string(),
       photo: z.strictObject({ src: z.string().startsWith('/media/'), alt: z.string(), facts }),
       location: claim,
-      licence: claim,
       contacts: z.array(contactId),
       /** Show the portfolio URL (`site` in astro.config.mjs). */
       website: z.boolean().default(false),
-      summary: claim,
-      availability: claim,
-      main: z.array(cvSection),
-      side: z.array(cvSection),
+      about: claim,
+      sections: z.array(
+        z.strictObject({
+          id: z.string(),
+          title: z.string(),
+          rows: z.array(cvRow).optional(),
+          /** A single line of items joined with " · " (skills, languages…). */
+          inline: z.array(claim).optional(),
+        }),
+      ),
     }),
   ),
 });

@@ -1,127 +1,77 @@
-# CV (#22): one A4 page, rendered at /cv and printed to public/cv/ by `npm run cv`.
-# Only confirmed facts: every number carries FACTS.md ids, same rule as the site.
-# Kirill's answers of 2026-11-19 are FACTS P3, P14–P21. No age, no phone, no references.
+# CV (#22): one A4 page, rendered at /cv and printed by `npm run cv`.
+# Kirill's brief (2026-11-19): ~180 words max, no paragraphs, short verb lines, readable in 10 s.
+# Every number carries FACTS.md ids. No age, no phone, no references, no Telegram.
 cv:
   name: Kirill Jegosin
   headline: Software Development Student | Web & Game Development
   photo: { src: /media/cv/avatar.jpg, alt: Kirill Jegosin, facts: [P19] }
   location: { text: 'Kanta-Häme, Finland', facts: [P2] }
-  licence: { text: Category B driving licence, facts: [P17] }
-  # The portfolio URL comes from `site` in astro.config.mjs (placeholder until the domain, P21).
   contacts: [email, linkedin, github]
   website: true
-  summary:
-    text: >-
-      ICT student building web applications and Roblox games. At Junction 2026 my team **won the
-      Oxylabs challenge** and placed **3rd in the Hostinger challenge** with the same project.
-    facts: [P3, H3, H4]
-  availability:
-    text: 'Open to **internships, summer jobs & junior roles**. Remote, or on-site within ~1 hour of Forssa.'
-    facts: [P11]
+  about: { text: ICT student. I build web apps and Roblox games., facts: [P3] }
 
-  main:
+  sections:
+    - id: projects
+      title: Projects
+      rows:
+        - title: Shill or Chill
+          meta: { text: Junction 2026 · team of 4, facts: [H1, H2] }
+          lines:
+            - {
+                text: Spots coordinated meme spread. I built the detector and the data pipeline.,
+                facts: [SC1, SC5],
+              }
+            - {
+                text: '**Won the Oxylabs challenge** · 3rd in the Hostinger challenge.',
+                facts: [H3, H4],
+              }
+          stack: Python · Postgres
+        - title: Sky Island Tower Defense
+          meta: { text: Roblox · solo, facts: [ST9] }
+          lines:
+            - { text: Co-op tower defense for up to 4 players., facts: [ST5] }
+            - { text: '**Live on Roblox**; 223 commits.', facts: [ST1, ST10] }
+          stack: Luau · React-lua · Rojo
+        - title: Ocean Opportunity Radar
+          meta: { text: Junction X Turku · solo, facts: [H8, OR5] }
+          lines:
+            - {
+                text: AI research tool for ocean investors. Every answer cites a source.,
+                facts: [OR1],
+              }
+            - { text: '**Built solo in one weekend** · 36 tests.', facts: [H8, OR4] }
+          stack: React · TypeScript · OpenAI API
     - id: experience
-      title: Work experience
-      items:
+      title: Experience
+      rows:
         - title: Intern (Work Placement)
           meta: { text: 'FYK Forssan Yrityskehitys Oy, Forssa · Apr–May 2026', facts: [P14] }
           lines:
-            - { text: Helped with FRUSH at HAMK., facts: [P14] }
-            - { text: Prepared 12 banners and the texts for a marketing plan., facts: [P14] }
-            - {
-                text: Built a QR feedback form; prepared event materials incl. 350 name badges.,
-                facts: [P14],
-              }
-    - id: projects
-      title: Projects & hackathons
-      items:
-        - title: Shill or Chill
-          meta: { text: Junction 2026 · Team of 4 · Nov 2026, facts: [H1, H2] }
-          lines:
-            - {
-                text: '**Won the Oxylabs challenge**; 3rd in the Hostinger challenge.',
-                facts: [H3, H4],
-              }
-            - text: Built the coordination detector and the Bluesky → Postgres ingest pipeline; tested it against real Bluesky takedowns.
-              facts: [SC5]
-          tech: { text: 'Python, Postgres, Bluesky Jetstream', facts: [SC5, SC11] }
-        - title: Sky Island Tower Defense
-          meta: { text: Roblox · Solo · May–Nov 2026, facts: [ST10] }
-          asOf: 2026-11-18
-          lines:
-            - text: Co-op tower defense, **live on Roblox** since 25 Oct 2026; shipped update 1.1.
-              facts: [ST1, ST2, ST7]
-            - text: '**223 commits**, all mine (as of {asOf}). ~23K lines of UI in React-lua; Python scripts that playtest it in Roblox Studio.'
-              facts: [ST10, ST14, ST12]
-          tech: { text: 'Luau, Rojo, React-lua, Python (basic)', facts: [ST11, ST12, P18] }
-        - title: Ocean Opportunity Radar
-          meta: { text: Junction X Turku · Solo · Oct 2026, facts: [H8, OR5] }
-          lines:
-            - text: AI research workspace for ocean funds, every answer has a source; 36 tests.
-              facts: [OR1, OR4]
-          tech:
-            {
-              text: 'React, TypeScript, TanStack Start, OpenAI API, Vitest, Cloudflare Workers',
-              facts: [OR3],
-            }
-        - title: Life Simulator
-          meta: { text: Junction X Turku · Solo · Oct 2026, facts: [H8, LS2] }
-          lines:
-            - text: AI copilot that turns a big life move into a plan, a budget and tasks; backend, frontend and tests.
-              facts: [LS1, LS4]
-          tech: { text: 'React, TypeScript, Fastify, OpenAI API, Playwright', facts: [LS4] }
-        - title: Guardio
-          meta: { text: Junction X Vaasa · Team of 4 · Oct 2026, facts: [H7, G4] }
-          lines:
-            - text: Safety mini-games for kids, 2-minute checks for parents. I built most of the web app.
-              facts: [G1, G4]
-          tech: { text: 'React, TypeScript', facts: [G3] }
-
-  side:
+            - { text: Made 12 banners and the texts for a marketing plan., facts: [P14] }
+            - { text: Built a QR feedback form; prepared 350 event badges., facts: [P14] }
     - id: education
       title: Education
-      items:
-        - title: Vocational Qualification in Information and Communications Technology
-          meta:
-            {
-              text: 'Forssan ammatti-instituutti (FAI), LHKK, Forssa · Aug 2025–Present',
-              facts: [P3],
-            }
-          lines: []
-        - title: Aalto University
-          meta: { text: Applying for 2027, facts: [P12] }
-          lines: []
-    - id: courses
-      title: Courses
-      items:
-        - title: CS50x
-          meta: { text: 'Self-study, in progress', facts: [P16] }
+      rows:
+        - title: Vocational Qualification in ICT
+          meta: { text: 'FAI (LHKK), Forssa · Aug 2025–present', facts: [P3] }
           lines: []
     - id: skills
       title: Skills
-      items:
-        - title: Languages
-          meta:
-            { text: 'TypeScript, JavaScript, Luau, Python (basic)', facts: [OR3, LS4, ST11, P18] }
-          lines: []
-        - title: Tools
-          meta: { text: 'Git, React, Tailwind, Rojo, Roblox Studio', facts: [P18, OR3, ST11] }
-          lines: []
-    - id: languages
-      title: Languages
-      items:
-        - title: Russian
-          meta: { text: Native, facts: [P15] }
-          lines: []
-        - title: English
-          meta: { text: B2, facts: [P15] }
-          lines: []
-        - title: Finnish
-          meta: { text: A2–B1, facts: [P15] }
-          lines: []
-    - id: interests
-      title: Interests
-      items:
-        - title: Video editing
-          meta: { text: 2.6M total views across my Roblox Shorts, facts: [P20, YT2] }
-          lines: []
+      inline:
+        - { text: TypeScript }
+        - { text: JavaScript }
+        - { text: React }
+        - { text: Luau }
+        - { text: Python (basic), facts: [P18] }
+        - { text: Git, facts: [P18] }
+        - { text: Playwright }
+        - { text: Cloudflare Workers }
+    - id: other
+      title: Also
+      inline:
+        - { text: Russian (native), facts: [P15] }
+        - { text: English (B2), facts: [P15] }
+        - { text: Finnish (A2–B1), facts: [P15] }
+        - { text: Driving licence B, facts: [P17] }
+        - { text: CS50x (in progress), facts: [P16] }
+        - { text: Video editing — 2.6M views on my Roblox Shorts, facts: [P20, YT2] }
