@@ -1,0 +1,55 @@
+# Timeline. Source: plan/COPY.md §7.
+- {
+    id: sharky,
+    order: 1,
+    when: 2023 May,
+    text: 'Started **Sharky_blox**, a Roblox Shorts channel',
+    facts: [P8],
+  }
+- { id: lhkk, order: 2, when: '2025', text: Started **ICT at LHKK**, facts: [P3] }
+- { id: short, order: 3, when: 2026 Apr, text: A Short hits **1.19M views**, facts: [YT3] }
+- {
+    id: td-first-commit,
+    order: 4,
+    when: 2026 May,
+    text: First commit on my **tower defense** game,
+    facts: [ST10],
+  }
+- { id: vaasa, order: 5, when: 2026 Oct, text: 'Junction X Vaasa: **Guardio**', facts: [H7] }
+- {
+    id: turku,
+    order: 6,
+    when: 2026 Oct,
+    text: 'Junction X Turku: **2 solo projects**',
+    facts: [H8],
+  }
+- {
+    id: sky-island-live,
+    order: 7,
+    when: 2026 Oct 25,
+    text: '**Sky Island Tower Defense** goes live on Roblox',
+    facts: [ST2],
+  }
+- {
+    id: junction-2026,
+    order: 8,
+    when: 2026 Nov 13–15,
+    text: 'Junction 2026: **won the Oxylabs challenge**',
+    facts: [H3, H1],
+    emphasis: true,
+  }
+- {
+    id: throw-treats,
+    order: 9,
+    when: 2026 Nov,
+    text: 'Building **Throw Treats, Tame Pets!**',
+    facts: [X1],
+  }
+- {
+    id: aalto,
+    order: 10,
+    when: '2027',
+    text: Applying to **Aalto University**,
+    facts: [P12],
+    next: true,
+  }

@@ -1,50 +1,39 @@
 ---
 /**
- * Styleguide: every type role and theme, rendered with the longest real headings from plan/COPY.md.
- * Not linked from the site and kept out of search (noindex). The Playwright type check measures it.
+ * Styleguide: every type role and theme, rendered from the real content (src/content),
+ * including the longest headings. Not linked from the site and kept out of search (noindex).
+ * The Playwright type and facts checks measure it.
  */
+import { getCollection } from 'astro:content';
+import { data } from '../lib/content';
 import Base from '../layouts/Base.astro';
-import BigFigures, { type Figure } from '../components/type/BigFigures.astro';
+import Claim from '../components/content/Claim.astro';
+import BigFigures from '../components/type/BigFigures.astro';
 import Heading from '../components/type/Heading.astro';
-import Hl from '../components/type/Hl.astro';
 import Label from '../components/type/Label.astro';
 import Lead from '../components/type/Lead.astro';
 
-const case01: Figure[] = [
-  { value: 'Won', label: 'Oxylabs challenge', facts: ['H3'] },
-  { value: '3rd', label: 'Hostinger challenge', facts: ['H4'] },
-  { value: '3–4×', label: 'faster detection, same output', facts: ['SC6'] },
-];
-
-const case02: Figure[] = [
-  { value: 'Live', label: 'published on Roblox, 25 Oct 2026', facts: ['ST1', 'ST2'] },
-  { value: '223', label: 'commits, all mine', note: 'as of 18 Nov 2026', facts: ['ST10'] },
-  { value: '1.1', label: 'Ember Update: new map, new season', facts: ['ST7'] },
-];
-
-const case03: Figure[] = [
-  { value: '2', label: 'solo projects, one weekend', facts: ['H8'] },
-  {
-    value: '2',
-    label: "partner challenges: A'Pelago / Redstone and If",
-    facts: ['H8', 'H9', 'LS2'],
-  },
-  { value: '36', label: 'tests in Ocean Radar', facts: ['OR4'] },
-];
+const site = await data('site', 'site');
+const email = await data('contacts', 'email');
+const strip = await data('hackathons', 'strip');
+const [case01, case02, case03] = (await getCollection('cases'))
+  .sort((a, b) => a.data.order - b.data.order)
+  .map((entry) => entry.data);
+if (!case01 || !case02 || !case03) throw new Error('expected three cases');
+const throwTreats = await data('projects', 'throw-treats');
 
 const swatches = [
-  ['--c-deep', '#0e3b57'],
-  ['--c-ink', '#0b2233'],
-  ['--c-sky', '#e7f1f6'],
-  ['--c-foam', '#f7fbfc'],
-  ['--c-signal', '#ffc933'],
-  ['--c-hl', '#c8f560'],
-  ['--c-night', '#090709'],
-  ['--c-violet', '#8823b5'],
-  ['--c-coral', '#e0685b'],
-  ['--c-magenta', '#cf2672'],
+  '--c-deep',
+  '--c-ink',
+  '--c-sky',
+  '--c-foam',
+  '--c-signal',
+  '--c-hl',
+  '--c-night',
+  '--c-violet',
+  '--c-coral',
+  '--c-magenta',
 ] as const;
-
 const sea = ['day', 'dusk', 'night'] as const;
 ---
 
@@ -53,75 +42,71 @@ const sea = ['day', 'dusk', 'night'] as const;
     <div class="inner stack">
       <Label>Styleguide · theme-day</Label>
       <Heading level={1} id="sg-day">
-        I build games, <br />
-        web products <br />
-        &amp; AI tools.
+        {site.hero.h1.map((line, i) => (i === 0 ? line : [<br />, line]))}
       </Heading>
-      <p class="body">
-        Open to <Hl>internships, summer jobs &amp; junior roles</Hl>.
-      </p>
+      <Claim as="p" class="body" claim={site.hero.line} />
+      <Label>
+        <Claim claim={case02.label} />
+      </Label>
       <Heading level={2} size="h2-long">
-        Sky Island Tower Defense
+        {case02.title}
       </Heading>
-      <p class="oneliner">
-        A co-op tower defense on Roblox. <b>Up to 4 players</b> hold a floating island against{' '}
-        <b>15 waves</b> and a boss.
-      </p>
-      <BigFigures items={case02} />
-      <Lead lead="Hardest call.">
-        Moving <b>every place onto one live save store</b>. Old rewards are credited{' '}
-        <b>exactly once</b>, so nobody loses progress or gets it twice.
-      </Lead>
+      <Claim as="p" class="oneliner" claim={case02.oneliner} />
+      <BigFigures items={case02.results} />
+      {case02.blocks[1] && <Lead block={case02.blocks[1]} />}
       <Heading level={2} size="h2-sec">
-        What I shipped, when.
+        {site.timeline.h2}
       </Heading>
       <Heading level={2} size="h2-xl">
-        This island sank.
+        {site.notFound.h1}
       </Heading>
-      <Heading level={3}>Throw Treats, Tame Pets!</Heading>
+      <Heading level={3}>{throwTreats.title}</Heading>
       <p>
-        <a class="button" href="mailto:k.jegosin@gmail.com">
-          k.jegosin@gmail.com
+        <a class="button" href={email.href}>
+          {email.display}
         </a>
       </p>
     </div>
   </section>
 
-  <section class="section theme-dusk" aria-labelledby="sg-dusk">
+  <section class="section theme-dusk" aria-label="Dusk theme">
     <div class="inner stack">
-      <Label>Styleguide · theme-dusk</Label>
-      <Heading level={2} id="sg-dusk" size="h2-sec">
-        3 hackathons. <br />4 projects.
-      </Heading>
-      <p class="body">
-        Junction 2026 · Nov · Shill or Chill · <Hl>won the Oxylabs challenge</Hl>
-      </p>
+      <Label>
+        <Claim claim={strip.label} />
+      </Label>
+      <Claim as="h2" class="h2-sec" claim={strip.title} />
+      {strip.rows
+        .filter((row) => row.highlight)
+        .map((row) => (
+          <p class="body" data-facts={row.facts.join(' ')}>
+            {row.event} · {row.month} · {row.project} · <b class="hl">{row.result}</b>
+          </p>
+        ))}
     </div>
   </section>
 
   <section class="section theme-night" aria-labelledby="sg-night">
     <div class="inner stack">
-      <Label>Case 01 · Junction 2026 · 48-hour hackathon · Team of 4</Label>
+      <Label>
+        <Claim claim={case01.label} />
+      </Label>
       <Heading level={2} id="sg-night">
-        Shill or Chill
+        {case01.title}
       </Heading>
-      <p class="oneliner">
-        Paste a meme or post. See where it started, and whether its spread is{' '}
-        <b>real or coordinated</b>.
-      </p>
-      <BigFigures items={case01} />
-      <Lead lead="My part.">
-        I built the <b>coordination detector</b> and the pipeline that pulls <b>Bluesky posts</b>{' '}
-        into our database.
-      </Lead>
+      <Claim as="p" class="oneliner" claim={case01.oneliner} />
+      <BigFigures items={case01.results} />
+      {case01.blocks[0] && <Lead block={case01.blocks[0]} />}
+      <Label>
+        <Claim claim={case03.label} />
+      </Label>
       <Heading level={2} size="h2-long">
-        Two solo projects. One hackathon.
+        {case03.title}
       </Heading>
-      <BigFigures items={case03} />
-      <Heading level={3}>Ocean Opportunity Radar</Heading>
+      <BigFigures items={case03.results} />
+      <Heading level={3}>{case03.subprojects?.[0]?.title}</Heading>
       <p>
-        <a class="button" href="mailto:k.jegosin@gmail.com">
-          k.jegosin@gmail.com
+        <a class="button" href={email.href}>
+          {email.display}
         </a>
       </p>
     </div>
@@ -129,17 +114,14 @@ const sea = ['day', 'dusk', 'night'] as const;
 
   <section class="section theme-deep" aria-labelledby="sg-deep">
     <div class="inner stack">
-      <Label>Contact</Label>
+      <Label>{site.contact.label}</Label>
       <Heading level={2} id="sg-deep" size="h2-xl">
-        Let's build something.
+        {site.contact.h2}
       </Heading>
-      <p class="oneliner">
-        Open to <b>internships, summer jobs &amp; junior roles</b>. Remote, or on-site{' '}
-        <b>within ~1 hour of Forssa</b>.
-      </p>
+      <Claim as="p" class="oneliner" claim={site.contact.line} />
       <p>
-        <a class="button" href="mailto:k.jegosin@gmail.com">
-          k.jegosin@gmail.com
+        <a class="button" href={email.href}>
+          {email.display}
         </a>
       </p>
     </div>
@@ -151,12 +133,11 @@ const sea = ['day', 'dusk', 'night'] as const;
       <Heading level={2} id="sg-colours" size="h2-sec">
         Colours
       </Heading>
-      <ul class="swatches">
-        {swatches.map(([name, hex]) => (
+      <ul class="swatches" data-nofacts="design token values">
+        {swatches.map((name) => (
           <li>
             <span class="swatch" style={`background: var(${name})`} />
             <code class="label">{name}</code>
-            <code class="label">{hex}</code>
           </li>
         ))}
       </ul>

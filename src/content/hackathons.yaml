@@ -1,0 +1,27 @@
+# Hackathons strip. Source: plan/COPY.md §5.
+- id: strip
+  label: { text: Hackathons · 2026, facts: [H10] }
+  title: { text: 3 hackathons. 4 projects., facts: [H10] }
+  rows:
+    - { event: Junction X Vaasa, month: Oct, project: Guardio, team: team, facts: [H7, G4] }
+    - {
+        event: Junction X Turku,
+        month: Oct,
+        project: Ocean Radar + Life Simulator,
+        team: solo,
+        facts: [H8],
+      }
+    - {
+        event: Junction 2026,
+        month: Nov,
+        project: Shill or Chill,
+        team: Team of 4,
+        result: won the Oxylabs challenge,
+        highlight: true,
+        facts: [H1, H2, H3],
+      }
+  photo:
+    src: /media/junction-2026/04-main-hall-wide
+    alt: The main hall at Junction 2026, a crowd under light sticks facing the stage.
+    facts: [H1, M3]
+    caption: { text: 'Junction 2026, Espoo · Photo: Junction', facts: [H1, M3, M4] }

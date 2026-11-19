@@ -3,11 +3,14 @@
  * BIG figures row ("Won / 3rd / 3–4×"). Desktop: up to three in a row.
  * Phones: one per line, figure and label side by side. Figures never wrap.
  * `facts` carries the FACTS.md ids behind each figure (checked by the content tests).
+ * `asOf` adds the dated-number stamp ("as of 18 Nov 2026") under the label.
  */
+import { asOf } from '../../lib/dates';
 export interface Figure {
   value: string;
   label: string;
-  note?: string;
+  note?: string | undefined;
+  asOf?: Date | undefined;
   facts: readonly string[];
 }
 
@@ -26,6 +29,7 @@ const { items, class: className } = Astro.props;
       <span class="big-label">
         {item.label}
         {item.note && <small class="label">{item.note}</small>}
+        {item.asOf && <small class="label">{asOf(item.asOf)}</small>}
       </span>
     </li>
   ))}

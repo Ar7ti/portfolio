@@ -1,0 +1,61 @@
+# Global copy, hero, contact and 404. Source: plan/COPY.md §0, §1, §9, §10.
+# `**word**` = HL (bold / accent). Any number needs `facts: [FACTS.md ids]` or `nofacts: <reason>`.
+site:
+  title: Kirill Jegosin · games, web products & AI tools
+  description:
+    text: >-
+      18-year-old builder from Finland. Won the Oxylabs challenge at Junction 2026, shipped a solo
+      Roblox game. Open to internships and junior roles.
+    facts: [P2, H3, ST1, ST9, P11]
+  og:
+    title: Kirill Jegosin
+    description: I build games, web products & AI tools. Won the Oxylabs challenge at Junction 2026.
+    facts: [H3]
+  nav:
+    - { label: Work, href: '/#work' }
+    - { label: Hackathons, href: '/#hackathons' }
+    - { label: Timeline, href: '/#timeline' }
+    - { label: Contact, href: '/#contact' }
+  skipLink: Skip to the point
+  motionToggle: { calm: Calm the water, back: Bring the water back }
+  footer:
+    code:
+      {
+        text: "This site's code is public →",
+        label: github.com/Ar7ti/portfolio,
+        href: 'https://github.com/Ar7ti/portfolio',
+      }
+    checked: { text: Numbers checked, nofacts: date of the last fact check (plan/FACTS.md header) }
+    checkedOn: 2026-11-19
+
+  hero:
+    label: { text: 'Kirill Jegosin · 18 · Kanta-Häme, Finland', facts: [P1, P2] }
+    h1: ['I build games,', web products, '& AI tools.']
+    line: { text: 'Open to **internships, summer jobs & junior roles**.', facts: [P11] }
+    chips:
+      - { value: Won, label: Oxylabs challenge · Junction 2026, facts: [H3], highlight: true }
+      - { value: '223', label: commits · solo Roblox game, facts: [ST10, ST9], asOf: 2026-11-18 }
+      - { value: 2.6M, label: views · Roblox Shorts, facts: [YT2], asOf: 2026-11-19 }
+    contacts: [email, linkedin, github, cv]
+
+  contact:
+    label: Contact
+    h2: Let's build something.
+    line:
+      text: 'Open to **internships, summer jobs & junior roles**. Remote, or on-site **within ~1 hour of Forssa**.'
+      facts: [P11]
+    contacts: [email, linkedin, github, cv, telegram]
+    small:
+      - { text: 'ICT student at LHKK, 2025–2027', facts: [P3] }
+      - { text: Applying to Aalto University in 2027, facts: [P12] }
+      - { text: 'Kanta-Häme, Finland', facts: [P2] }
+
+  timeline: { label: Timeline, h2: 'What I shipped, when.' }
+
+  notFound:
+    label: { text: '404', nofacts: HTTP status code }
+    h1: This island sank.
+    body: The page you wanted isn't here.
+    button: { label: Back to the surface, href: '/' }
+
+  cta: Want to build something together?

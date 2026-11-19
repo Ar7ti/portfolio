@@ -34,9 +34,21 @@ To rebuild them (needs Python with `pip install fonttools brotli`):
 npm run fonts
 ```
 
+## Content and the facts rule
+
+All copy lives in `src/content/` as YAML (Astro content collections, schemas in `src/content.config.ts`), transcribed from `plan/COPY.md`. Components never hard-code copy or numbers.
+
+- `**word**` marks the one highlighted phrase (HL) of a line.
+- **Every number needs a source.** A string with a number must sit in an object with `facts: [ids]` (ids from `plan/FACTS.md`, e.g. `[ST10]`), or with `nofacts: <reason>` when it isn't a claim ("404"). Unknown ids and unsourced numbers **fail `npm run build`**.
+- Dated numbers carry `asOf: YYYY-MM-DD`; components render it as "as of 19 Nov 2026".
+- On the page, every number must sit inside an element with `data-facts` or `data-nofacts` (the `Claim`, `BigFigures` and `Lead` components add them). `tests/facts.spec.ts` checks the built pages.
+
 ## Add a project
 
-The content layer (typed data for projects, cases, timeline and archive) arrives in issue #4; this section will then describe the exact file to add. The rule already holds: **no number on the site without a source in `plan/FACTS.md`**, and copy comes from `plan/COPY.md`.
+1. Add the facts to `plan/FACTS.md` first (one row per claim, with its source) and the copy to `plan/COPY.md`.
+2. Card: add `src/content/projects/<name>.yaml` (template: `guardio.yaml`). Case study: add `src/content/cases/NN-<name>.yaml` (template: `01-shill-or-chill.yaml`). Small things go into `src/content/archive.yaml`, dated events into `src/content/timeline.yaml`.
+3. Put media in `public/media/…` and reference it without the extension.
+4. Run `npm run build && npm run test`: the build names any number that is missing a FACTS id.
 
 ## How the work is organised
 

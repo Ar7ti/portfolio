@@ -1,0 +1,21 @@
+# Card. Source: plan/COPY.md §6 "Guardio".
+order: 2
+title: Guardio
+label: { text: Junction X Vaasa · Team of 4 · Oct 2026, facts: [H7, G4] }
+body:
+  - {
+      text: Kids spot home risks in **mini-games**. Parents get **2-minute** safety checks.,
+      facts: [G1],
+    }
+  - {
+      text: '**My part:** most of the web app. Two of us coded; we split the rest **50/50**.',
+      facts: [G4],
+    }
+media:
+  - {
+      src: /media/projects/guardio-home,
+      alt: Guardio home screen with the kids' safety mini-games.,
+    }
+links:
+  - { label: Live, href: 'https://guardioo.netlify.app/#/home', facts: [G2] }
+  - { label: Code, href: 'https://github.com/Ar7ti/Junction-Hackaton', facts: [G3] }

@@ -1,0 +1,15 @@
+# Card + "Now building" block. Source: plan/COPY.md §6 "Throw Treats, Tame Pets!". No links: the repo is private.
+order: 3
+title: Throw Treats, Tame Pets!
+label: { text: Now building · updated 19 Nov 2026 · IN PROGRESS, facts: [X1] }
+asOf: 2026-11-19
+status: in-progress
+body:
+  - {
+      text: 'A Roblox game: **throw treats**, tame the pets that land, grow your yard.',
+      facts: [X1],
+    }
+  - { text: Rebuilding from a **clean repo** (Nov 2026)., facts: [X1] }
+blocks:
+  - { lead: Next., text: 'The throw mechanic, animations and pet models.', source: Kirill }
+links: []
