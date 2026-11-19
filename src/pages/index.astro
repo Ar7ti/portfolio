@@ -5,6 +5,8 @@ import Claim from '../components/content/Claim.astro';
 import Heading from '../components/type/Heading.astro';
 import Hackathons from '../components/sections/Hackathons.astro';
 import MoreWork from '../components/sections/MoreWork.astro';
+import Timeline from '../components/sections/Timeline.astro';
+import Archive from '../components/sections/Archive.astro';
 
 // Placeholder until the hero issue (#7). Copy comes from src/content/site.yaml.
 const site = await data('site', 'site');
@@ -27,4 +29,6 @@ const email = await data('contacts', 'email');
   </section>
   <Hackathons />
   <MoreWork />
+  <Timeline />
+  <Archive />
 </Base>

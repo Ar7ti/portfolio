@@ -1,0 +1,144 @@
+---
+/**
+ * Archive (plan/COPY.md §8): small projects in a native <details>, closed by default,
+ * so it opens with or without JS. The count in the summary is items.length.
+ */
+import { data } from '../../lib/content';
+
+const archive = await data('archive', 'summary');
+---
+
+<section id="archive" class="section theme-day archive" aria-label={archive.summary}>
+  <div class="inner">
+    <details class="archive-details">
+      <summary>
+        <span class="archive-summary">
+          {`${archive.summary} `}
+          <span data-nofacts="count of the items in this list">({archive.items.length})</span>
+        </span>
+      </summary>
+      <ul class="archive-list">
+        {archive.items.map((item) => (
+          <li data-facts={item.facts.join(' ')}>
+            <span class="archive-text">
+              <b>{item.name}</b>
+              {item.tag && <span class="label archive-tag">{item.tag}</span>}
+              {` · ${item.text}`}
+            </span>
+            <span class="archive-meta">
+              <span class="label">{item.year}</span>
+              {item.link && <a href={item.link.href}>{item.link.label}</a>}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </details>
+  </div>
+</section>
+
+<style>
+  .archive {
+    padding-top: 0;
+  }
+
+  .archive-details {
+    max-width: 860px;
+    padding-top: 18px;
+    border-top: 2px solid var(--c-deep);
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  /* Plus that turns into a minus when open (drawn in CSS, not a font glyph). */
+  summary::before {
+    content: '';
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--c-deep);
+    border-radius: 50%;
+    background:
+      linear-gradient(var(--c-deep), var(--c-deep)) center / 14px 2.5px no-repeat,
+      linear-gradient(var(--c-deep), var(--c-deep)) center / 2.5px 14px no-repeat;
+  }
+
+  details[open] summary::before {
+    background: linear-gradient(var(--c-deep), var(--c-deep)) center / 14px 2.5px no-repeat;
+  }
+
+  .archive-summary {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--fg-strong);
+  }
+
+  .archive-list {
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .archive-list li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: baseline;
+    padding: 12px 0;
+    border-top: 1px solid var(--rule);
+    font-size: 17px;
+    line-height: 1.45;
+  }
+
+  .archive-list b {
+    font-weight: 800;
+    color: var(--fg-strong);
+  }
+
+  .archive-tag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--c-hl);
+    color: #1c2a0a;
+    font-size: 11px;
+    vertical-align: 2px;
+  }
+
+  .archive-meta {
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+    justify-content: flex-end;
+  }
+
+  .archive-meta a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 700;
+    color: var(--fg-strong);
+  }
+
+  @media (max-width: 600px) {
+    .archive-list li {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 4px;
+    }
+
+    .archive-meta {
+      justify-content: flex-start;
+    }
+  }
+</style>

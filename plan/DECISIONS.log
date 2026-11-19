@@ -38,3 +38,4 @@
 2026-11-20 20:50, Hackathons strip photo 04 is an <img> with srcset (lazy) under a CSS scrim, not a CSS background: responsive sizes, alt text, never blocks LCP. Phones show the photo as a band above the text, fading to night.
 2026-11-20 21:10, "More work" / "Also built." section label and H2 are not in COPY.md; taken from the approved mock concepts/f-full-copy.html into site.yaml (a section needs a heading for the outline). Change in COPY.md if Kirill wants other words.
 2026-11-20 21:10, "As of" / "updated" dates in card labels are a {asOf} slot in the YAML text, filled from the entry's asOf date: one date per entry, copy stays word-for-word COPY.md.
+2026-11-20 21:35, Archive uses native <details> (closed by default, opens without JS); the +/- icon is drawn in CSS because the subset display font has no '+' glyph. Timeline 'next' tag text lives in site.yaml (timeline.next).
