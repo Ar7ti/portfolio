@@ -115,6 +115,8 @@ const site = defineCollection({
         button: z.strictObject({ label: z.string(), href: z.string() }),
       }),
       cta: z.string(),
+      /** Summary of the collapsed receipts list in each case. */
+      receipts: z.string(),
     }),
   ),
 });

@@ -1,18 +1,34 @@
 ---
-/** LEAD + BODY block: a bold lead-in ("My part.") followed by one or two sentences. */
+/**
+ * LEAD + BODY block: a bold lead-in ("My part.") followed by one or two sentences.
+ * `people` turns each listed name in the text into a link (team credits).
+ */
 import { rich } from '../../lib/rich';
 
 interface Props {
-  block: { lead: string; text: string; facts?: readonly string[] };
+  block: {
+    lead: string;
+    text: string;
+    facts?: readonly string[];
+    people?: readonly { name: string; href: string }[] | undefined;
+  };
 }
 
 const { block } = Astro.props;
 const facts = block.facts?.length ? block.facts.join(' ') : undefined;
+
+let html = rich(block.text);
+for (const person of block.people ?? []) {
+  const name = rich(person.name);
+  if (!html.includes(name))
+    throw new Error(`Lead "${block.lead}": "${person.name}" is not in the text`);
+  html = html.replace(name, `<a href="${rich(person.href)}">${name}</a>`);
+}
 ---
 
 <p class="body lead-block" data-facts={facts}>
   <span class="lead">{block.lead}</span>
-  <Fragment set:html={rich(block.text)} />
+  <Fragment set:html={html} />
 </p>
 
 <style>
