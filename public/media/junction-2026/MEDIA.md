@@ -27,6 +27,8 @@ Put them in the repo at `public/media/junction-2026/` (or wherever your stack ex
 - Magenta: `#cf2672`
 The light sticks crossing in the frame (violet and orange) are a ready-made visual motif: they can flow like liquid neon.
 
-## Status in the repo (2026-11-19)
-- Committed: 03 (light beam, silhouettes) and 05 (laptop + unicorn): Kirill's own shots, no identifiable faces.
-- Local only, gitignored until cleared: 01, 02 (teammates' photo consent), 02, 04, 06 (photographer license).
+## Status in the repo (updated 2026-11-19)
+- All six photos are committed and cleared for the site.
+- Teammates (Valtteri, Temuulen, Justinas) agreed to appear in photos 01 and 02 (per Kirill, 2026-11-19).
+- Photos 02, 04, 06: Junction organizers said they can be used freely (per Kirill, 2026-11-19). Credit anyway where known: "Photo: Junction". Only credit "Phuong Hoang" on a photo confirmed to come from the "Closing Ceremony Junction 2026" album (https://www.flickr.com/photos/hackjunction/albums/72177720337085054).
+- 06 still never goes large: strangers' faces in close-up.
