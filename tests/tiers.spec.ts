@@ -3,6 +3,7 @@ import { decideTier, isTooSlow, type Signals } from '../src/lib/sea/tiers';
 
 const desktop: Signals = {
   override: null,
+  allowSoftware: false,
   calm: false,
   reducedMotion: false,
   saveData: false,
@@ -32,11 +33,13 @@ test.describe('decideTier', () => {
     test(name, () => expect(decideTier({ ...desktop, ...signals })).toBe(tier));
   }
 
-  test('slow frames: average of the first 30 frames over 22 ms', () => {
-    expect(isTooSlow(Array(29).fill(40))).toBe(false);
-    expect(isTooSlow(Array(30).fill(16.7))).toBe(false);
-    expect(isTooSlow(Array(30).fill(23))).toBe(true);
-    expect(isTooSlow([...Array(30).fill(16), 500])).toBe(false);
+  test('slow frames: median of 30 frames after a 15-frame warm-up, over 22 ms', () => {
+    const warm = Array(15).fill(300); // compile / upload frames never count
+    expect(isTooSlow([...warm, ...Array(29).fill(40)])).toBe(false);
+    expect(isTooSlow([...warm, ...Array(30).fill(16.7)])).toBe(false);
+    expect(isTooSlow([...warm, ...Array(30).fill(23)])).toBe(true);
+    // a few long frames (GC, tab switch) don't decide it
+    expect(isTooSlow([...warm, ...Array(25).fill(16.7), ...Array(5).fill(200)])).toBe(false);
   });
 });
 
@@ -101,11 +104,24 @@ test.describe('slow tier 2 downgrade', () => {
     });
     test.setTimeout(120_000);
     await page.setViewportSize({ width: 900, height: 500 });
-    await page.goto('/');
+    // ?gpu=software: CI has no GPU; let tier 2 run on SwiftShader so the downgrade can be measured.
+    await page.goto('/?gpu=software');
     await page.waitForFunction(() => sessionStorage.getItem('sea:slow3d') === '1', null, {
       timeout: 90_000,
     });
-    // Tier 1 isn't built yet (#10), so the downgrade lands on the still.
+    // The downgrade lands on tier 1.
     await expect(page.locator('html')).not.toHaveAttribute('data-sea-tier', '2');
+  });
+});
+
+test.describe('no GPU', () => {
+  test('a software WebGL renderer keeps the still (no CPU-burning sea)', async ({ page }) => {
+    // Headless Chromium here renders WebGL with SwiftShader, like Lighthouse and PageSpeed do.
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveAttribute('data-sea-fallback', /software|hardware/i, {
+      timeout: 30_000,
+    });
+    await expect(page.locator('html')).toHaveAttribute('data-sea-tier', '0');
   });
 });

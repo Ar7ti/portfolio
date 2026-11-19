@@ -10,6 +10,8 @@ export type Tier = 0 | 1 | 2;
 export interface Signals {
   /** `?tier=0|1|2` debug override. */
   override: Tier | null;
+  /** Let the renderers run on a software WebGL renderer (`?tier=` or `?gpu=software`; tests). */
+  allowSoftware: boolean;
   /** The visitor chose "Calm the water" (remembered). */
   calm: boolean;
   reducedMotion: boolean;
@@ -27,6 +29,8 @@ export interface Signals {
 
 export const SLOW_FRAME_MS = 22;
 export const SLOW_SAMPLE_FRAMES = 30;
+/** Frames skipped before measuring: shader compile, buffer uploads and JIT make them long on any GPU. */
+export const WARMUP_FRAMES = 15;
 
 export function decideTier(s: Signals): Tier {
   if (s.override !== null) return s.override;
@@ -37,12 +41,17 @@ export function decideTier(s: Signals): Tier {
   return 2;
 }
 
-/** Average of the first `SLOW_SAMPLE_FRAMES` frame times decides a downgrade from tier 2. */
+/**
+ * Tier 2 is too slow when the median of 30 frames, measured after a warm-up, is over 22 ms.
+ * Median, not mean: one long frame (a GC, a tab switch) must not cost a fast GPU its 3D sea.
+ */
 export function isTooSlow(frameTimesMs: readonly number[]): boolean {
-  if (frameTimesMs.length < SLOW_SAMPLE_FRAMES) return false;
-  const sample = frameTimesMs.slice(0, SLOW_SAMPLE_FRAMES);
-  const avg = sample.reduce((a, b) => a + b, 0) / sample.length;
-  return avg > SLOW_FRAME_MS;
+  if (frameTimesMs.length < WARMUP_FRAMES + SLOW_SAMPLE_FRAMES) return false;
+  const sample = frameTimesMs
+    .slice(WARMUP_FRAMES, WARMUP_FRAMES + SLOW_SAMPLE_FRAMES)
+    .sort((a, b) => a - b);
+  const median = (sample[14]! + sample[15]!) / 2;
+  return median > SLOW_FRAME_MS;
 }
 
 const CALM_KEY = 'sea:calm';
@@ -87,6 +96,8 @@ export function readSignals(): Signals {
   };
   return {
     override,
+    allowSoftware:
+      override !== null || new URLSearchParams(location.search).get('gpu') === 'software',
     calm: safeGet(() => localStorage, CALM_KEY) === '1',
     reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
     saveData: nav.connection?.saveData === true,
@@ -96,4 +107,13 @@ export function readSignals(): Signals {
     cores: nav.hardwareConcurrency || undefined,
     slow3d: safeGet(() => sessionStorage, SLOW_KEY) === '1',
   };
+}
+
+/** True when WebGL runs on the CPU (SwiftShader, llvmpipe, Microsoft Basic Render Driver). */
+export function isSoftwareRenderer(gl: WebGLRenderingContext | WebGL2RenderingContext): boolean {
+  const info = gl.getExtension('WEBGL_debug_renderer_info');
+  const name = String(
+    info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
+  );
+  return /swiftshader|llvmpipe|softpipe|basic render|software/i.test(name);
 }

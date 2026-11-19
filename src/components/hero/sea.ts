@@ -8,14 +8,14 @@ import {
   readSignals,
   remember,
   SLOW_SAMPLE_FRAMES,
+  WARMUP_FRAMES,
   type Tier,
 } from '../../lib/sea/tiers';
 import type { SeaFactory, SeaRenderer } from '../../lib/sea/types';
 
 /** Renderers load only when their tier is chosen (never in the initial bundle). */
 const LOADERS: Record<1 | 2, () => Promise<SeaFactory | null>> = {
-  // Tier 1 lands with #10; until then phones keep the still.
-  1: async () => null,
+  1: () => import('../../lib/sea/sea2d').then((m) => m.createSea2D),
   2: () => import('../../lib/sea/sea3d').then((m) => m.createSea3D),
 };
 
@@ -45,11 +45,13 @@ async function apply(tier: Tier, layer: HTMLElement): Promise<void> {
   }
 
   const frames: number[] = [];
-  const forced = readSignals().override !== null;
+  const signals = readSignals();
+  const forced = signals.override !== null;
   const renderer = factory({
+    allowSoftware: signals.allowSoftware,
     onFrame: (ms) => {
       // A forced ?tier= is for testing: never downgrade it.
-      if (tier !== 2 || forced || frames.length >= SLOW_SAMPLE_FRAMES) return;
+      if (tier !== 2 || forced || frames.length >= WARMUP_FRAMES + SLOW_SAMPLE_FRAMES) return;
       frames.push(ms);
       if (isTooSlow(frames)) {
         remember.slow3d();
@@ -61,7 +63,10 @@ async function apply(tier: Tier, layer: HTMLElement): Promise<void> {
     await renderer.mount(layer);
   } catch (error) {
     renderer.destroy();
-    if (run === generation) root.dataset['seaTier'] = '0';
+    if (run === generation) {
+      root.dataset['seaTier'] = '0';
+      root.dataset['seaFallback'] = error instanceof Error ? error.message : 'renderer failed';
+    }
     console.warn('Sea renderer failed, keeping the still.', error);
     return;
   }
