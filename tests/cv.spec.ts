@@ -14,10 +14,13 @@ test('renders every section, at most 180 words, no paragraph over 20 words', asy
     await expect(page.getByRole('heading', { level: 2, name: s.title })).toHaveCount(1);
   }
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
-  const text = (await page.locator('main').innerText()).replace(/s+/g, ' ');
-  expect(text.split(' ').filter(Boolean).length).toBeLessThanOrEqual(180);
+  const text = await page.locator('main').innerText();
+  // Words = tokens with a letter or digit (the · and — separators don't count).
+  const words = text.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w));
+  expect(words.length).toBeLessThanOrEqual(180);
+  // Prose lines stay short; the dotted lists (.inline) are lists, not paragraphs.
   for (const p of await page.locator('main p:not(.inline)').allInnerTexts()) {
-    expect(p.split(/s+/).filter(Boolean).length, p).toBeLessThanOrEqual(20);
+    expect(p.split(/\s+/).filter(Boolean).length, p).toBeLessThanOrEqual(20);
   }
 });
 
