@@ -44,6 +44,18 @@ const links = hero.contacts
     <canvas class="hero-sea-canvas" data-sea-still-canvas></canvas>
   </div>
 
+  <button
+    class="sea-toggle"
+    type="button"
+    data-sea-toggle
+    data-calm={site.motionToggle.calm}
+    data-back={site.motionToggle.back}
+    aria-pressed="false"
+    hidden
+  >
+    <span data-sea-toggle-label>{site.motionToggle.calm}</span>
+  </button>
+
   <div class="hero-inner">
     <div class="hero-text">
       <Label as="p">
@@ -87,6 +99,7 @@ const links = hero.contacts
 
 <script>
   import { mountStill } from './still';
+  import './sea';
 
   mountStill();
 
@@ -164,11 +177,32 @@ const links = hero.contacts
     width: 100%;
     max-width: calc(var(--content-max) + 2 * var(--gutter));
     margin: 0 auto;
-    padding: clamp(72px, 10vh, 120px) var(--gutter) clamp(40px, 8vh, 96px);
+    /* Bottom padding leaves room for the sea toggle. */
+    padding: clamp(72px, 10vh, 120px) var(--gutter) calc(clamp(40px, 8vh, 96px) + 56px);
   }
 
   .hero-text {
     max-width: 960px;
+  }
+
+  /* Calm the water / Bring the water back. JS-only, so it starts hidden. */
+  .sea-toggle {
+    position: absolute;
+    right: var(--gutter);
+    bottom: 24px;
+    z-index: 1;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 2px solid var(--c-deep);
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--c-foam) 85%, transparent);
+    color: var(--c-deep);
+    font: 700 15px/1 var(--font-body);
+    cursor: pointer;
+  }
+
+  .sea-toggle[hidden] {
+    display: none;
   }
 
   /* Sky-coloured scrim between the sea and the text: keeps every text pair AA
