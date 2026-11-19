@@ -1,0 +1,114 @@
+---
+/**
+ * Timeline (plan/COPY.md §7): dated rows from src/content/timeline.yaml, in `order`.
+ * `emphasis` (Junction 2026) is the big row; `next` (Aalto 2027) is dashed and tagged "next".
+ */
+import { getCollection } from 'astro:content';
+import { data } from '../../lib/content';
+import Claim from '../content/Claim.astro';
+import Heading from '../type/Heading.astro';
+import Label from '../type/Label.astro';
+
+const site = await data('site', 'site');
+const rows = (await getCollection('timeline'))
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order);
+---
+
+<section id="timeline" class="section theme-day" aria-labelledby="timeline-title">
+  <div class="inner">
+    <Label>{site.timeline.label}</Label>
+    <Heading level={2} size="h2-sec" id="timeline-title" class="timeline-title">
+      {site.timeline.h2}
+    </Heading>
+    <ol class="tl">
+      {rows.map((row) => (
+        <li
+          class:list={['tl-row', { 'tl-emphasis': row.emphasis, 'tl-next': row.next }]}
+          data-facts={row.facts.join(' ')}
+        >
+          <span class="label tl-when">
+            {row.when}
+            {row.next && <span class="tl-tag">{site.timeline.next}</span>}
+          </span>
+          <Claim as="span" class="tl-text" claim={{ text: row.text, facts: row.facts }} />
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  section :global(.timeline-title) {
+    margin: 14px 0 30px;
+  }
+
+  .tl {
+    display: grid;
+    max-width: 860px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tl-row {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 20px;
+    align-items: baseline;
+    padding: 16px 0;
+    border-top: 1px solid var(--rule);
+    font-size: 19px;
+    line-height: 1.4;
+  }
+
+  .tl-row:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .tl-row :global(b) {
+    font-weight: 800;
+    color: var(--fg-strong);
+  }
+
+  .tl-emphasis {
+    padding: 22px 0;
+    border-top: 2px solid var(--c-deep);
+    font-size: 23px;
+    font-weight: 600;
+  }
+
+  .tl-emphasis :global(b) {
+    background: linear-gradient(transparent 60%, var(--hl-mark) 60%);
+  }
+
+  .tl-next {
+    border-top-style: dashed;
+    border-bottom-style: dashed;
+    color: var(--c-mute);
+  }
+
+  .tl-next :global(b) {
+    color: var(--c-mute);
+  }
+
+  .tl-tag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 0 6px;
+    border: 1px dashed currentColor;
+    border-radius: 4px;
+  }
+
+  @media (max-width: 860px) {
+    .tl-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2px;
+      font-size: 18px;
+    }
+
+    .tl-emphasis {
+      font-size: 21px;
+    }
+  }
+</style>
