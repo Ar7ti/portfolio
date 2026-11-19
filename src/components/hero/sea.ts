@@ -8,6 +8,7 @@ import {
   readSignals,
   remember,
   SLOW_SAMPLE_FRAMES,
+  WARMUP_FRAMES,
   type Tier,
 } from '../../lib/sea/tiers';
 import type { SeaFactory, SeaRenderer } from '../../lib/sea/types';
@@ -48,7 +49,7 @@ async function apply(tier: Tier, layer: HTMLElement): Promise<void> {
   const renderer = factory({
     onFrame: (ms) => {
       // A forced ?tier= is for testing: never downgrade it.
-      if (tier !== 2 || forced || frames.length >= SLOW_SAMPLE_FRAMES) return;
+      if (tier !== 2 || forced || frames.length >= WARMUP_FRAMES + SLOW_SAMPLE_FRAMES) return;
       frames.push(ms);
       if (isTooSlow(frames)) {
         remember.slow3d();

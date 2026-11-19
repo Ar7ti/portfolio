@@ -32,11 +32,13 @@ test.describe('decideTier', () => {
     test(name, () => expect(decideTier({ ...desktop, ...signals })).toBe(tier));
   }
 
-  test('slow frames: average of the first 30 frames over 22 ms', () => {
-    expect(isTooSlow(Array(29).fill(40))).toBe(false);
-    expect(isTooSlow(Array(30).fill(16.7))).toBe(false);
-    expect(isTooSlow(Array(30).fill(23))).toBe(true);
-    expect(isTooSlow([...Array(30).fill(16), 500])).toBe(false);
+  test('slow frames: median of 30 frames after a 15-frame warm-up, over 22 ms', () => {
+    const warm = Array(15).fill(300); // compile / upload frames never count
+    expect(isTooSlow([...warm, ...Array(29).fill(40)])).toBe(false);
+    expect(isTooSlow([...warm, ...Array(30).fill(16.7)])).toBe(false);
+    expect(isTooSlow([...warm, ...Array(30).fill(23)])).toBe(true);
+    // a few long frames (GC, tab switch) don't decide it
+    expect(isTooSlow([...warm, ...Array(25).fill(16.7), ...Array(5).fill(200)])).toBe(false);
   });
 });
 

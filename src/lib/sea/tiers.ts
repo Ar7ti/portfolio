@@ -27,6 +27,8 @@ export interface Signals {
 
 export const SLOW_FRAME_MS = 22;
 export const SLOW_SAMPLE_FRAMES = 30;
+/** Frames skipped before measuring: shader compile, buffer uploads and JIT make them long on any GPU. */
+export const WARMUP_FRAMES = 15;
 
 export function decideTier(s: Signals): Tier {
   if (s.override !== null) return s.override;
@@ -37,12 +39,17 @@ export function decideTier(s: Signals): Tier {
   return 2;
 }
 
-/** Average of the first `SLOW_SAMPLE_FRAMES` frame times decides a downgrade from tier 2. */
+/**
+ * Tier 2 is too slow when the median of 30 frames, measured after a warm-up, is over 22 ms.
+ * Median, not mean: one long frame (a GC, a tab switch) must not cost a fast GPU its 3D sea.
+ */
 export function isTooSlow(frameTimesMs: readonly number[]): boolean {
-  if (frameTimesMs.length < SLOW_SAMPLE_FRAMES) return false;
-  const sample = frameTimesMs.slice(0, SLOW_SAMPLE_FRAMES);
-  const avg = sample.reduce((a, b) => a + b, 0) / sample.length;
-  return avg > SLOW_FRAME_MS;
+  if (frameTimesMs.length < WARMUP_FRAMES + SLOW_SAMPLE_FRAMES) return false;
+  const sample = frameTimesMs
+    .slice(WARMUP_FRAMES, WARMUP_FRAMES + SLOW_SAMPLE_FRAMES)
+    .sort((a, b) => a - b);
+  const median = (sample[14]! + sample[15]!) / 2;
+  return median > SLOW_FRAME_MS;
 }
 
 const CALM_KEY = 'sea:calm';
