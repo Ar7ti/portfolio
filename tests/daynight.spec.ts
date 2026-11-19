@@ -97,3 +97,22 @@ test.describe('day → night in the browser', () => {
     });
   });
 });
+
+test.describe('no hard seams', () => {
+  test('sections next to the hour bands dissolve into the live sea; the hackathons photo fades', async ({
+    page,
+  }) => {
+    await page.goto('/?tier=0');
+    const mask = (sel: string) =>
+      page
+        .locator(sel)
+        .first()
+        .evaluate((el) => getComputedStyle(el).maskImage || getComputedStyle(el).webkitMaskImage);
+    // Every tier: the photo fades into its own night background.
+    expect(await mask('#hackathons img')).toContain('linear-gradient');
+    // Live sea: the edges next to the bands become soft masks.
+    await page.evaluate(() => document.documentElement.classList.add('sea-live'));
+    expect(await mask('.sky-band--dusk + section')).toContain('linear-gradient');
+    expect(await mask('.sky-band--sunrise + section')).toContain('linear-gradient');
+  });
+});
