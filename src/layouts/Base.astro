@@ -1,5 +1,7 @@
 ---
+import { getEntry } from 'astro:content';
 import '../styles/global.css';
+import { formatDate } from '../lib/dates';
 
 interface Props {
   title?: string;
@@ -8,9 +10,13 @@ interface Props {
   noindex?: boolean;
 }
 
+const site = await getEntry('site', 'site');
+if (!site) throw new Error('src/content/site.yaml: entry "site" is missing');
+const { nav, skipLink, footer } = site.data;
+
 const {
-  title = 'Kirill Jegosin · games, web products & AI tools',
-  description = '18-year-old builder from Finland. Won the Oxylabs challenge at Junction 2026, shipped a solo Roblox game. Open to internships and junior roles.',
+  title = site.data.title,
+  description = site.data.description.text,
   noindex = false,
 } = Astro.props;
 ---
@@ -30,23 +36,16 @@ const {
   </head>
   <body>
     <a class="skip-link" href="#point">
-      Skip to the point
+      {skipLink}
     </a>
     <header class="site-header">
       <nav aria-label="Main">
         <ul>
-          <li>
-            <a href="/#work">Work</a>
-          </li>
-          <li>
-            <a href="/#hackathons">Hackathons</a>
-          </li>
-          <li>
-            <a href="/#timeline">Timeline</a>
-          </li>
-          <li>
-            <a href="/#contact">Contact</a>
-          </li>
+          {nav.map((item) => (
+            <li>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          ))}
         </ul>
       </nav>
     </header>
@@ -55,8 +54,15 @@ const {
     </main>
     <footer class="site-footer">
       <p>
-        This site's code is public →{' '}
-        <a href="https://github.com/Ar7ti/portfolio">github.com/Ar7ti/portfolio</a>
+        {`${footer.code.text} `}
+        <a href={footer.code.href}>{footer.code.label}</a>
+        <span aria-hidden="true"> · </span>
+        <span data-nofacts={footer.checked.nofacts}>
+          {`${footer.checked.text} `}
+          <time datetime={footer.checkedOn.toISOString().slice(0, 10)}>
+            {formatDate(footer.checkedOn)}
+          </time>
+        </span>
       </p>
     </footer>
   </body>
