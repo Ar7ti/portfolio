@@ -1,5 +1,7 @@
 ---
+import { Picture } from 'astro:assets';
 import Base from '../layouts/Base.astro';
+import seaDay from '../assets/hero/sea-day.webp';
 import Claim from '../components/content/Claim.astro';
 import Heading from '../components/type/Heading.astro';
 import Label from '../components/type/Label.astro';
@@ -12,6 +14,17 @@ const { notFound } = site;
 
 <Base title={`${notFound.h1} · Kirill Jegosin`} noindex>
   <section id="point" class="section theme-day not-found" aria-labelledby="nf-title" tabindex="-1">
+    <Picture
+      src={seaDay}
+      formats={['avif', 'webp']}
+      fallbackFormat="webp"
+      widths={[640, 960, 1280, 1600]}
+      sizes="100vw"
+      alt=""
+      class="nf-sea"
+      loading="eager"
+      decoding="async"
+    />
     <div class="inner">
       <Label>
         <Claim claim={notFound.label} />
@@ -32,11 +45,38 @@ const { notFound } = site;
 
 <style>
   .not-found {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     min-height: 70vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     border-top: 6px solid var(--c-deep);
+  }
+
+  /* The day sea from the hero, sunk to the bottom right; a sky wash keeps the text AA. */
+  .not-found :global(.nf-sea) {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: right bottom;
+  }
+
+  .not-found::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      100deg,
+      var(--c-sky) 0%,
+      rgb(231 241 246 / 0.88) 45%,
+      rgb(231 241 246 / 0.2) 80%
+    );
   }
 
   .not-found :global(.h2-xl) {

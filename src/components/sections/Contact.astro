@@ -1,0 +1,192 @@
+---
+/**
+ * Contact (plan/COPY.md §9): on the home page and at the end of every case page.
+ * Email button + Copy (only where the Clipboard API exists, with a visible "Copied" and a live
+ * region), LinkedIn · GitHub · CV · Telegram (secondary), small print. All copy from content.
+ */
+import { getCollection } from 'astro:content';
+import { data } from '../../lib/content';
+import Claim from '../content/Claim.astro';
+import Heading from '../type/Heading.astro';
+import Label from '../type/Label.astro';
+
+const site = await data('site', 'site');
+const { contact, copyEmail } = site;
+const contacts = new Map((await getCollection('contacts')).map((entry) => [entry.id, entry.data]));
+const email = contacts.get('email');
+if (!email?.href || !email.display) throw new Error('contacts.yaml: email needs href and display');
+
+// Links after the email row. A contact without a file/URL yet (CV until #22) is left out.
+const links = contact.contacts
+  .filter((id) => id !== 'email')
+  .flatMap((id) => {
+    const c = contacts.get(id);
+    return c?.href ? [{ id, ...c, href: c.href }] : [];
+  });
+---
+
+<section id="contact" class="contact section theme-deep" aria-labelledby="contact-title">
+  <div class="inner">
+    <Label>{contact.label}</Label>
+    <Heading level={2} size="h2-xl" id="contact-title" class="contact-title">
+      {contact.h2}
+    </Heading>
+    <Claim as="p" class="contact-line" claim={contact.line} />
+
+    <div class="contact-row">
+      <a class="button contact-mail" href={email.href} data-facts={email.facts.join(' ')}>
+        {email.display}
+      </a>
+      <button
+        class="contact-copy"
+        type="button"
+        data-copy-email={email.display}
+        data-done={copyEmail.done}
+        data-status={copyEmail.status}
+        hidden
+      >
+        <span class="label" data-copy-text>
+          {copyEmail.button}
+        </span>
+      </button>
+      <span class="visually-hidden" role="status" aria-live="polite" data-copy-status></span>
+    </div>
+
+    <ul class="contact-links">
+      {links.map((link) => (
+        <li class:list={{ secondary: link.id === 'telegram' }}>
+          <a href={link.href} data-facts={link.facts.join(' ')}>
+            {link.labelLong ?? link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <ul class="contact-small label">
+      {contact.small.map((claim) => (
+        <Claim as="li" claim={claim} />
+      ))}
+    </ul>
+  </div>
+</section>
+
+<script>
+  // Progressive enhancement: the Copy button only appears where the Clipboard API exists.
+  for (const button of document.querySelectorAll<HTMLButtonElement>('button[data-copy-email]')) {
+    if (!navigator.clipboard) continue;
+    const text = button.querySelector('[data-copy-text]');
+    const status = button.parentElement?.querySelector('[data-copy-status]');
+    const idle = text?.textContent ?? '';
+    let timer = 0;
+    button.hidden = false;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset['copyEmail'] ?? '');
+        button.classList.add('is-done');
+        if (text) text.textContent = button.dataset['done'] ?? '';
+        if (status) status.textContent = button.dataset['status'] ?? '';
+        clearTimeout(timer);
+        timer = window.setTimeout(() => {
+          button.classList.remove('is-done');
+          if (text) text.textContent = idle;
+          if (status) status.textContent = '';
+        }, 2400);
+      } catch {
+        // Clipboard blocked: the mailto button next to it still works.
+      }
+    });
+  }
+</script>
+
+<style>
+  .contact :global(.contact-title) {
+    max-width: 12ch;
+    margin: 14px 0 24px;
+  }
+
+  .contact :global(.contact-line) {
+    max-width: 30ch;
+    margin: 0 0 30px;
+    font-size: clamp(20px, 2vw, 26px);
+    line-height: 1.35;
+    color: var(--fg-body);
+  }
+
+  .contact :global(.contact-line b) {
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .contact-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .contact-mail {
+    min-height: 56px;
+    padding: 16px 26px;
+    font-size: 20px;
+    overflow-wrap: anywhere;
+  }
+
+  .contact-copy {
+    min-height: 56px;
+    padding: 0 20px;
+    border: 2px solid currentColor;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--fg);
+    cursor: pointer;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+
+  .contact-copy .label {
+    color: inherit;
+  }
+
+  .contact-copy.is-done {
+    border-color: var(--c-hl);
+    background: var(--c-hl);
+    color: #111;
+  }
+
+  .contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 22px;
+    margin: 22px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .contact-links a {
+    display: inline-block;
+    padding: 12px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--fg-strong);
+  }
+
+  .contact-links .secondary a {
+    font-weight: 500;
+    color: var(--label);
+  }
+
+  .contact-small {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 0;
+    margin: 40px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .contact-small :global(li:not(:last-child))::after {
+    content: '·';
+    margin: 0 10px;
+  }
+</style>
