@@ -1,0 +1,107 @@
+/*
+ * Tsunami wipe into and out of case studies (#19): cross-document View Transitions.
+ * Opening a case: a studded voxel wave rises over the page, then drains like honey to reveal
+ * the case (≈ 1.15 s). Back: the same, mirrored from the top. Other navigations: the browser's
+ * default cross-fade. Reduced motion or no support: an instant, plain navigation.
+ * The transition type is chosen in the `pagereveal` listener (Base.astro, inline in <head>).
+ * Guidance: modern-web-guidance cross-document-transitions, consistent-cross-document-transitions.
+ */
+
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+/* The water itself is the transition's own backdrop: deep sea with a stud on every cell. */
+html:active-view-transition-type(tsunami, tsunami-back)::view-transition {
+  background:
+    radial-gradient(circle at 50% 46%, #ffffff2e 0 25%, #00000026 29%, transparent 31%) 0 0 / 28px
+      28px,
+    linear-gradient(var(--sea-day-mid), var(--sea-day-deep) 70%, #0a2b40);
+}
+
+/* Old and new pages are only ever seen above (or, going back, below) the waterline. */
+html:active-view-transition-type(tsunami)::view-transition-old(root),
+html:active-view-transition-type(tsunami)::view-transition-new(root) {
+  -webkit-mask: var(--tsunami-crest) 0 0 / 100% 300% repeat-x;
+  mask: var(--tsunami-crest) 0 0 / 100% 300% repeat-x;
+  mix-blend-mode: normal;
+}
+
+html:active-view-transition-type(tsunami)::view-transition-old(root) {
+  /* the wave rises from below and swallows the page */
+  animation: tsunami-rise 0.5s cubic-bezier(0.55, 0, 0.75, 0.2) both;
+}
+
+html:active-view-transition-type(tsunami)::view-transition-new(root) {
+  /* then the water drains slowly, like honey, revealing the case */
+  animation: tsunami-drain 0.65s cubic-bezier(0.22, 0.9, 0.25, 1) 0.5s both;
+}
+
+html:active-view-transition-type(tsunami-back)::view-transition-old(root),
+html:active-view-transition-type(tsunami-back)::view-transition-new(root) {
+  -webkit-mask: var(--tsunami-crest-down) 0 100% / 100% 300% repeat-x;
+  mask: var(--tsunami-crest-down) 0 100% / 100% 300% repeat-x;
+}
+
+html:active-view-transition-type(tsunami-back)::view-transition-old(root) {
+  animation: tsunami-fall 0.5s cubic-bezier(0.55, 0, 0.75, 0.2) both;
+}
+
+html:active-view-transition-type(tsunami-back)::view-transition-new(root) {
+  animation: tsunami-recede 0.65s cubic-bezier(0.22, 0.9, 0.25, 1) 0.5s both;
+}
+
+/*
+ * The crest: a 3×-viewport-tall mask, opaque above a stepped (voxel) wave line at 50 %,
+ * clear below. Moving it from 0 % to 100 % lifts the waterline from below the screen to above it.
+ */
+:root {
+  --tsunami-crest: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 300' preserveAspectRatio='none'%3E%3Cpath d='M0 0H480V150H460V146H440V141H420V139H400V142H380V147H360V151H340V153H320V150H300V145H280V142H260V140H240V143H220V148H200V152H180V154H160V151H140V146H120V143H100V141H80V144H60V149H40V152H20V151H0Z'/%3E%3C/svg%3E");
+  --tsunami-crest-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 300' preserveAspectRatio='none'%3E%3Cpath d='M0 300H480V150H460V154H440V159H420V161H400V158H380V153H360V149H340V147H320V150H300V155H280V158H260V160H240V157H220V152H200V148H180V146H160V149H140V154H120V157H100V159H80V156H60V151H40V148H20V149H0Z'/%3E%3C/svg%3E");
+}
+
+@keyframes tsunami-rise {
+  from {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+  to {
+    -webkit-mask-position: 0 100%;
+    mask-position: 0 100%;
+  }
+}
+
+@keyframes tsunami-drain {
+  from {
+    -webkit-mask-position: 0 100%;
+    mask-position: 0 100%;
+  }
+  to {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+}
+
+@keyframes tsunami-fall {
+  from {
+    -webkit-mask-position: 0 100%;
+    mask-position: 0 100%;
+  }
+  to {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+}
+
+@keyframes tsunami-recede {
+  from {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+  to {
+    -webkit-mask-position: 0 100%;
+    mask-position: 0 100%;
+  }
+}
