@@ -23,3 +23,46 @@ test.describe('hackathons strip', () => {
     await context.close();
   });
 });
+
+test.describe('more work cards', () => {
+  const DATE = /\d{1,2}\s[A-Z][a-z]{2}\s\d{4}/;
+
+  test('YouTube, Guardio, Now building', async ({ page }) => {
+    await page.goto('/');
+    const cards = page.locator('#more .card');
+    await expect(cards).toHaveCount(3);
+
+    const yt = cards.nth(0);
+    await expect(yt.getByRole('heading', { level: 3 })).toHaveText('Sharky_blox');
+    await expect(yt.locator('.label').first()).toContainText(new RegExp(`as of ${DATE.source}`));
+    await expect(yt.locator('.covers li')).toHaveCount(3);
+    // "2.6M views" on one line: figure and label share a baseline row.
+    const [fig, label] = await Promise.all([
+      yt.locator('.card-big .big').boundingBox(),
+      yt.locator('.card-big .big-label').boundingBox(),
+    ]);
+    if (!fig || !label) throw new Error('figure not rendered');
+    expect(label.y).toBeLessThan(fig.y + fig.height);
+
+    const guardio = cards.nth(1);
+    await expect(guardio.locator('img.card-shot')).toHaveAttribute('alt', /.+/);
+    await expect(guardio.getByRole('link')).toHaveText(['Live', 'Code']);
+
+    const now = cards.nth(2);
+    await expect(now).toHaveClass(/\bnow\b/);
+    await expect(now.locator('.label').first()).toContainText(new RegExp(`updated ${DATE.source}`));
+    await expect(now.getByRole('link')).toHaveCount(0);
+  });
+
+  for (const width of [360, 390]) {
+    test(`"2.6M views" fits one line at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto('/');
+      const li = page.locator('#more .card-big li');
+      const box = await li.boundingBox();
+      const big = await page.locator('#more .card-big .big').boundingBox();
+      if (!box || !big) throw new Error('figure not rendered');
+      expect(box.height).toBeLessThan(big.height * 1.3);
+    });
+  }
+});
