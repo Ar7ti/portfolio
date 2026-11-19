@@ -4,11 +4,14 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  /** Keep a page out of search results (e.g. the styleguide). */
+  noindex?: boolean;
 }
 
 const {
   title = 'Kirill Jegosin · games, web products & AI tools',
   description = '18-year-old builder from Finland. Won the Oxylabs challenge at Junction 2026, shipped a solo Roblox game. Open to internships and junior roles.',
+  noindex = false,
 } = Astro.props;
 ---
 
@@ -19,6 +22,7 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <!-- Real favicon comes with the SEO issue (#23); this stops the /favicon.ico 404. -->
     <link rel="icon" href="data:," />
     <!-- Only the hero face is preloaded; body and label fonts load on demand. -->

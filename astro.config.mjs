@@ -5,5 +5,6 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   output: 'static',
   trailingSlash: 'never',
-  build: { format: 'file' },
+  // CSS is small; inlining it removes the only render-blocking request before the hero text.
+  build: { format: 'file', inlineStylesheets: 'always' },
 });
