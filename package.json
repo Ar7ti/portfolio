@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "test": "playwright test",
     "fonts": "node scripts/subset-fonts.mjs",
-    "og": "node scripts/og-image.mjs"
+    "og": "node scripts/og-image.mjs",
+    "cv": "astro build && node scripts/cv-pdf.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.12",
