@@ -25,9 +25,9 @@ test.describe('tier 2 sea', () => {
     await expect(live).toHaveClass(/is-ready/, { timeout: 30_000 });
     await expect(page.locator('html')).toHaveAttribute('data-sea-tier', '2');
 
-    // Canvas fills the hero's sea layer exactly: nothing moved when it arrived.
+    // Canvas fills the fixed sea backdrop exactly: nothing moved when it arrived.
     const [layer, canvas] = await Promise.all([
-      page.locator('[data-sea-layer]').boundingBox(),
+      page.locator('[data-sea-backdrop]').boundingBox(),
       live.boundingBox(),
     ]);
     expect(canvas).toEqual(layer);

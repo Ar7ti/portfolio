@@ -1,7 +1,10 @@
 /**
- * Picks the sea tier after first paint and mounts the matching renderer into the hero's
- * sea layer. Tier 0 keeps the static still that is already there.
+ * Picks the sea tier after first paint and mounts the matching renderer into the fixed sea
+ * backdrop behind the page (seen through the hero and the dusk / sunrise sky bands).
+ * Tier 0 keeps the static still in the hero and the CSS sky bands.
+ * One day → night value (src/lib/sea/progress.ts) drives the renderer and --sea-p.
  */
+import { startDayNight } from '../../lib/sea/progress';
 import {
   decideTier,
   isTooSlow,
@@ -23,6 +26,7 @@ const root = document.documentElement;
 let current: SeaRenderer | null = null;
 let generation = 0;
 let paused = false;
+let hour = 0;
 
 function setPaused(next: boolean): void {
   paused = next;
@@ -33,6 +37,7 @@ async function apply(tier: Tier, layer: HTMLElement): Promise<void> {
   const run = ++generation;
   current?.destroy();
   current = null;
+  root.classList.remove('sea-live');
   root.dataset['seaTier'] = String(tier);
   if (tier === 0) return;
 
@@ -75,7 +80,10 @@ async function apply(tier: Tier, layer: HTMLElement): Promise<void> {
     return;
   }
   current = renderer;
+  renderer.setProgress?.(hour);
   renderer.setPaused(paused);
+  // The bands and the hero go transparent so the live sea shows through them.
+  root.classList.add('sea-live');
 }
 
 function setupToggle(layer: HTMLElement): void {
@@ -97,17 +105,36 @@ function setupToggle(layer: HTMLElement): void {
 }
 
 function start(): void {
-  const layer = document.querySelector<HTMLElement>('[data-sea-layer]');
-  if (!layer) return;
+  const layer = document.querySelector<HTMLElement>('[data-sea-backdrop]');
+  const hero = document.querySelector<HTMLElement>('[data-sea-layer]')?.closest('section');
+  if (!layer || !hero) return;
   setupToggle(layer);
 
-  const hero = layer.closest('section') ?? layer;
-  let visible = true;
-  new IntersectionObserver(([entry]) => {
-    visible = entry?.isIntersecting ?? true;
-    setPaused(!visible || document.hidden);
+  // The sea is only seen through the hero and the sky bands: render only while one is on screen.
+  const windows = [hero, ...document.querySelectorAll<HTMLElement>('[data-sky-band]')];
+  const onScreen = new Set<Element>();
+  const update = () => setPaused(onScreen.size === 0 || document.hidden);
+  new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) onScreen.add(entry.target);
+      else onScreen.delete(entry.target);
+    }
+    update();
   }).observe(hero);
-  document.addEventListener('visibilitychange', () => setPaused(!visible || document.hidden));
+  const bandObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) onScreen.add(entry.target);
+      else onScreen.delete(entry.target);
+    }
+    update();
+  });
+  for (const el of windows.slice(1)) bandObserver.observe(el);
+  document.addEventListener('visibilitychange', update);
+
+  startDayNight((p) => {
+    hour = p;
+    current?.setProgress?.(p);
+  });
 
   void apply(decideTier(readSignals()), layer);
 

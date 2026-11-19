@@ -1,0 +1,57 @@
+---
+/**
+ * A sky band between sections: the hour changes while it scrolls past.
+ * 'dusk' (after the hero): day → violet/coral sunset → night.
+ * 'sunrise' (before Case 02): night → sunset colours → day.
+ * With the live sea (html.sea-live) it is transparent and the sea shows through;
+ * otherwise (tier 0, JS off) it is a static CSS gradient of the same colours.
+ */
+interface Props {
+  kind: 'dusk' | 'sunrise';
+}
+const { kind } = Astro.props;
+---
+
+<div class:list={['sky-band', `sky-band--${kind}`]} data-sky-band={kind} aria-hidden="true"></div>
+
+<style>
+  .sky-band {
+    height: 90vh;
+    transition: background-color 0.6s ease-out;
+  }
+
+  .sky-band--dusk {
+    background: linear-gradient(
+      var(--sea-day-sky-a),
+      var(--sea-dusk-sky-b) 30%,
+      var(--sea-dusk-sky-a) 55%,
+      var(--c-dusk-bg) 80%,
+      var(--c-night)
+    );
+  }
+
+  .sky-band--sunrise {
+    height: 70vh;
+    background: linear-gradient(
+      var(--c-night),
+      var(--c-dusk-bg) 20%,
+      var(--sea-dusk-sky-a) 48%,
+      var(--sea-dusk-sky-b) 72%,
+      var(--sea-day-sky-a)
+    );
+  }
+
+  :global(html.sea-live) .sky-band {
+    background: transparent;
+  }
+
+  @media (max-width: 860px) {
+    .sky-band {
+      height: 70vh;
+    }
+
+    .sky-band--sunrise {
+      height: 55vh;
+    }
+  }
+</style>
