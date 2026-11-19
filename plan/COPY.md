@@ -166,8 +166,9 @@ LINKS   Live · Code
 LABEL   Now building · updated 19 Nov 2026 · IN PROGRESS                 [X1]
 H3      Throw Treats, Tame Pets!
 BODY    A Roblox game: **throw treats**, tame the pets that land, grow your yard.   [X1]
-LEAD Works now.  Core game systems.   [Kirill]
+BODY            Rebuilding from a **clean repo** (Nov 2026).   [X1 Kirill]
 LEAD Next.       The throw mechanic, animations and pet models.   [Kirill]
+LINKS           none (repo is private)
 ```
 
 ---
