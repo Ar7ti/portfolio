@@ -197,6 +197,11 @@ const links = hero.contacts
     max-width: 960px;
   }
 
+  /* Hidden (layout kept) until the hero face is decoded; see the head script in Base.astro. */
+  :global(html.js:not(.fonts-ready)) .hero-text {
+    visibility: hidden;
+  }
+
   /* JS-only controls: hidden by CSS until the inline head script has set <html class="js">,
      so they are in place at first paint and never shift the layout. */
   :global(html:not(.js)) .copy,
@@ -370,6 +375,15 @@ const links = hero.contacts
 
     .chip-label {
       max-width: none;
+      /* Body font is font-display: optional; reserve two lines so a late font can't move
+         the chips below (CLS). */
+      min-height: 2lh;
+      display: flex;
+      align-items: center;
+    }
+
+    .hero-line {
+      min-height: 2lh;
     }
   }
 </style>

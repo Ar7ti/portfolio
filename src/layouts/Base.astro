@@ -29,8 +29,21 @@ const {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- The "js" class on <html> lets CSS tell "JS will enhance this" from "JS is off". -->
+    <!-- "fonts-ready" once the inlined hero face is decoded (≤ 2.5 s): the hero text waits for it,
+         so a slow decode on a weak phone can't lay it out twice (CLS). -->
     <script is:inline>
-      document.documentElement.classList.add('js');
+      (function () {
+        const root = document.documentElement;
+        root.classList.add('js');
+        const ready = function () {
+          root.classList.add('fonts-ready');
+        };
+        if (!document.fonts || !document.fonts.load) return ready();
+        setTimeout(ready, 2500);
+        document.addEventListener('DOMContentLoaded', function () {
+          document.fonts.load('850 1em Anybody').then(ready, ready);
+        });
+      })();
     </script>
     <title>{title}</title>
     <meta name="description" content={description} />
