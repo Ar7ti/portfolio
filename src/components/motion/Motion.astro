@@ -1,0 +1,140 @@
+---
+/**
+ * Motion layer (#20). JS (src/scripts/motion/) is imported only after load + idle and only
+ * without prefers-reduced-motion, so it never delays content and is not in the initial bundle.
+ * Scroll-linked media effects are native CSS scroll-driven animations (progressive enhancement,
+ * per modern-web-guidance "scroll-entry-exit-effects" / "parallax-scroll-effects").
+ * Text is never faded (contrast); only masked and moved. No-JS / reduced motion: static.
+ */
+---
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  let stop: (() => void) | null = null;
+
+  const start = () => {
+    if (reduce.matches || stop) return;
+    void import('../../scripts/motion/index').then(({ startMotion }) => {
+      if (!reduce.matches && !stop) stop = startMotion();
+    });
+  };
+  const idle = (fn: () => void) =>
+    'requestIdleCallback' in window
+      ? requestIdleCallback(fn, { timeout: 2500 })
+      : setTimeout(fn, 1200);
+
+  if (document.readyState === 'complete') idle(start);
+  else addEventListener('load', () => idle(start), { once: true });
+  reduce.addEventListener('change', () => {
+    if (reduce.matches) {
+      stop?.();
+      stop = null;
+    } else start();
+  });
+</script>
+
+<style is:global>
+  @media (prefers-reduced-motion: no-preference) {
+    /* Headline mask reveal: each word rises from behind its own clip, staggered. */
+    .motion-on .motion-mask .w {
+      display: inline-block;
+      overflow: clip;
+      overflow-clip-margin: 0.04em;
+      padding-block: 0.06em 0.12em;
+      margin-block: -0.06em -0.12em;
+      vertical-align: top;
+    }
+
+    .motion-on .motion-mask .wi {
+      display: inline-block;
+      transition: translate var(--dur-spring) var(--ease-spring);
+      transition-delay: calc(var(--i, 0) * 55ms);
+    }
+
+    .motion-on .motion-mask:not(.motion-in) .wi {
+      translate: 0 112%;
+    }
+
+    /* Big figures: numbers count on an overlay, words rise from a mask. */
+    .count-run {
+      position: relative;
+      color: transparent !important;
+    }
+
+    .count-overlay {
+      position: absolute;
+      inset: 0 auto auto 0;
+      color: var(--count-color);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .count-word {
+      clip-path: inset(-0.1em -0.1em 100% -0.1em);
+      translate: 0 0.4em;
+      transition:
+        clip-path var(--dur-spring) var(--ease-spring),
+        translate var(--dur-spring) var(--ease-spring);
+    }
+
+    .count-word.count-in {
+      clip-path: inset(-0.1em -0.1em -0.2em -0.1em);
+      translate: 0 0;
+    }
+
+    /* Buttons and pills on springs: lift on hover, press in on click. The magnetic pull owns
+       the translate property of .button, so its hover uses scale. */
+    .button,
+    .pill,
+    .contact-copy {
+      transition:
+        scale 0.5s var(--ease-spring),
+        translate 0.5s var(--ease-spring),
+        background-color 0.25s var(--ease-spring),
+        color 0.25s var(--ease-spring);
+    }
+
+    .button:hover {
+      scale: 1.03;
+    }
+
+    .pill:hover {
+      translate: 0 -2px;
+    }
+
+    .button:active,
+    .pill:active,
+    .contact-copy:active {
+      scale: 0.96;
+    }
+
+    /* Media rise and settle into place as they enter, and ease back a touch as they leave. */
+    @supports ((animation-timeline: view()) and (animation-range: entry)) {
+      @keyframes media-in {
+        from {
+          scale: 0.92;
+          translate: 0 48px;
+          opacity: 0.35;
+        }
+      }
+
+      @keyframes media-out {
+        to {
+          scale: 0.97;
+          translate: 0 -24px;
+        }
+      }
+
+      .case .fig img,
+      .case .fig video,
+      .card-media {
+        animation:
+          media-in auto linear backwards,
+          media-out auto linear forwards;
+        animation-timeline: view();
+        animation-range:
+          entry 0% entry 80%,
+          exit 20% exit 100%;
+      }
+    }
+  }
+</style>

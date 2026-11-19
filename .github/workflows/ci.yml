@@ -55,13 +55,17 @@ jobs:
           fail: true
           # The site's own absolute URLs (canonical, og:url, sitemap) point at production, which
           # isn't deployed for every PR; the same pages are checked as files under dist/.
+          # Teammates' hackathon demos (e.g. the Shill or Chill VPS) can be slow to answer from CI
+          # runners: longer timeout and spaced retries instead of a flaky red build.
           args: >-
             --no-progress
             --fallback-extensions html
             --root-dir ${{ github.workspace }}/dist
             --exclude 'linkedin\.com'
             --exclude 'portfolio\.kirills-portfolio\.workers\.dev'
-            --max-retries 3
+            --timeout 60
+            --max-retries 4
+            --retry-wait-time 10
             'dist/**/*.html'
 
   lighthouse:

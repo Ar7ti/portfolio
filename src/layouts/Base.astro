@@ -3,6 +3,7 @@ import { getEntry } from 'astro:content';
 import '../styles/global.css';
 import { formatDate } from '../lib/dates';
 import SeoTags from '../components/seo/SeoTags.astro';
+import Motion from '../components/motion/Motion.astro';
 
 interface Props {
   title?: string;
@@ -76,6 +77,7 @@ const {
         </span>
       </p>
     </footer>
+    <Motion />
   </body>
 </html>
 

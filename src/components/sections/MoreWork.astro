@@ -37,7 +37,7 @@ const projects = (await getCollection('projects'))
   .cards {
     display: grid;
     grid-template-columns: 1.2fr 1fr 1fr;
-    gap: 18px;
+    gap: clamp(18px, 2.4vw, 32px);
     align-items: start;
   }
 
