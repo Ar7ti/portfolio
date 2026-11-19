@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B · Receipts (prototype)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Martian+Mono:wght@400;600&family=Schibsted+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#F3EFE6; --ink:#121212; --hl:#C8F560; --red:#E2412E; --mute:#6b665c; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--paper); color: var(--ink); font-family: "Schibsted Grotesk", system-ui, sans-serif; min-height: 100svh; overflow-x: hidden; }
+  canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0; }
+  .wrap { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr); gap: clamp(20px, 5vw, 80px); padding: clamp(20px, 5vw, 64px); max-width: 1400px; }
+  .kicker { font: 12px "Martian Mono", monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--mute); }
+  h1 { font-family: "Instrument Serif", serif; font-weight: 400; font-size: clamp(46px, 7vw, 112px); line-height: .92; margin: 14px 0 26px; letter-spacing: -.01em; }
+  h1 em { font-style: italic; }
+  .claims { list-style: none; padding: 0; margin: 0 0 26px; font-size: clamp(17px, 1.7vw, 22px); line-height: 1.35; }
+  .claims li { margin: 0 0 12px; }
+  .claim { background: none; border: 0; font: inherit; color: inherit; padding: 2px 4px; margin-left: -4px; cursor: pointer; text-align: left; border-radius: 4px; background-image: linear-gradient(var(--hl), var(--hl)); background-size: 100% 0.32em; background-position: 0 88%; background-repeat: no-repeat; transition: background-size .5s cubic-bezier(.34,1.56,.64,1); }
+  .claim:hover, .claim:focus-visible, .claim.on { background-size: 100% 100%; outline: none; }
+  .claim sup { font: 600 10px "Martian Mono", monospace; margin-left: 2px; }
+  .open { display: inline-flex; gap: 10px; align-items: center; flex-wrap: wrap; font: 13px "Martian Mono", monospace; }
+  .stamp { border: 2px solid var(--red); color: var(--red); padding: 6px 10px; transform: rotate(-2deg); display: inline-block; font-weight: 600; }
+  .btn { background: var(--ink); color: var(--paper); text-decoration: none; padding: 12px 18px; border-radius: 999px; font-weight: 600; display: inline-block; transition: transform .45s cubic-bezier(.34,1.56,.64,1); }
+  .btn:hover { transform: translateY(-3px) scale(1.04); }
+  .btn:focus-visible { outline: 3px solid var(--hl); outline-offset: 3px; }
+  .receipts { display: flex; flex-direction: column; gap: 14px; padding-top: 40px; }
+  .rc { background: #fffdf8; font: 12px/1.6 "Martian Mono", monospace; padding: 14px 16px 16px; box-shadow: 0 1px 0 #0001, 0 8px 24px -16px #0004; position: relative; transition: transform .5s cubic-bezier(.34,1.56,.64,1), box-shadow .3s; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6px), 95% 100%, 90% calc(100% - 6px), 85% 100%, 80% calc(100% - 6px), 75% 100%, 70% calc(100% - 6px), 65% 100%, 60% calc(100% - 6px), 55% 100%, 50% calc(100% - 6px), 45% 100%, 40% calc(100% - 6px), 35% 100%, 30% calc(100% - 6px), 25% 100%, 20% calc(100% - 6px), 15% 100%, 10% calc(100% - 6px), 5% 100%, 0 calc(100% - 6px)); }
+  .rc.on { transform: translateX(-8px) rotate(-.6deg); }
+  .rc .n { font-weight: 600; }
+  .rc .ok { background: var(--hl); padding: 0 4px; }
+  .rc a { color: inherit; }
+  .note { position: fixed; z-index: 2; left: 16px; bottom: 10px; font: 11px "Martian Mono", monospace; color: var(--mute); }
+  @media (max-width: 800px) { .wrap { grid-template-columns: 1fr; } .receipts { padding-top: 0; } }
+</style>
+</head>
+<body>
+<canvas id="ink" aria-hidden="true"></canvas>
+<main class="wrap">
+  <div>
+    <div class="kicker">Kirill Jegosin · 18 · Kanta-Häme, Finland</div>
+    <h1>I build games, web products and AI&nbsp;tools. <em>With receipts.</em></h1>
+    <ul class="claims">
+      <li><button class="claim" data-r="0">Won the Oxylabs challenge at Junction 2026<sup>1</sup></button></li>
+      <li><button class="claim" data-r="1">Shipped a co-op Roblox game, built solo<sup>2</sup></button></li>
+      <li><button class="claim" data-r="2">2.6M views on my Roblox Shorts<sup>3</sup></button></li>
+    </ul>
+    <div class="open"><span class="stamp">OPEN TO</span> internships · summer jobs · junior roles</div>
+    <p><a class="btn" href="mailto:k.jegosin@gmail.com">k.jegosin@gmail.com</a></p>
+  </div>
+  <aside class="receipts" aria-label="Sources">
+    <div class="rc" id="r0"><span class="n">1 · Oxylabs on LinkedIn</span><br>"Meet Shill or Chill, built by Justinas Launikonis, Kirill Jegosin, Temuulen Norovpel and Valtteri Pertilä."<br><span class="ok">verified</span> Nov 2026</div>
+    <div class="rc" id="r1"><span class="n">2 · roblox.com + GitHub</span><br>Sky Island Tower Defense, published 25 Oct 2026. 223 commits, one author.<br><span class="ok">verified</span> 19 Nov 2026</div>
+    <div class="rc" id="r2"><span class="n">3 · YouTube @Sharky_main</span><br>Sharky_blox · 9.95K subscribers · 33 Shorts · 2,600,836 views<br><span class="ok">verified</span> 19 Nov 2026</div>
+  </aside>
+</main>
+<div class="note">Prototype B · move the cursor to stir the ink · hover or tab to a claim: the ink drips to its receipt</div>
+
+<script>
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cv = document.getElementById('ink');
+const gl = cv.getContext('webgl', { premultipliedAlpha: false, alpha: true });
+const MAX = 24;
+const FS = `precision mediump float;
+uniform vec4 B[${MAX}]; uniform float K[${MAX}]; uniform vec2 res; uniform float t;
+void main(){
+  vec2 p = gl_FragCoord.xy; p.y = res.y - p.y;
+  float f = 0., g = 0.;
+  for (int i = 0; i < ${MAX}; i++) { vec2 d = p - B[i].xy; float r = B[i].z; float v = r*r / (dot(d,d) + 1.); f += v; g += v * K[i]; }
+  float m = smoothstep(.95, 1.05, f);
+  float green = clamp(g / max(f, .001), 0., 1.);
+  vec3 ink = vec3(.07); vec3 hl = vec3(.784,.961,.376);
+  vec3 c = mix(ink, hl, green);
+  float sheen = smoothstep(1.05, 2.4, f) * .10 * (1. - green);
+  c += sheen;
+  gl_FragColor = vec4(c, m);
+}`;
+const VS = `attribute vec2 p; void main(){ gl_Position = vec4(p,0.,1.); }`;
+let ok = !!gl;
+if (ok) {
+  const sh = (ty, s) => { const o = gl.createShader(ty); gl.shaderSource(o, s); gl.compileShader(o); return o; };
+  const pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr); gl.useProgram(pr);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+  const l = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(l); gl.vertexAttribPointer(l, 2, gl.FLOAT, false, 0, 0);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  var uB = gl.getUniformLocation(pr, 'B'), uK = gl.getUniformLocation(pr, 'K'), uRes = gl.getUniformLocation(pr, 'res');
+}
+let dpr = 1;
+function size() { dpr = Math.min(devicePixelRatio, 1.5); cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; if (ok) gl.viewport(0, 0, cv.width, cv.height); }
+size(); addEventListener('resize', size);
+
+// springy body: position + velocity toward a target
+const body = (x, y, r) => ({ x, y, vx: 0, vy: 0, tx: x, ty: y, r, tr: r, k: 0 });
+function springTo(b, dt, stiff = 90, damp = 11) {
+  const ax = (b.tx - b.x) * stiff - b.vx * damp, ay = (b.ty - b.y) * stiff - b.vy * damp;
+  b.vx += ax * dt; b.vy += ay * dt; b.x += b.vx * dt; b.y += b.vy * dt; b.r += (b.tr - b.r) * Math.min(1, dt * 10);
+}
+// the pool: a cluster of ink drops in the lower right
+const pool = [];
+function poolHome(i) {
+  const cx = innerWidth * (innerWidth < 800 ? .55 : .80), cy = innerHeight * .86;
+  const a = i * 2.39996, rr = 22 + 13 * Math.sqrt(i) * (innerWidth < 800 ? 1.3 : 2.4);
+  return [cx + Math.cos(a) * rr * 1.6, cy + Math.sin(a) * rr * .55];
+}
+for (let i = 0; i < 12; i++) { const [x, y] = poolHome(i); pool.push(body(x, y + 200, 26 + (i % 4) * 7)); }
+const cursor = body(-500, -500, 0);
+// the drip: head + tail drops
+const drip = Array.from({ length: 11 }, (_, i) => Object.assign(body(-500, -500, 0), { k: 1 }));
+let active = null, mouse = { x: -999, y: -999 };
+addEventListener('pointermove', e => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
+
+function anchors(i) {
+  const c = document.querySelector(`.claim[data-r="${i}"]`).getBoundingClientRect();
+  const r = document.getElementById('r' + i).getBoundingClientRect();
+  const narrow = innerWidth < 800;
+  return narrow ? [[c.left + 30, c.bottom], [r.left + 30, r.top]] : [[c.right + 6, c.top + c.height / 2], [r.left - 4, r.top + 22]];
+}
+function setActive(i) {
+  active = i;
+  document.querySelectorAll('.claim').forEach(el => el.classList.toggle('on', el.dataset.r == i));
+  document.querySelectorAll('.rc').forEach(el => el.classList.toggle('on', el.id == 'r' + i));
+  if (i != null) { const [a] = anchors(i); drip.forEach(d => { if (d.r < 1) { d.x = a[0]; d.y = a[1]; d.vx = d.vy = 0; } }); }
+}
+document.querySelectorAll('.claim').forEach(el => {
+  el.addEventListener('pointerenter', () => setActive(+el.dataset.r));
+  el.addEventListener('focus', () => setActive(+el.dataset.r));
+  el.addEventListener('pointerleave', () => setActive(null));
+  el.addEventListener('blur', () => setActive(null));
+  el.addEventListener('click', () => document.getElementById('r' + el.dataset.r).scrollIntoView({ behavior: 'smooth', block: 'center' }));
+});
+
+const data = new Float32Array(MAX * 4), ks = new Float32Array(MAX);
+let prev = performance.now();
+function frame(now) {
+  const dt = Math.min(.033, (now - prev) / 1000); prev = now; const t = now / 1000;
+  // pool drops wobble around home and lean toward a nearby cursor (thick: low stiffness)
+  pool.forEach((b, i) => {
+    let [hx, hy] = poolHome(i);
+    hx += Math.sin(t * .9 + i) * 10; hy += Math.cos(t * .7 + i * 1.3) * 6;
+    const dx = mouse.x - hx, dy = mouse.y - hy, d = Math.hypot(dx, dy), pull = Math.max(0, 1 - d / 320);
+    b.tx = hx + dx * pull * .55; b.ty = hy + dy * pull * .55; springTo(b, dt, 30, 7);
+  });
+  const near = Math.hypot(mouse.x - poolHome(0)[0], mouse.y - poolHome(0)[1]) < 340;
+  cursor.tx = mouse.x; cursor.ty = mouse.y; cursor.tr = near ? 26 : 0; springTo(cursor, dt, 160, 16);
+  // drip: head springs from claim to receipt, tail drops follow at lag -> a liquid neck
+  if (active != null) {
+    const [a, b] = anchors(active);
+    drip.forEach((d, i) => {
+      const f = i / (drip.length - 1);
+      d.tx = a[0] + (b[0] - a[0]) * f; d.ty = a[1] + (b[1] - a[1]) * f + Math.sin(f * Math.PI) * 18;
+      d.tr = i === 0 || i === drip.length - 1 ? 20 : 15 + 2.5 * Math.sin(t * 6 + i);
+      springTo(d, dt, 70 - f * 40, 9);
+    });
+  } else drip.forEach((d, i) => { d.tr = 0; springTo(d, dt, 40, 9); });
+
+  const all = [...pool, cursor, ...drip].slice(0, MAX);
+  all.forEach((b, i) => { data[i * 4] = b.x * dpr; data[i * 4 + 1] = b.y * dpr; data[i * 4 + 2] = Math.max(0, b.r) * dpr; ks[i] = b.k; });
+  if (ok) { gl.uniform4fv(uB, data); gl.uniform1fv(uK, ks); gl.uniform2f(uRes, cv.width, cv.height); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); }
+  if (!reduce) requestAnimationFrame(frame);
+}
+pool.forEach((b, i) => { const [x, y] = poolHome(i); if (reduce) { b.x = x; b.y = y; } });
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

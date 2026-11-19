@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A′ · Stud Tide Lite (prototype)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,300..900&family=Martian+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --sky:#DCEBF3; --deep:#0E3B57; --teal:#1FA3A8; --foam:#F7FBFC; --sig:#FFC933; --ink:#0B2233; --paper:#F4F8FA; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--paper); color: var(--ink); font-family: "Martian Mono", ui-monospace, monospace; }
+  .hero { position: relative; min-height: 100svh; display: grid; grid-template-rows: auto 1fr; overflow: hidden; background: var(--sky); }
+  #sea { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 52%; display: block; }
+  .copy { position: relative; z-index: 2; padding: clamp(20px, 5vw, 64px); max-width: 1000px; }
+  .kicker { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+  h1 { font-family: "Anybody", sans-serif; font-weight: 850; font-variation-settings: "wdth" var(--w, 112); font-size: clamp(40px, 6.6vw, 104px); line-height: .88; margin: 14px 0 18px; color: var(--deep); }
+  .proof { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; padding: 0; list-style: none; }
+  .chip { background: var(--foam); border: 1.5px solid var(--deep); border-radius: 999px; padding: 7px 12px; font-size: 12px; box-shadow: 0 3px 0 var(--deep); }
+  .chip b { background: var(--sig); padding: 0 4px; }
+  .cta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 12px; }
+  .btn { background: var(--deep); color: var(--foam); text-decoration: none; padding: 12px 18px; border-radius: 999px; font-weight: 600; border: 0; font: inherit; font-weight: 600; cursor: pointer; display: inline-block; transition: transform .45s cubic-bezier(.34,1.56,.64,1); }
+  .btn.ghost { background: var(--foam); color: var(--deep); border: 1.5px solid var(--deep); }
+  .btn:focus-visible { outline: 3px solid var(--sig); outline-offset: 3px; }
+  section.calm { padding: clamp(24px, 6vw, 80px); max-width: 1100px; }
+  section.calm h2 { font-family: "Anybody"; font-variation-settings: "wdth" 120; font-weight: 800; font-size: clamp(28px, 4vw, 52px); margin: 0 0 16px; color: var(--deep); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .card { background: #fff; border: 1.5px solid var(--deep); border-radius: 14px; padding: 18px; font-size: 13px; line-height: 1.55; }
+  .card h3 { font-family: "Anybody"; font-variation-settings: "wdth" 100; margin: 0 0 6px; font-size: 22px; }
+  #wipe { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 10; display: none; }
+  #case { display: none; }
+  #case.on { display: block; }
+  .note { position: absolute; z-index: 3; left: 16px; bottom: 10px; font-size: 11px; color: var(--foam); text-shadow: 0 1px 2px #0008; }
+</style>
+</head>
+<body>
+<div id="home">
+  <header class="hero">
+    <div class="copy">
+      <div class="kicker">Kirill Jegosin · 18 · Kanta-Häme, Finland</div>
+      <h1 id="title">I build games, web products &amp; AI tools.</h1>
+      <ul class="proof">
+        <li class="chip"><b>Won</b> the Oxylabs challenge · Junction 2026</li>
+        <li class="chip">Published Roblox game · <b>223</b> solo commits</li>
+        <li class="chip"><b>2.6M</b> views on my Roblox Shorts</li>
+      </ul>
+      <div class="cta">
+        <a class="btn" href="mailto:k.jegosin@gmail.com">k.jegosin@gmail.com</a>
+        <button class="btn ghost" id="open">Open a case study ↗</button>
+      </div>
+    </div>
+    <canvas id="sea" aria-hidden="true"></canvas>
+    <div class="note">Prototype A′ · one 2D shader · stir the baseplate sea · the button shows the wave wipe</div>
+  </header>
+  <section class="calm">
+    <h2>Calm below the hero</h2>
+    <div class="cards">
+      <div class="card"><h3>Shill or Chill</h3>Won the Oxylabs challenge at Junction 2026, a 48-hour hackathon. I built the coordination detector.</div>
+      <div class="card"><h3>Sky Island TD</h3>Co-op Roblox tower defense. 15 waves, a boss, built solo.</div>
+      <div class="card"><h3>Ocean Radar</h3>Solo at Junction X Turku. AI suggests, a human confirms. 36 tests.</div>
+    </div>
+  </section>
+</div>
+<div id="case">
+  <section class="calm">
+    <p class="kicker">Case study 02</p>
+    <h2>Sky Island Tower Defense</h2>
+    <p>Here the case study page would start. The wave that brought you here is the same sea from the hero.</p>
+    <button class="btn" id="back">← Back to the sea</button>
+  </section>
+</div>
+<canvas id="wipe" aria-hidden="true"></canvas>
+
+<script>
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Side view of a Roblox-style voxel sea. 1D thick-liquid sim -> column heights -> shader draws studded blocks
+// whose grid rides the surface, so motion is smooth while the look stays voxel.
+const VS = `attribute vec2 p; varying vec2 uv; void main(){ uv = p*.5+.5; gl_Position = vec4(p,0.,1.); }`;
+const FS = `precision mediump float;
+varying vec2 uv; uniform sampler2D H; uniform float cols; uniform vec2 res; uniform float cell; uniform float t;
+vec3 deep=vec3(.055,.231,.341), teal=vec3(.122,.639,.659), foam=vec3(.969,.984,.988);
+float hAt(float c){ return texture2D(H, vec2((clamp(c,0.,cols-1.)+.5)/cols,.5)).r * 255. / 4.; }  // height in blocks
+void main(){
+  vec2 px = uv*res;                         // pixels, origin bottom-left
+  float c = floor(px.x/cell); float fx = fract(px.x/cell);
+  float h = hAt(c) + sin(c*.37+t*1.3)*.08;   // column height in blocks (float)
+  float y = px.y/cell;                       // pixel height in blocks
+  float studH = .22;
+  // stud on top of the column
+  float top = h;
+  float sx = abs(fx-.5);
+  bool inStud = y > top && y < top+studH && sx < .28;
+  if (y > top && !inStud) { gl_FragColor = vec4(0.); return; }
+  float depth = top - y;                     // blocks below surface
+  float row = floor(depth); float fy = fract(depth);
+  float k = clamp(1. - depth/7., 0., 1.);
+  vec3 col = mix(deep, teal, smoothstep(0.,.85,k));
+  float crest = clamp((h - hAt(c-1.)) * .8 + (h - 6.)*.12, 0., 1.);
+  col = mix(col, foam, smoothstep(.0,.9,k)*crest*.85 + (row < 1. ? .18 : 0.));
+  // bevel per block
+  float e = min(min(fx,1.-fx), min(fy,1.-fy));
+  col *= mix(.80, 1., smoothstep(0.,.07,e));
+  col += (1.-smoothstep(0.,.06,fy))*.10;     // top highlight of each block
+  if (inStud) { col = mix(teal, foam, .55 + crest*.4) * (1. - (fx-.5)*.5); }
+  // vertical light falloff: side shading from slope
+  float slope = hAt(c+1.) - hAt(c-1.);
+  col *= 1. - clamp(slope*.06, -.12, .12);
+  gl_FragColor = vec4(col, 1.);
+}`;
+
+function makeSea(canvas, cell) {
+  const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false });
+  if (!gl) return null;
+  const sh = (ty, s) => { const o = gl.createShader(ty); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(o); return o; };
+  const pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr); gl.useProgram(pr);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+  [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach(q => gl.texParameteri(gl.TEXTURE_2D, q, gl.NEAREST));
+  [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach(q => gl.texParameteri(gl.TEXTURE_2D, q, gl.CLAMP_TO_EDGE));
+  const U = n => gl.getUniformLocation(pr, n);
+  const s = { canvas, cell };
+  s.resize = () => {
+    const dpr = Math.min(devicePixelRatio, 2), r = canvas.getBoundingClientRect();
+    canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr); gl.viewport(0, 0, canvas.width, canvas.height);
+    s.dpr = dpr; s.W = Math.ceil(r.width / cell) + 1; s.rows = r.height / cell;
+    s.h = new Float32Array(s.W); s.v = new Float32Array(s.W); s.tmp = new Float32Array(s.W); s.bytes = new Uint8Array(s.W);
+    s.rest = s.rest ?? 0;
+  };
+  s.resize();
+  s.impulse = (cx, r, amt) => { for (let x = Math.max(0, Math.floor(cx - r)); x < Math.min(s.W, cx + r + 1); x++) { const d = Math.abs(x - cx); if (d <= r) s.v[x] += amt * (.5 + .5 * Math.cos(Math.PI * d / r)); } };
+  // thick liquid: wave eq + heavy damping + viscosity + spring back to rest level
+  s.step = () => { const { W, h, v, tmp } = s;
+    for (let x = 0; x < W; x++) { const l = x ? h[x-1] : h[x], r = x < W-1 ? h[x+1] : h[x]; v[x] += ((l + r) * .5 - h[x]) * .30 - (h[x] - s.rest) * .010; v[x] *= .968; }
+    for (let x = 0; x < W; x++) { h[x] += v[x]; const cap = s.rows * .96; if (h[x] > cap) { h[x] = cap - (h[x] - cap) * .3; v[x] *= .5; } }
+    for (let x = 1; x < W-1; x++) tmp[x] = h[x] + .22 * ((h[x-1] + h[x+1]) * .5 - h[x]);
+    for (let x = 1; x < W-1; x++) h[x] = tmp[x]; };
+  s.draw = t => { const { W, h, bytes } = s;
+    for (let x = 0; x < W; x++) bytes[x] = Math.max(0, Math.min(255, Math.round(h[x] * 4)));
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, W, 1, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, bytes);
+    gl.uniform1f(U('cols'), W); gl.uniform2f(U('res'), canvas.width, canvas.height); gl.uniform1f(U('cell'), cell * s.dpr); gl.uniform1f(U('t'), t);
+    gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); };
+  return s;
+}
+
+// ---------- hero sea ----------
+const seaCanvas = document.getElementById('sea');
+const mobile = matchMedia('(max-width: 700px)').matches;
+const sea = makeSea(seaCanvas, mobile ? 20 : 26);
+if (sea) { sea.rest = sea.rows * .5; sea.h.fill(sea.rest); }
+addEventListener('resize', () => { if (!sea) return; sea.resize(); sea.rest = sea.rows * .5; sea.h.fill(sea.rest); });
+let last = null;
+seaCanvas.closest('.hero').addEventListener('pointermove', e => {
+  if (!sea) return; const r = seaCanvas.getBoundingClientRect();
+  const gx = (e.clientX - r.left) / sea.cell;
+  const sp = last != null ? Math.min(4, Math.abs(gx - last)) : 0;
+  const near = 1 - Math.min(1, Math.max(0, (r.top - e.clientY) / 260));   // stronger close to the water
+  sea.impulse(gx, 3, (-.10 - sp * .16) * near); last = gx;
+}, { passive: true });
+const title = document.getElementById('title');
+const t0 = performance.now();
+function loop(now) {
+  const t = (now - t0) / 1000;
+  const p = (t - .2) / 2.2;                          // opening wave: a source sweeps left -> right
+  if (p > 0 && p < 1) sea.impulse(p * sea.W * .85, 3, .62 * (1 - p * .5));
+  for (let x = 0; x < sea.W; x++) sea.v[x] += Math.sin(x * .18 + t * 1.6) * .012;   // living swell
+  sea.step(); sea.draw(t);
+  let e = 0; for (let i = 0; i < sea.W; i++) e += Math.abs(sea.v[i]);
+  title.style.setProperty('--w', (108 + Math.min(30, e * .6)).toFixed(1));
+  requestAnimationFrame(loop);
+}
+if (sea) { if (reduce) sea.draw(0); else requestAnimationFrame(loop); }
+
+// ---------- tsunami wipe into a case study ----------
+const wipeC = document.getElementById('wipe');
+let wipe = null, busy = false;
+function goto(showCase) {
+  const swap = () => { document.getElementById('home').style.display = showCase ? 'none' : ''; document.getElementById('case').classList.toggle('on', showCase); scrollTo(0, 0); };
+  if (reduce || busy) return swap();
+  wipeC.style.display = 'block';
+  if (!wipe) wipe = makeSea(wipeC, mobile ? 22 : 30); else wipe.resize();
+  if (!wipe) { wipeC.style.display = 'none'; return swap(); }
+  busy = true;
+  const start = performance.now(); let swapped = false;
+  const ease = x => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3), inout = x => { x = Math.min(1, Math.max(0, x)); return x < .5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3) / 2; };
+  (function f(now) {
+    const t = (now - start) / 1000, top = wipe.rows * 1.15;
+    if (t < .75) {                                     // tsunami front with a curling crest
+      const front = ease(t / .7) * (wipe.W + 14);
+      for (let x = 0; x < wipe.W; x++) { const d = front - x; wipe.h[x] = d <= 0 ? 0 : top * (1 - Math.exp(-d / 5)) + 2.2 * Math.exp(-Math.pow(d - 3, 2) / 6) + Math.sin(x * .45 + t * 9) * .5; }
+    } else {                                           // swap under the water, then drain like honey
+      if (!swapped) { swap(); swapped = true; }
+      const L = top * (1 - inout((t - .78) / .85));
+      for (let x = 0; x < wipe.W; x++) wipe.h[x] = L <= 0 ? 0 : L + Math.sin(x * .32 + t * 5) * 1.1 * Math.min(1, L / 3);
+    }
+    wipe.draw(t);
+    if (t > 1.7) { wipeC.style.display = 'none'; busy = false; return; }
+    requestAnimationFrame(f);
+  })(start);
+}
+document.getElementById('open').onclick = () => goto(true);
+document.getElementById('back').onclick = () => goto(false);
+</script>
+</body>
+</html>
