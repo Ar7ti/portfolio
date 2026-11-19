@@ -34,14 +34,15 @@ H1      I build games,
 BODY    Open to internships, summer jobs & junior roles.                  [P11]
 
 CHIPS   BIG "Won"   Oxylabs challenge · Junction 2026                     [H3]
-        BIG "223"   commits on my solo Roblox game                        [ST10 ST9]
-        BIG "2.6M"  views on my Roblox Shorts                             [YT2]
+        BIG "223"   commits · solo Roblox game                            [ST10 ST9]
+        BIG "2.6M"  views · Roblox Shorts                                 [YT2]
 
 BUTTON  k.jegosin@gmail.com   [copy]                                      [P4]
 LINKS   LinkedIn · GitHub · CV                                            (small, next to the button)
 ```
 
-Word count: 7 (H1) + 7 (line) + 15 (chips) = **29**. To hit 25 exactly I can cut "on my" from two chips ("223 commits · solo Roblox game", "2.6M views · Roblox Shorts") → **25**. I'd keep the cut version.
+Word count: 7 (H1) + 7 (line) + 11 (chips) = **25**.
+Mock: `concepts/e-copy-hero-case.html` on branch `concepts/prototypes` (previews in `concepts/previews/e-*.webp`).
 
 Skim test: big text = "I build games, web products & AI tools" + "Won · 223 · 2.6M" + the email. ✔
 
@@ -94,6 +95,8 @@ RECEIPTS (LABEL style, collapsed by default)
         code     · github.com/JustinasLa/gemini-4-braincells               [H2]
 
 CTA     Want someone who ships like this?  k.jegosin@gmail.com
+
+Design note: on the night background the neon sticks stay on the right; a dark gradient sits behind the text column so contrast stays high.
 ```
 
 Word count (one-liner + results + blocks, without receipts and labels): **~115** (+ about 15 once "Next time" is filled). ✔ ≤ 150.
