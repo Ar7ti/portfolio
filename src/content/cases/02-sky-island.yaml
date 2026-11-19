@@ -12,10 +12,12 @@ results:
   - { value: '223', label: 'commits, all mine', facts: [ST10], asOf: 2026-11-18 }
   - { value: '1.1', label: 'Ember Update: new map, new season', facts: [ST7] }
 media:
-  - src: /media/projects/sky-island-map
+  # Gameplay loop slot: drop sky-island-gameplay.webm/.mp4 into public/media/projects/ and it
+  # replaces the poster in place (issue: record real gameplay in Roblox Studio).
+  - kind: video
+    src: /media/projects/sky-island-gameplay
+    poster: /media/projects/sky-island-map
     alt: The Sky Island Tower Defense map, a floating island with a winding enemy path.
-    caption: { text: Sky Island Tower Defense }
-    size: large
   - src: /media/projects/sky-island-all-clear
     alt: The ALL CLEAR screen after the last wave.
     caption: { text: ALL CLEAR }

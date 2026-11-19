@@ -96,3 +96,24 @@ test('case 03: two solo sub-projects with media and links, a video, no "Next tim
   await expect(subs.nth(1).locator('a.fig-link')).toHaveAttribute('href', /youtube\.com\/watch/);
   await expect(section).not.toContainText('Next time.');
 });
+
+test('case 02: gameplay video slot (poster until the loop lands), Short, play + code links', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const section = page.locator('#case-sky-island-tower-defense');
+  await expect(section.getByRole('heading', { level: 2 })).toHaveText('Sky Island Tower Defense');
+  const slot = section.locator('.video-slot');
+  await expect(slot).toHaveCount(1);
+  // Either the real loop (muted, never autoplaying under reduced motion) or the poster in its place.
+  const media = slot.locator('video, img');
+  await expect(media).toHaveCount(1);
+  const box = await media.boundingBox();
+  if (!box) throw new Error('video slot not rendered');
+  expect(box.width / box.height).toBeCloseTo(16 / 9, 1);
+  await expect(section.locator('.fig.short figcaption a')).toHaveAttribute(
+    'href',
+    /youtube\.com\/watch/,
+  );
+  await expect(section.locator('.blocks .pill')).toHaveText(['Play on Roblox', 'Read the code']);
+});
