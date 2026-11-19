@@ -45,6 +45,24 @@ const {
         });
       })();
     </script>
+    <!-- Tsunami wipe (#19): pick the view-transition type for this navigation before the first
+         render. Into a case: "tsunami"; from a case back to the home page: "tsunami-back". -->
+    <script is:inline>
+      addEventListener('pagereveal', (event) => {
+        const vt = event.viewTransition;
+        if (!vt) return;
+        const toCase = location.pathname.startsWith('/work/');
+        const from = window.navigation && navigation.activation && navigation.activation.from;
+        const fromUrl = from ? from.url : document.referrer;
+        const fromCase = fromUrl
+          ? new URL(fromUrl, location.href).pathname.startsWith('/work/')
+          : false;
+        if (toCase && !fromCase) vt.types.add('tsunami');
+        else if (fromCase && !toCase) vt.types.add('tsunami-back');
+      });
+    </script>
+    <!-- Don't start a page transition before the main content exists. -->
+    <link rel="expect" href="#main" blocking="render" />
     <title>{title}</title>
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
