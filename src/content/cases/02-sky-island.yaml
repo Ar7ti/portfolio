@@ -1,0 +1,49 @@
+# Case 02. Source: plan/COPY.md §3 (hardest call approved by Kirill).
+order: 2
+slug: sky-island-tower-defense
+theme: day
+label: { text: Case 02 · Roblox · Solo · May–Nov 2026, facts: [ST10] }
+title: Sky Island Tower Defense
+oneliner:
+  text: A co-op tower defense on Roblox. **Up to 4 players** hold a floating island against **15 waves** and a boss.
+  facts: [ST5, ST6]
+results:
+  - { value: Live, label: 'published on Roblox, 25 Oct 2026', facts: [ST1, ST2] }
+  - { value: '223', label: 'commits, all mine', facts: [ST10], asOf: 2026-11-18 }
+  - { value: '1.1', label: 'Ember Update: new map, new season', facts: [ST7] }
+media:
+  - src: /media/projects/sky-island-map
+    alt: The Sky Island Tower Defense map, a floating island with a winding enemy path.
+    caption: { text: Sky Island Tower Defense }
+    size: large
+  - src: /media/projects/sky-island-all-clear
+    alt: The ALL CLEAR screen after the last wave.
+    caption: { text: ALL CLEAR }
+    size: small
+  - kind: short
+    href: 'https://www.youtube.com/watch?v=U_WcrNfcY4A'
+    label: ALL TOWERS VS COLOSSUS
+    facts: [ST13]
+blocks:
+  - lead: My part.
+    text: '**Everything.** More than half the code is the UI: **~23K lines of React-lua**, which I switched to in July, two months in.'
+    facts: [ST9, ST14]
+  - lead: Hardest call.
+    text: Moving **every place onto one live save store**. Old rewards are credited **exactly once**, so nobody loses progress or gets it twice.
+    facts: [ST15]
+  - lead: Proof it works.
+    text: 'My **Python scripts drive Roblox Studio**: they play a match, try bad placements, check phone layouts and measure frame times.'
+    facts: [ST12]
+  - lead: Next time.
+    text: Get **real players testing before launch**, not after.
+    source: Kirill
+  - lead: Code.
+    text: Waves, enemy movement and the UI are **public**. Combat and economy stay private, so cheaters can't read them.
+    facts: [ST12]
+links:
+  - {
+      label: Play on Roblox,
+      href: 'https://www.roblox.com/games/86140743290043/Sky-Island-Tower-Defense',
+      facts: [ST1],
+    }
+  - { label: Read the code, href: 'https://github.com/Ar7ti/sky-island-td-showcase', facts: [ST12] }

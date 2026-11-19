@@ -1,0 +1,61 @@
+# Case 01. Source: plan/COPY.md §2 (approved by Kirill 2026-11-19).
+order: 1
+slug: shill-or-chill
+theme: night
+label: { text: Case 01 · Junction 2026 · 48-hour hackathon · Team of 4, facts: [H1, SC8, H2] }
+title: Shill or Chill
+oneliner:
+  text: Paste a meme or post. See where it started, and whether its spread is **real or coordinated**.
+  facts: [SC1]
+results:
+  - { value: Won, label: Oxylabs challenge, facts: [H3] }
+  - { value: 3rd, label: Hostinger challenge, facts: [H4] }
+  - { value: 3–4×, label: 'faster detection, same output', facts: [SC6] }
+media:
+  - src: /media/junction-2026/01-team-gemini-4-brain-cells
+    alt: The four members of Team Gemini 4 Brain Cells standing in front of the Junction 2026 stage.
+    facts: [H1, H2, M1, M2]
+    caption: { text: Team Gemini 4 Brain Cells · Junction 2026, facts: [M1, M2] }
+    size: large
+  - src: /media/junction-2026/02-team-building-at-tables
+    alt: The team working on laptops at a table under red and violet event lights.
+    caption: { text: 'Building, night one · Photo: Junction', facts: [M3, M4] }
+    size: small
+blocks:
+  - lead: My part.
+    text: I built the **coordination detector** and the pipeline that pulls **Bluesky posts** into our database.
+    facts: [SC5]
+  - lead: Hardest call.
+    text: Friend groups and bots that say they're bots look coordinated too. I added **guards for both**, so real communities don't get flagged.
+    facts: [SC5]
+  - lead: Proof it works.
+    text: Tested against **real Bluesky takedowns**, not our own examples.
+    facts: [SC5]
+  - lead: Next time.
+    text: Start the **demo on day one**, not the last night.
+    source: Kirill
+  - lead: Team.
+    text: Justinas Launikonis, Temuulen Norovpel, Valtteri Pertilä.
+    facts: [H2, SC9]
+    people:
+      - { name: Justinas Launikonis, href: 'https://github.com/JustinasLa' }
+      - { name: Temuulen Norovpel, href: 'https://github.com/akmet777' }
+      - { name: Valtteri Pertilä, href: 'https://github.com/valtteripertila' }
+receipts:
+  - kind: verified
+    text: 'Oxylabs on LinkedIn: "Meet Shill or Chill, built by …"'
+    href: 'https://www.linkedin.com/posts/oxylabs-io_the-oxylabs-tech-challenge-at-junction-2026-activity-7528373324872314880-ewiJ'
+    facts: [H3]
+  - kind: source
+    text: 'Hostinger 3rd: my LinkedIn post + a comment under the Oxylabs post'
+    href: 'https://www.linkedin.com/posts/kirill-jegosin-807199412_junction2026-hackathon-hostinger-share-7527845887637856257-TrMY/'
+    facts: [H4]
+  - kind: live
+    text: noise-radar.srv2159172.hstgr.cloud
+    href: 'https://noise-radar.srv2159172.hstgr.cloud'
+    facts: [SC2]
+  - kind: code
+    text: github.com/JustinasLa/gemini-4-braincells
+    href: 'https://github.com/JustinasLa/gemini-4-braincells'
+    facts: [H2]
+links: []

@@ -1,0 +1,47 @@
+# Archive (collapsed by default). Source: plan/COPY.md §8.
+- id: summary
+  summary: More small things I built # the count is rendered from items.length
+  items:
+    - {
+        name: Resale ticket checker bot,
+        year: '2026',
+        text: finds cheaper resale concert tickets for me,
+        link: { label: Code, href: 'https://github.com/Ar7ti/Ticketmaster_autochecker_bot' },
+        facts: [X4],
+      }
+    - {
+        name: Blockfect ticket checker bot,
+        year: '2026',
+        text: "an early bot that watched a summer concert's ticket sales",
+        link: { label: Code, href: 'https://github.com/Ar7ti/BlockfectTicketChecker_bot' },
+        facts: [X5],
+      }
+    - {
+        name: AI Food Checker,
+        year: '2026',
+        tag: paused,
+        text: an early prototype of a bigger health checker,
+        link: { label: Code, href: 'https://github.com/Ar7ti/Ai_FoodChecker' },
+        facts: [X2],
+      }
+    - {
+        name: HealMe,
+        year: '2026',
+        tag: planned,
+        text: 'workouts, health info and an AI food tracker; early Flutter prototype',
+        link: { label: Code, href: 'https://github.com/Ar7ti/heal_me' },
+        facts: [X3],
+      }
+    - {
+        name: First Roblox experiments,
+        year: '2026',
+        text: learning Rojo and React-lua,
+        facts: [X6],
+      }
+    - {
+        name: Old portfolio,
+        year: '2026',
+        text: the site this one replaced,
+        link: { label: Visit, href: 'https://home.kirills-portfolio.workers.dev/' },
+        facts: [X7],
+      }

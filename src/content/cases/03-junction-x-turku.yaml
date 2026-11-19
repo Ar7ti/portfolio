@@ -1,0 +1,60 @@
+# Case 03. Source: plan/COPY.md §4. No "Next time" block (Kirill's call).
+order: 3
+slug: junction-x-turku
+theme: night
+label: { text: Case 03 · Junction X Turku · Solo · Oct 2026, facts: [H8] }
+title: Two solo projects. One hackathon.
+oneliner:
+  text: 'At Junction X Turku I built **two products alone**: one for ocean investors, one for big life decisions.'
+  facts: [H8]
+results:
+  - { value: '2', label: 'solo projects, one weekend', facts: [H8] }
+  - { value: '2', label: "partner challenges: A'Pelago / Redstone and If", facts: [H8, H9, LS2] }
+  - { value: '36', label: tests in Ocean Radar, facts: [OR4] }
+media: []
+blocks: []
+links: []
+subprojects:
+  - title: Ocean Opportunity Radar
+    media:
+      - src: /media/projects/ocean-radar-hero
+        alt: Ocean Opportunity Radar workspace with a startup's claims and their sources.
+        caption: { text: Ocean Opportunity Radar }
+        size: large
+    oneliner:
+      {
+        text: Helps ocean funds decide the next step with a startup. **Every answer has a source.**,
+        facts: [OR1],
+      }
+    blocks:
+      - lead: Hardest call.
+        text: AI can find evidence, but it **never changes a score alone**. A person confirms first.
+        facts: [OR1]
+      - lead: Proof it works.
+        text: If the AI quotes a pitch, **the quote must really be in the text**, or it's rejected.
+        facts: [OR1]
+    links:
+      - {
+          label: Live demo,
+          href: 'https://ocean-opportunity-radar.kirills-portfolio.workers.dev/',
+          facts: [OR2],
+        }
+      - { label: Code, href: 'https://github.com/Ar7ti/Ocean-Opportunity-Radar', facts: [OR5] }
+  - title: Life Simulator
+    media:
+      - src: /media/projects/life-simulator-demo
+        alt: Life Simulator demo showing a plan with a budget and tasks.
+        caption: { text: Life Simulator }
+        size: large
+    oneliner:
+      {
+        text: 'An AI copilot for big life moves: a new city, a first car, a trip. It makes a **plan, a budget and tasks**.',
+        facts: [LS1],
+      }
+    blocks:
+      - lead: My part.
+        text: Backend with OpenAI, frontend and Playwright tests. **Closed now**; the demo runs on example data.
+        facts: [LS4, LS5]
+    links:
+      - { label: Demo, href: 'https://ar7ti.github.io/life-simulator-demo/', facts: [LS3] }
+      - { label: Video, href: 'https://www.youtube.com/watch?v=1SZf0ZxGyEs', facts: [LS7] }

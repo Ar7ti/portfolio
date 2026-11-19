@@ -1,0 +1,30 @@
+# Card. Source: plan/COPY.md §6 "YouTube: Sharky_blox".
+order: 1
+title: Sharky_blox
+label: { text: YouTube · Roblox Shorts · since 2023, facts: [P8] }
+asOf: 2026-11-19
+big: { value: 2.6M, label: views, facts: [YT2] }
+row: { text: 9.95K subscribers · 33 Shorts, facts: [YT1] }
+body:
+  - { text: My top Short has **1.19M views**. Same audience my games are for., facts: [YT3] }
+media:
+  - {
+      src: /media/projects/short-nYNWmpUQma0,
+      href: 'https://www.youtube.com/watch?v=nYNWmpUQma0',
+      alt: Cover of the Short "All Tsunamis VS All Dinosaurs IN Escape Waves For Brainrots!",
+      caption: { text: 1.19M, facts: [YT3] },
+    }
+  - {
+      src: /media/projects/short-qhQ8C8tMOUk,
+      href: 'https://www.youtube.com/watch?v=qhQ8C8tMOUk',
+      alt: Cover of the Short "ULTIMATE FIGHT All Dinosaurs VS All Tsunamis IN Escape Waves For Brainrots!",
+      caption: { text: 412K, facts: [YT4] },
+    }
+  - {
+      src: /media/projects/short-kK4hmX_hrv0,
+      href: 'https://www.youtube.com/watch?v=kK4hmX_hrv0',
+      alt: Cover of the Short "Rainbow Ladder In The Sky VS All Waves In Escape Waves For Brainrots!",
+      caption: { text: 172K, facts: [YT5] },
+    }
+links:
+  - { label: Watch on YouTube, href: 'https://www.youtube.com/@Sharky_main', facts: [P8] }
