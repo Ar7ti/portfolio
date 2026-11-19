@@ -1,8 +1,10 @@
 # PLAN
 
 Step 1 (done): repo + sources → FACTS.md, PROJECTS.md, questions answered.
-Step 2 (now): MOODBOARD.md, jury model (below), CONCEPTS.md + prototypes on branch `concepts/prototypes`. Waiting for "делай вариант N".
-Step 3: COPY.md. Step 4: issues + plan/prompts/. Step 5: build. Step 6: deploy. Step 7: review loop.
+Step 2 (done): moodboard, jury model, concepts. Chosen: A + A′ tsunami wipe + B receipts, day → dusk → night.
+Step 3 (done, one wording pending): COPY.md.
+Step 4 (done): 25 issues #2–#26 in 7 milestones (plan/ISSUES.md), prompts in plan/prompts/.
+Step 5 (next): build issue by issue, starting with #2. Step 6: deploy (#6). Step 7: review loop (#26).
 
 ## Jury model
 
