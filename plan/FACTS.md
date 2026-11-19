@@ -132,5 +132,14 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 
 Numbers on the site carry an "as of <date>" stamp.
 
+## Media
+
+| # | Fact | Status | Source |
+|---|---|---|---|
+| M1 | Junction 2026 photos 01–06 in `public/media/junction-2026/`, metadata stripped | V | MEDIA.md |
+| M2 | Teammates agreed to appear in photos 01 and 02 | S | Kirill 2026-11-19 |
+| M3 | Photos 02, 04, 06: permission from the Junction organizers to use freely | S | "Junction organizers' permission, per Kirill" 2026-11-19 |
+| M4 | Credit: "Photo: Junction". "Phuong Hoang" only for photos confirmed from the Closing Ceremony Junction 2026 album | V | https://www.flickr.com/photos/hackjunction/albums/72177720337085054 |
+
 ## Banned (no source)
 "1000+ hours coding", "20+ technologies", "∞ ideas", "4+ months shipping" (old site). Never use.

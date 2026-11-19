@@ -15,9 +15,3 @@ Thumbs.db
 plan/moodboard/*
 !plan/moodboard/.gitkeep
 
-# Junction photos waiting for clearance (see public/media/junction-2026/MEDIA.md):
-# 01/02 show teammates (photo consent pending), 02/04/06 likely official photographer (license pending)
-public/media/junction-2026/01-*
-public/media/junction-2026/02-*
-public/media/junction-2026/04-*
-public/media/junction-2026/06-*
