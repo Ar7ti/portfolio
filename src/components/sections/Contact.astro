@@ -21,7 +21,7 @@ const links = contact.contacts
   .filter((id) => id !== 'email')
   .flatMap((id) => {
     const c = contacts.get(id);
-    return c?.href ? [{ id, ...c, href: c.href }] : [];
+    return c?.href ? [{ ...c, id, href: c.href }] : [];
   });
 ---
 
