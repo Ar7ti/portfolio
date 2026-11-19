@@ -200,6 +200,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       return { core, halo, bx, tx: bx + lean, color: neon };
     });
     const streak = new Color();
+    const rowCentre = new Float32Array(stickDefs.length);
 
     const mask = islandMask(W, D, island.x - X0, island.z - Z0, island.r);
     const liquid = new Liquid({ width: W, depth: D, solid: mask });
@@ -220,6 +221,20 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       const islandSwell = swell(island.x, island.z, t);
       for (let z = 0; z < D; z++) {
         const pz = z + Z0;
+        // Reflection terms that only depend on the row: computed once, not per cell.
+        const reflect = night > 0.01 && pz > STICK_Z;
+        const tt = reflect ? Math.min(1, (pz - STICK_Z) / (NEAR_Z - STICK_Z)) : 0;
+        const rowWobble = reflect ? Math.sin(pz * 0.9 + t * 2.2) * 0.35 : 0;
+        const width = 1.3 + tt * 3.2;
+        const reach = Math.sqrt(width) * 2.6 + 4; // beyond this exp() < 0.02 even with slope
+        const rowFade = (1 - tt * 0.55) * 1.6 * night;
+        if (reflect) {
+          for (let k = 0; k < sticks.length; k++) {
+            const st = sticks[k]!;
+            rowCentre[k] = st.bx + (st.tx - st.bx) * tt * 0.55 + rowWobble;
+          }
+        }
+        let prevS = swell(X0 - 1, pz, t);
         for (let x = 0; x < W; x++) {
           const i = z * W + x;
           const px = x + X0;
@@ -236,34 +251,25 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
             const k = Math.min(1, Math.max(0, (hi + s * 0.6) * 0.45 + 0.45));
             color.copy(deep).lerp(mid, Math.min(1, k * 1.4));
             if (hi > 1.1) color.lerp(foam, Math.min(1, (hi - 1.1) * 0.7));
-            if (night > 0.01 && pz > STICK_Z) {
+            if (reflect) {
               // Reflections: each stick throws a streak towards the viewer; the waves bend it
               // (local slope shifts x) and the swell breaks it into bands.
               const slope =
-                (x < W - 1 ? h[i + 1]! : hi) -
-                (x > 0 ? h[i - 1]! : hi) +
-                (swell(px + 1, pz, t) - s);
-              const tt = Math.min(1, (pz - STICK_Z) / (NEAR_Z - STICK_Z));
-              for (const st of sticks) {
-                const xs =
-                  st.bx +
-                  (st.tx - st.bx) * tt * 0.55 +
-                  slope * 3.2 +
-                  Math.sin(pz * 0.9 + t * 2.2) * 0.35;
-                const width = 1.3 + tt * 3.2;
-                const dx = px - xs;
-                const intensity =
-                  Math.exp((-dx * dx) / width) *
-                  (1 - tt * 0.55) *
-                  (0.55 + 0.45 * Math.max(0, Math.min(1, hi + s + 0.6)));
-                if (intensity > 0.02)
-                  color.add(streak.copy(st.color).multiplyScalar(intensity * 1.6 * night));
+                (x < W - 1 ? h[i + 1]! : hi) - (x > 0 ? h[i - 1]! : hi) + (s - prevS) * 2;
+              const crest = 0.55 + 0.45 * Math.max(0, Math.min(1, hi + s + 0.6));
+              for (let k = 0; k < sticks.length; k++) {
+                const dx = px - rowCentre[k]! - slope * 3.2;
+                if (dx > reach || dx < -reach) continue;
+                const intensity = Math.exp((-dx * dx) / width) * crest * rowFade;
+                if (intensity > 0.032)
+                  color.add(streak.copy(sticks[k]!.color).multiplyScalar(intensity));
               }
             }
           }
           m4.makeTranslation(px, top, pz);
           mesh.setMatrixAt(i, m4);
           mesh.setColorAt(i, color);
+          prevS = s;
         }
       }
       mesh.instanceMatrix.needsUpdate = true;
