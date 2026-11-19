@@ -1,0 +1,191 @@
+/*
+ * Design tokens. Sources:
+ * - look: concepts/f-full-copy.html (approved mock)
+ * - sea and sky: concepts/d-day-to-night.html (DAY / DUSK / NIGHT objects)
+ * - neon: Junction 2026 photos (DECISIONS.log 2026-11-19 21:30)
+ *
+ * Raw colours are `--c-*`. Components use the semantic tokens (`--bg`, `--fg`, ...),
+ * which each `.theme-*` class sets, so one section can switch day → dusk → night.
+ */
+:root {
+  /* Brand and page colours (mock) */
+  --c-deep: #0e3b57;
+  --c-ink: #0b2233;
+  --c-foam: #f7fbfc;
+  --c-sky: #e7f1f6;
+  --c-mute: #4b6476;
+  --c-signal: #ffc933;
+  --c-win: #1a8f62;
+  --c-hl: #c8f560; /* receipts / verified */
+
+  /* Night and neon light sticks */
+  --c-night: #090709;
+  --c-violet: #8823b5;
+  --c-coral: #e0685b;
+  --c-magenta: #cf2672;
+  --c-lilac: #d9a6f2;
+  --c-soft: #cbbfd3;
+  --c-night-fg: #f4eef7;
+  --c-night-body: #e9e1ee;
+  --c-dusk-bg: #1a0b24;
+  --c-deep-label: #a9c6d6;
+
+  /* Sea palettes (prototype D). Read by the WebGL tiers and the CSS fallback. */
+  --sea-day-deep: #0e3b57;
+  --sea-day-mid: #1fa3a8;
+  --sea-day-foam: #f7fbfc;
+  --sea-day-fog: #dcebf3;
+  --sea-day-sand: #f1d9a0;
+  --sea-day-grass: #63c06b;
+  --sea-day-sky-a: #cfe4ef;
+  --sea-day-sky-b: #dcebf3;
+
+  --sea-dusk-sky-a: #8823b5;
+  --sea-dusk-sky-b: #e0685b;
+  --sea-dusk-fog: #b8506e;
+
+  --sea-night-deep: #07050a;
+  --sea-night-mid: #1d0f2b;
+  --sea-night-foam: #6b3a8c;
+  --sea-night-fog: #090709;
+  --sea-night-sand: #3a2a3a;
+  --sea-night-grass: #1c3a2a;
+  --sea-night-sky-a: #090709;
+  --sea-night-sky-b: #1a0b24;
+
+  /* Fonts */
+  --font-display: 'Anybody', 'Arial Black', 'Helvetica Neue', sans-serif;
+  --font-body: 'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-label: 'Martian Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+
+  /* Type sizes. Mobile values keep the longest word of each heading inside 360 px. */
+  --size-h1: clamp(38px, 11.5vw, 116px);
+  --size-h2: clamp(34px, 10.4vw, 100px); /* case titles */
+  --size-h2-long: clamp(34px, 10.4vw, 100px); /* longer case titles (Case 02, 03) */
+  --size-h2-xl: clamp(38px, 11.6vw, 150px); /* contact, 404 */
+  --size-h2-sec: clamp(34px, 10.4vw, 88px); /* section titles */
+  --size-h3: clamp(28px, 8.6vw, 48px);
+  --size-big: clamp(34px, 10vw, 52px);
+  --size-big-chip: 34px;
+  --size-oneliner: clamp(22px, 2.3vw, 30px);
+  --size-body: 18px;
+  --size-small: 16px;
+  --size-label: 12px;
+  --measure: 60ch;
+
+  /* Space, shape */
+  --gutter: clamp(16px, 5vw, 72px);
+  --section-y: clamp(40px, 8vw, 120px);
+  --content-max: 1120px;
+  --radius-s: 8px;
+  --radius-m: 16px;
+  --radius-l: 20px;
+  --radius-pill: 999px;
+  --shadow-block: 0 5px 0 var(--c-deep);
+
+  /* Day is the default theme */
+  --bg: var(--c-sky);
+  --fg: var(--c-ink);
+  --fg-strong: var(--c-deep);
+  --fg-body: var(--c-ink);
+  --label: var(--c-mute);
+  --accent: var(--c-deep);
+  --hl-mark: var(--c-signal);
+  --button-bg: var(--c-deep);
+  --button-fg: var(--c-foam);
+  --focus: var(--c-deep);
+  --rule: #0e3b5722;
+  --big-1: var(--c-win);
+  --big-2: var(--c-deep);
+  --big-3: var(--c-deep);
+}
+
+@media (min-width: 861px) {
+  :root {
+    --size-h1: clamp(48px, 7.2vw, 116px);
+    --size-h2: clamp(42px, 8.4vw, 140px);
+    --size-h2-long: clamp(42px, 6.2vw, 100px);
+    --size-h2-xl: clamp(56px, 9vw, 150px);
+    --size-h2-sec: clamp(40px, 6vw, 88px);
+    --size-h3: clamp(30px, 3.6vw, 48px);
+    --size-big: clamp(46px, 6vw, 84px);
+  }
+}
+
+.theme-day {
+  --bg: var(--c-sky);
+  --fg: var(--c-ink);
+  --fg-strong: var(--c-deep);
+  --fg-body: var(--c-ink);
+  --label: var(--c-mute);
+  --accent: var(--c-deep);
+  --hl-mark: var(--c-signal);
+  --button-bg: var(--c-deep);
+  --button-fg: var(--c-foam);
+  --focus: var(--c-deep);
+  --rule: #0e3b5722;
+  --big-1: var(--c-win);
+  --big-2: var(--c-deep);
+  --big-3: var(--c-deep);
+}
+
+/* Sunset stop: violet → coral sky, text sits on the deep violet. */
+.theme-dusk {
+  --bg: var(--c-dusk-bg);
+  --fg: var(--c-night-fg);
+  --fg-strong: #fff;
+  --fg-body: var(--c-night-body);
+  --label: #dcc8ea;
+  --accent: var(--c-coral);
+  --hl-mark: var(--c-coral);
+  --button-bg: var(--c-hl);
+  --button-fg: #111;
+  --focus: var(--c-signal);
+  --rule: #ffffff22;
+  --big-1: var(--c-hl);
+  --big-2: var(--c-coral);
+  --big-3: var(--c-lilac);
+}
+
+.theme-night {
+  --bg: var(--c-night);
+  --fg: var(--c-night-fg);
+  --fg-strong: #fff;
+  --fg-body: var(--c-night-body);
+  --label: var(--c-soft);
+  --accent: var(--c-coral);
+  --hl-mark: var(--c-coral);
+  --button-bg: var(--c-hl);
+  --button-fg: #111;
+  --focus: var(--c-signal);
+  --rule: #ffffff22;
+  --big-1: var(--c-hl);
+  --big-2: var(--c-coral);
+  --big-3: var(--c-lilac);
+}
+
+/* Contact block */
+.theme-deep {
+  --bg: var(--c-deep);
+  --fg: var(--c-foam);
+  --fg-strong: #fff;
+  --fg-body: var(--c-foam);
+  --label: var(--c-deep-label);
+  --accent: var(--c-signal);
+  --hl-mark: var(--c-signal);
+  --button-bg: var(--c-signal);
+  --button-fg: #111;
+  --focus: var(--c-signal);
+  --rule: #ffffff22;
+  --big-1: var(--c-signal);
+  --big-2: #fff;
+  --big-3: #fff;
+}
+
+.theme-day,
+.theme-dusk,
+.theme-night,
+.theme-deep {
+  background-color: var(--bg);
+  color: var(--fg);
+}

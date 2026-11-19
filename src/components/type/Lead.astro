@@ -1,0 +1,18 @@
+---
+/** LEAD + BODY block: a bold lead-in ("My part.") followed by one or two sentences. */
+interface Props {
+  lead: string;
+}
+const { lead } = Astro.props;
+---
+
+<p class="body lead-block">
+  <span class="lead">{lead}</span>
+  <slot />
+</p>
+
+<style>
+  .lead-block {
+    margin: 0;
+  }
+</style>

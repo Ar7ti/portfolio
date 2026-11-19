@@ -1,36 +1,25 @@
 ---
 import Base from '../layouts/Base.astro';
+import Heading from '../components/type/Heading.astro';
+import Hl from '../components/type/Hl.astro';
 ---
 
 <Base>
-  <section id="point" class="placeholder" aria-labelledby="hero-title" tabindex="-1">
-    <h1 id="hero-title">
-      I build games, <br />
-      web products <br />
-      &amp; AI tools.
-    </h1>
-    <p>
-      Open to <b>internships, summer jobs &amp; junior roles</b>.
-    </p>
-    <p>
-      <a href="mailto:k.jegosin@gmail.com">k.jegosin@gmail.com</a>
-    </p>
+  <section id="point" class="section theme-day" aria-labelledby="hero-title" tabindex="-1">
+    <div class="inner">
+      <Heading level={1} id="hero-title">
+        I build games, <br />
+        web products <br />
+        &amp; AI tools.
+      </Heading>
+      <p class="body">
+        Open to <Hl>internships, summer jobs &amp; junior roles</Hl>.
+      </p>
+      <p>
+        <a class="button" href="mailto:k.jegosin@gmail.com">
+          k.jegosin@gmail.com
+        </a>
+      </p>
+    </div>
   </section>
 </Base>
-
-<style>
-  .placeholder {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 64px 16px;
-  }
-
-  h1 {
-    margin: 0 0 24px;
-    font-family: var(--font-display);
-    font-weight: 850;
-    font-stretch: 112%;
-    font-size: clamp(40px, 9vw, 112px);
-    line-height: 0.9;
-  }
-</style>
