@@ -2,6 +2,7 @@
 import { getEntry } from 'astro:content';
 import '../styles/global.css';
 import { formatDate } from '../lib/dates';
+import SeoTags from '../components/seo/SeoTags.astro';
 
 interface Props {
   title?: string;
@@ -33,8 +34,7 @@ const {
     <title>{title}</title>
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
-    <!-- Real favicon comes with the SEO issue (#23); this stops the /favicon.ico 404. -->
-    <link rel="icon" href="data:," />
+    <SeoTags title={title} description={description} noindex={noindex} />
     <!-- The hero face (Anybody) is inlined in the CSS; the body face is preloaded so it usually
          makes the font-display: optional window on the first visit. -->
     <link
