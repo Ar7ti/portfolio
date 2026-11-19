@@ -7,3 +7,4 @@
 *.webm binary
 *.pdf binary
 *.woff2 binary
+plan/DECISIONS.log merge=union

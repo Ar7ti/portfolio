@@ -7,4 +7,10 @@ export default defineConfig({
   trailingSlash: 'never',
   // CSS is small; inlining it removes the only render-blocking request before the hero text.
   build: { format: 'file', inlineStylesheets: 'always' },
+  vite: {
+    build: {
+      // Inline the hero font (≈31 KB) as a data URI; everything else uses the default limit.
+      assetsInlineLimit: (file) => (file.endsWith('anybody.woff2') ? true : undefined),
+    },
+  },
 });
