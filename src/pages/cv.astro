@@ -301,6 +301,16 @@ const shown = <T extends { pending?: string | undefined }>(list: readonly T[]) =
     color: var(--c-deep);
   }
 
+  /* On screen, links get a 24 px tap target (WCAG 2.2); print keeps the tight layout. */
+  @media screen {
+    .cv-contacts a,
+    .cv-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+    }
+  }
+
   @media screen and (max-width: 840px) {
     body {
       padding: 0;
