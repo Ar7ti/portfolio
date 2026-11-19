@@ -9,15 +9,18 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 | # | Fact | Status | Source |
 |---|---|---|---|
 | P1 | Name: Kirill Jegosin | V | brief; https://github.com/JustinasLa/gemini-4-braincells (credits) |
-| P2 | Age 18, lives in Finland | S | brief; old site About; GitHub profile README |
-| P3 | ICT student at FAI | S | brief; LinkedIn headline per playbook ("Software Developer \| ICT Student @ FAI") |
+| P2 | Age 18, lives in Finland. Site location: **"Kanta-Häme, Finland"** (no town/village name) | S | brief; LinkedIn location per Kirill 2026-11-19 |
+| P3 | **ICT student at LHKK, 2025–2027 (expected)**. "FAI" in the brief/playbook is wrong, corrected | S | Kirill 2026-11-19; LinkedIn headline "Software Developer \| ICT Student @ LHKK \| 🏆 Junction 2026: 1st Oxylabs, 3rd Hostinger" |
 | P4 | Email: k.jegosin@gmail.com | V | brief; old site contact (mailto) |
 | P5 | GitHub: https://github.com/Ar7ti | V | gh CLI |
 | P6 | LinkedIn: https://www.linkedin.com/in/kirill-jegosin-807199412/ | S | brief; old site. Page is login-walled (HTTP 999), content not readable |
-| P7 | Telegram: https://t.me/krnl_159 | V | old site; GitHub profile README. **Keep on new site? ?** |
-| P8 | YouTube: https://www.youtube.com/@Sharky_main (brief also calls it "Sharky_blox") | ? | brief. Blocked by consent wall, nothing readable |
+| P7 | Telegram https://t.me/krnl_159: secondary contact. Email is primary | V | old site; profile README; Kirill 2026-11-19 |
+| P8 | YouTube channel **Sharky_blox** (@Sharky_main), id UCY8D3L6idwV03bEbGu6ndeA, joined 2023-05-01, Roblox Shorts, audience mostly kids/teens. See section YouTube | V | channel page + RSS, read 2026-11-19 |
 | P9 | "Started programming 2024", "Learned React 2025" | S | old site timeline only, no other source |
-| P10 | LinkedIn headline, education dates, experience | ? | not readable |
+| P10 | LinkedIn About: "Software Developer \| Junction 2026: Oxylabs Winner & Hostinger 3rd Place \| AI, Web & Game Development" | S | Kirill 2026-11-19 (profile login-walled) |
+| P11 | Open to: "Internships, summer jobs and junior roles. Remote, or on-site within ~1 hour of Forssa." | S | Kirill 2026-11-19 |
+| P12 | Applying to Aalto University in 2027 | S | Kirill 2026-11-19 |
+| P13 | Second YouTube account @KirillJegosin: "LifeSimulator. My startup idea for Junction Turku!" https://www.youtube.com/watch?v=1SZf0ZxGyEs | V | YouTube oEmbed |
 
 ## Hackathons
 
@@ -25,14 +28,14 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 |---|---|---|---|
 | H1 | Junction 2026 took place 13–15 Nov 2026 in Espoo | V | https://www.espoo.fi/en/events/espooevents:agp767vqb4 (event listing) |
 | H2 | Team "Gemini 4 Brain Cells": Justinas Launikonis, Temuulen "Tibi" Norovpel, Kirill Jegosin, Valtteri Pertilä | V | team repo README credits https://github.com/JustinasLa/gemini-4-braincells |
-| H3 | Shill or Chill won the Oxylabs challenge at Junction 2026 | S | team repo description; Kirill's profile README. **No official Junction/Oxylabs page found → need a link ?** |
-| H4 | Shill or Chill took 3rd place in the Hostinger (main-track) challenge | S | same as H3 |
+| H3 | Shill or Chill **won the Oxylabs challenge** at Junction 2026 (one winner; never "1st place", never "won Junction") | **V** | Oxylabs post: "Meet Shill or Chill, built by Justinas Launikonis, Kirill Jegosin, Temuulen Norovpel and Valtteri Pertilä." https://www.linkedin.com/posts/oxylabs-io_the-oxylabs-tech-challenge-at-junction-2026-activity-7528373324872314880-ewiJ |
+| H4 | Shill or Chill took **3rd place in the Hostinger challenge** | S+ | Kirill's post https://www.linkedin.com/posts/kirill-jegosin-807199412_junction2026-hackathon-hostinger-share-7527845887637856257-TrMY/ (notes 3rd place "was never shown during the ceremony"); third-party comment by Emilis Strimaitis under the Oxylabs post ("managed to end up 3rd in Hostinger challenge as well"). Hostinger's own post names only the winner (Hot Reload, "Source Check"; ~60 teams in the challenge): https://www.linkedin.com/posts/hostinger_what-do-you-do-when-2000-builders-voluntarily-activity-7528829002405453824-qHRI . Link the Oxylabs post as the primary proof |
 | H5 | Built over the Junction weekend; team repo created 2026-11-13, last push 2026-11-15 | V | GitHub API (createdAt / pushedAt) |
 | H6 | Team members met on Discord | S | Kirill's profile README |
-| H7 | Junction X Vaasa 2026: attended, built Guardio | S | profile README. Event dates not found → ? |
-| H8 | Junction X Turku 2026: attended, built Life Simulator for the If Insurance challenge | S | life-simulator-demo README; profile README. Event dates not found → ? |
-| H9 | Ocean Opportunity Radar built for the A'Pelago / Redstone challenge | S | Ocean-Opportunity-Radar README. **Which event? ?** |
-| H10 | Hackathon count: at least 3 (Vaasa, Turku, Junction 2026); 4 if Ocean Radar was a separate event | ? | derived from H3–H9 |
+| H7 | Junction X Vaasa 2026: built Guardio (repo commits 2026-10-03) | S | profile README; GitHub API |
+| H8 | Junction X Turku 2026 (mid-Oct): **two projects, both solo, at one hackathon**: Life Simulator (If Insurance challenge) + Ocean Opportunity Radar (A'Pelago / Redstone challenge) | S+ | Kirill 2026-11-19; READMEs; first commits 2026-10-16 (Ocean), 2026-10-17 (Life Sim), each repo single-author |
+| H9 | Ocean Opportunity Radar: A'Pelago / Redstone challenge, Junction X Turku | S | README; Kirill |
+| H10 | **3 hackathons, 4 hackathon projects** (Vaasa: Guardio; Turku: Life Simulator + Ocean Radar; Junction 2026: Shill or Chill) | V | derived from H3–H9 |
 
 ## Shill or Chill (Junction 2026)
 
@@ -45,7 +48,9 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 | SC5 | Kirill's part: the "signals" coordination detector (v1 → v1.10: null model, organic guards, friend-group and automation guards, semantic duplicates, red-team fixes), the Bluesky Jetstream → Postgres ingest pipeline (failover, malformed-record handling), and external evaluation against real Bluesky takedowns; wrote METHODOLOGY.md | V | 18 commits by Ar7ti in team repo, 2026-11-13 20:22 → 2026-11-14 16:49 (GitHub API) |
 | SC6 | Kirill: "3-4x faster detection passes with identical output" | V (commit message) | commit 2026-11-14 01:01 in team repo |
 | SC7 | Commit counts: JustinasLa 90, akmet777 53, entire[bot] 29, Ar7ti 18, valtteripertila 13 | V | GitHub contributors API. Commit count ≠ contribution size; don't publish it |
-| SC8 | "Built in 48 h with AI agents" | S | brief. Repo spans ~38 h of pushes; Junction is a weekend event. Use "one weekend" unless Kirill confirms 48 h |
+| SC8 | Wording: **"at Junction 2026, a 48-hour hackathon"** (true of the event; never claim the code took exactly 48 h). Built with AI agents (Codex, Entire per team README) | V | Kirill 2026-11-19; team README |
+| SC9 | Teammates agreed to be linked: https://github.com/JustinasLa · https://github.com/akmet777 (Temuulen) · https://github.com/valtteripertila | S | Kirill 2026-11-19 |
+| SC10 | Junction 2026 had ~2,000 builders | S (Hostinger post wording "2000 builders") | Hostinger post |
 
 ## Sky Island Tower Defense (Roblox)
 
@@ -53,8 +58,9 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 |---|---|---|---|
 | ST1 | Published on Roblox: https://www.roblox.com/games/86140743290043/Sky-Island-Tower-Defense | V | page HTTP 200 |
 | ST2 | Experience created 2026-10-25, last updated 2026-11-18 | V | games.roblox.com API, universeId 10772907075 |
-| ST3 | Creator account: **lollipop_hak** (user 824298538) | V | Roblox API. **Is this Kirill's account? ?** |
-| ST4 | Stats on 2026-11-19: 66 visits, 2 favorites, 2 likes / 0 dislikes, 0 playing | V | Roblox API. Small numbers: don't lead with them |
+| ST3 | Creator account **lollipop_hak** (user 824298538) is Kirill's | V | Roblox API; Kirill 2026-11-19 |
+| ST4 | 2026-11-19: 66 visits, 2 favorites, 2 likes / 0 dislikes. **Not shown on the site** (agreed). Framing: "published game, 223 commits, built solo" | V | Roblox API; Kirill |
+| ST13 | Gameplay Short on his channel: "ALL TOWERS VS COLOSSUS In Sky Island Tower Defense!" (2026-11-17) https://www.youtube.com/watch?v=U_WcrNfcY4A | V | channel RSS |
 | ST5 | Co-op up to 4 players (party pads → teleport into a match); API maxPlayers = 25 (server size, not party size) | V | game description; showcase README; API |
 | ST6 | 15 waves, elites, splitting enemies, boss "the Colossus" | V | showcase README; game description |
 | ST7 | Update 1.1 "Ember Update": new map Ember Observatory, Ember Season from Nov 26 with 30 tiers of free rewards | V | game description (API) |
@@ -72,7 +78,7 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 | OR2 | Live: https://ocean-opportunity-radar.kirills-portfolio.workers.dev/ (HTTP 200, demo data, fictional startup "Baltic Nutriloop") | V | fetched 2026-11-19 |
 | OR3 | Stack: React, TypeScript, TanStack Start, Tailwind, OpenAI API (structured outputs + web search), Vitest, Cloudflare Workers | V | README |
 | OR4 | 36 tests | V | counted `it/test(` in src/test/*.ts(x): 1 + 10 + 22 + 3 = 36 |
-| OR5 | Solo | S (repo has one author) | profile README; repo commits |
+| OR5 | Solo, at Junction X Turku | V | single author in repo; Kirill |
 | OR6 | First commit 2026-10-16, deploy/redesign 2026-10-20 | V | GitHub API |
 | OR7 | Honest limits: 3 demo startups are made up, catalog has 3 real opportunities | V | README "Honest notes" |
 
@@ -81,11 +87,12 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 | # | Fact | Status | Source |
 |---|---|---|---|
 | LS1 | AI helper for big life moments (moving, first car, furnishing, trip): plan with budget, tasks, things to buy | V | life-simulator-demo README |
-| LS2 | Built for the If Insurance challenge at Junction X Turku | S | README |
+| LS2 | Built solo for the If Insurance challenge at Junction X Turku | S+ | README; Kirill; video title P13 |
 | LS3 | Demo: https://ar7ti.github.io/life-simulator-demo/ (static, example data, not real AI results) | V | README; HTTP 200 |
 | LS4 | Full version: React, TypeScript, Vite, Tailwind, Fastify, OpenAI API; repo Ar7ti/if-lifeSaver (32 commits, all Ar7ti, 2026-10-17 → 2026-10-26, Playwright tests) | V | GitHub API |
-| LS5 | Old site called it "Public beta" and listed Next.js | ✗ conflicts with repo (Vite, demo only). Use repo facts. "Public beta" → ? |
-| LS6 | Old site: "Currently building Life Simulator" | S, possibly stale (last commit 2026-10-26) |
+| LS5 | Status **"demo"**, project closed. Never "public beta", not Next.js (old site was wrong) | V | Kirill 2026-11-19; repo |
+| LS7 | Demo video: https://www.youtube.com/watch?v=1SZf0ZxGyEs | V | YouTube oEmbed |
+| LS6 | No longer worked on (old site "Currently building Life Simulator" is stale) | V | Kirill |
 
 ## Guardio (Junction X Vaasa)
 
@@ -94,22 +101,36 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 | G1 | Family safety prototype: kids learn everyday home risks through short games; parents get 2-minute safety actions | V | old site; profile README |
 | G2 | Live: https://guardioo.netlify.app/#/home | S (not fetched yet) | profile README |
 | G3 | Code: Ar7ti/Junction-Hackaton ("safety-quest-source": React/TS, shadcn, bun; games ChooseAction, DecisionStory, RiskChain, SafeOrRisky, SpotTheRisk); 2 commits on 2026-10-03 | V | GitHub API |
-| G4 | Team project | S | profile README. **Teammates and Kirill's exact part ?** |
+| G4 | Team of 4, two wrote the code. Kirill built most of the web app and split the rest of the coding 50/50 with the other developer. Teammates not named | S | Kirill 2026-11-19 |
 | G5 | Stack per old site: JavaScript, HTML/CSS, Gemini AI | S | old site; repo is TypeScript |
 
 ## Other things found
 
 | # | Fact | Source |
 |---|---|---|
-| X1 | Winter Toss (working title): Roblox winter throw-and-collect sim, Rojo + Wally + React-lua + ProfileStore, Luau strict, Lune tests; agent workflow; repo created 2026-11-18. Likely = "Throw Treats, Tame Pets!" ? | Ar7ti/Winter-Toss README, plan/GDD.md |
+| X1 | **Throw Treats, Tame Pets!**: new Roblox game, in progress, repo "Throw-Treats" (not visible via gh: local or not pushed yet). Winter-Toss = abandoned earlier attempt: archive, **never shown** | Kirill 2026-11-19 |
 | X2 | Ai_FoodChecker (2026-10-15, JS + server.js, no README) | GitHub |
 | X3 | heal_me / HealMe: Flutter health app, 3 commits, Oct 2026 | GitHub |
 | X4 | Ticketmaster_autochecker_bot (Jul 2026): personal bot that checks resale ticket listings | its README |
 | X5 | BlockfectTicketChecker_bot (Aug 2026, JS, no README) | GitHub |
 | X6 | Study (Jul 2026), React (May–Jun 2026): early Roblox/Rojo learning repos | GitHub |
 | X7 | web-portfolio (Jul–Oct 2026): source of the old "cosmic" site | GitHub |
-| X8 | Junction Moments: **not found** on GitHub or the old site ? | search |
-| X9 | YouTube channel content: unreadable ? | consent wall |
+| X8 | Junction Moments: unreleased. **Not shown, not mentioned, not finished now** | Kirill 2026-11-19 |
+| X9 | (YouTube moved to its own section) | |
+
+## YouTube: Sharky_blox (@Sharky_main)
+
+| # | Fact | Status | Source |
+|---|---|---|---|
+| YT1 | 9.95K subscribers, 33 videos (Shorts) | V | channel page header, read 2026-11-19 |
+| YT2 | 2,600,836 total views | S+ | Kirill, channel About, 2026-11-19 |
+| YT3 | "All Tsunamis VS All Dinosaurs IN Escape Waves For Brainrots!" 1,188,618 views (2026-04-05) https://www.youtube.com/watch?v=nYNWmpUQma0 | V | channel RSS 2026-11-19 |
+| YT4 | "ULTIMATE FIGHT All Dinosaurs VS All Tsunamis IN Escape Waves For Brainrots!" 412,166 views (2026-04-17) https://www.youtube.com/watch?v=qhQ8C8tMOUk | V | RSS |
+| YT5 | "Rainbow Ladder In The Sky VS All Waves In Escape Waves For Brainrots!" 171,895 views (2026-04-12) https://www.youtube.com/watch?v=kK4hmX_hrv0 | V | RSS |
+| YT6 | Channel description: "Hello! I make Roblox videos😱" | V | channel About |
+| YT7 | A video is titled "How I got 10 million views": **never quote that number**, no source | — | RSS |
+
+Numbers on the site carry an "as of <date>" stamp.
 
 ## Banned (no source)
 "1000+ hours coding", "20+ technologies", "∞ ideas", "4+ months shipping" (old site). Never use.
