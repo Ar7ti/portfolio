@@ -45,8 +45,8 @@ const site = await data('site', 'site');
 
   .receipt-mark:not(.verified) {
     background: transparent;
-    outline: 1px solid currentColor;
-    outline-offset: -1px;
+    /* A border drawn as a shadow, so the focus outline stays free. */
+    box-shadow: inset 0 0 0 1px currentColor;
     color: var(--label);
   }
 
