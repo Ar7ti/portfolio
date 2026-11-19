@@ -49,3 +49,4 @@
 2026-11-19 20:57, Hero copy button is progressive: hidden without JS or without the Clipboard API; the mailto button always works. CV link appears automatically once contacts.yaml has its href (#22).
 2026-11-19 20:57, Static sea image for now is the prototype D render (src/assets/hero/sea-day.webp); it gets re-rendered from the production scene in #9.
 2026-11-20 21:40, Case template: one CaseStudy component for home (H2, title links to /work/<slug>) and the case page (H1). Receipts start as a plain <details> list; #18 adds claim links and the ink drip. Night cases use the static night token until #11 brings the sea.
+2026-11-20 21:55, Case 03: the Life Simulator video is a linked thumbnail (life-simulator-video.webp → YouTube, play badge), not an embed: no third-party JS, nothing loads until clicked. Sub-project image captions that only repeated the H3 were removed.

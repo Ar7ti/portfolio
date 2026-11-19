@@ -77,3 +77,22 @@ test('case 01 on the home page links to its own page and credits the team', asyn
   await expect(section.locator('figure img')).toHaveCount(2);
   await expect(section.locator('details.receipts')).not.toHaveAttribute('open');
 });
+
+test('case 03: two solo sub-projects with media and links, a video, no "Next time"', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const section = page.locator('#case-junction-x-turku');
+  await expect(section.getByRole('heading', { level: 2 })).toHaveText(
+    'Two solo projects. One hackathon.',
+  );
+  const subs = section.locator('.sub');
+  await expect(subs).toHaveCount(2);
+  await expect(subs.locator('h3')).toHaveText(['Ocean Opportunity Radar', 'Life Simulator']);
+  for (const i of [0, 1]) {
+    await expect(subs.nth(i).locator('figure img').first()).toBeVisible();
+    await expect(subs.nth(i).locator('.pill')).toHaveCount(2);
+  }
+  await expect(subs.nth(1).locator('a.fig-link')).toHaveAttribute('href', /youtube\.com\/watch/);
+  await expect(section).not.toContainText('Next time.');
+});
