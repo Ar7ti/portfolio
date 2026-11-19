@@ -1,8 +1,12 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
-// `site` (canonical URL) is set in the deploy issue (#6), once the production URL is known.
+// Canonical URL for canonical links, Open Graph and the sitemap (#23). Deploy secrets (#6) aren't
+// set yet, so this is the expected workers.dev URL of the `portfolio` worker; override with SITE_URL.
+const SITE = process.env.SITE_URL ?? 'https://portfolio.kirills-portfolio.workers.dev';
+
 export default defineConfig({
+  site: SITE,
   output: 'static',
   trailingSlash: 'never',
   // CSS is small; inlining it removes the only render-blocking request before the hero text.

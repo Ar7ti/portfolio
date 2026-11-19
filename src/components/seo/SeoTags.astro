@@ -1,0 +1,42 @@
+---
+/**
+ * Canonical, Open Graph / Twitter card, icons and theme colour (#23). Home uses the OG copy from
+ * site.yaml (COPY.md §0); other pages use their own title and description.
+ * URLs are absolute from `site` in astro.config.mjs.
+ */
+import { data } from '../../lib/content';
+
+interface Props {
+  title: string;
+  description: string;
+  noindex?: boolean;
+}
+
+const { title, description, noindex = false } = Astro.props;
+const site = await data('site', 'site');
+const base = Astro.site ?? new URL(Astro.url.origin);
+// build.format 'file' + trailingSlash 'never': /work/x.html is served at /work/x.
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '/');
+const home = path === '/' || path === '';
+const canonical = new URL(path, base).href;
+const image = new URL('/og.jpg', base).href;
+const ogTitle = home ? site.og.title : title;
+const ogDescription = home ? site.og.description : description;
+---
+
+{!noindex && <link rel="canonical" href={canonical} />}
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content={site.og.title} />
+<meta property="og:title" content={ogTitle} />
+<meta property="og:description" content={ogDescription} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={image} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={`${site.og.title}: ${site.og.description}`} />
+<meta property="og:locale" content="en_GB" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="theme-color" content="#0e3b57" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
