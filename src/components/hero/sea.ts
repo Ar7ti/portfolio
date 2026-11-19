@@ -14,8 +14,7 @@ import type { SeaFactory, SeaRenderer } from '../../lib/sea/types';
 
 /** Renderers load only when their tier is chosen (never in the initial bundle). */
 const LOADERS: Record<1 | 2, () => Promise<SeaFactory | null>> = {
-  // Tier 1 lands with #10; until then phones keep the still.
-  1: async () => null,
+  1: () => import('../../lib/sea/sea2d').then((m) => m.createSea2D),
   2: () => import('../../lib/sea/sea3d').then((m) => m.createSea3D),
 };
 
