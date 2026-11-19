@@ -24,3 +24,4 @@
 2026-11-20 00:10, Tests: Playwright (layout/type checks at 360/390/768/1440, reduced motion, JS off), Lighthouse CI budgets, lychee link checker, a "no number without a FACTS id" content test.
 2026-11-20 00:10, Fonts self-hosted (Anybody, Schibsted Grotesk, Martian Mono; all OFL) with subsetting and preload of the hero face only.
 2026-11-20 00:40, Sky Island hardest call = save-data move to one live store (Release2), old rewards credited exactly once (Kirill's pick). The UI fact (~23K lines of React-lua, 55% of src) moved into "My part"; worded "switched to in July, two months in" because the first commit is 2026-05-23 and React starts 2026-07-21, so "first weeks" would be inaccurate.
+2026-11-20 00:55, Throw Treats, Tame Pets! moved to a new private repo Ar7ti/Throw-Treats with its own T3 project; Winter-Toss stays as an archive. Portfolio work now happens in the T3 project "Portfolio" (.t3/projects/portfolio).

@@ -110,7 +110,7 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 
 | # | Fact | Source |
 |---|---|---|
-| X1 | **Throw Treats, Tame Pets!**: new Roblox game, in progress, repo "Throw-Treats" (not visible via gh: local or not pushed yet). Winter-Toss = abandoned earlier attempt: archive, **never shown** | Kirill 2026-11-19 |
+| X1 | **Throw Treats, Tame Pets!**: new Roblox game, in progress. Repo **Ar7ti/Throw-Treats** (private, created empty 2026-11-19, T3 project "Throw Treats, Tame Pets!" at `.t3/projects/throw-treats`). Ar7ti/Winter-Toss is the abandoned earlier attempt (working title "Winter Toss"): archive, **never shown** | V | GitHub; Kirill 2026-11-19 |
 | X2 | Ai_FoodChecker (2026-10-15, JS + server.js, no README) | GitHub |
 | X3 | heal_me / HealMe: Flutter health app, 3 commits, Oct 2026 | GitHub |
 | X4 | Ticketmaster_autochecker_bot (Jul 2026): personal bot that checks resale ticket listings | its README |
