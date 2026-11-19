@@ -21,8 +21,11 @@ npm run preview    # serve dist/
 npm run check      # astro check (types) + ESLint + Prettier
 npm run format     # fix formatting
 npx playwright install chromium   # once
-npm run test       # Playwright: builds, serves, checks layout at 360/390/768/1440
+npm run test       # Playwright: builds, serves, checks layout at 360/390/768/1440, JS off, reduced motion, facts
+npx @lhci/cli autorun   # Lighthouse budgets, after npm run build
 ```
+
+Every PR runs the same in GitHub Actions (`.github/workflows/ci.yml`): checks + Playwright, a lychee link check, and Lighthouse CI with hard budgets (mobile performance ≥ 90, accessibility ≥ 95, SEO ≥ 95, LCP < 2.5 s, CLS < 0.1). Set `PORT` to run Playwright next to another preview server.
 
 ## Fonts
 
