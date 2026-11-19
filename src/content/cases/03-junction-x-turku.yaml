@@ -19,7 +19,6 @@ subprojects:
     media:
       - src: /media/projects/ocean-radar-hero
         alt: Ocean Opportunity Radar workspace with a startup's claims and their sources.
-        caption: { text: Ocean Opportunity Radar }
         size: large
     oneliner:
       {
@@ -44,8 +43,12 @@ subprojects:
     media:
       - src: /media/projects/life-simulator-demo
         alt: Life Simulator demo showing a plan with a budget and tasks.
-        caption: { text: Life Simulator }
         size: large
+      - src: /media/projects/life-simulator-video
+        alt: 'Play the Life Simulator demo video on YouTube.'
+        href: 'https://www.youtube.com/watch?v=1SZf0ZxGyEs'
+        facts: [LS7]
+        size: small
     oneliner:
       {
         text: 'An AI copilot for big life moves: a new city, a first car, a trip. It makes a **plan, a budget and tasks**.',

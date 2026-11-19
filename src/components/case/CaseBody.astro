@@ -29,16 +29,31 @@ const shorts = media.flatMap((item) => ('kind' in item ? [item] : []));
         const info = imageInfo(image.src);
         return (
           <figure class:list={['fig', image.size ?? 'large']} data-facts={image.facts?.join(' ')}>
-            <img
-              src={info.src}
-              srcset={info.srcset}
-              sizes="(max-width: 860px) 100vw, 50vw"
-              width={info.width}
-              height={info.height}
-              alt={image.alt}
-              loading="lazy"
-              decoding="async"
-            />
+            {image.href ? (
+              <a class="fig-link" href={image.href}>
+                <img
+                  src={info.src}
+                  srcset={info.srcset}
+                  sizes="(max-width: 860px) 100vw, 50vw"
+                  width={info.width}
+                  height={info.height}
+                  alt={image.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+            ) : (
+              <img
+                src={info.src}
+                srcset={info.srcset}
+                sizes="(max-width: 860px) 100vw, 50vw"
+                width={info.width}
+                height={info.height}
+                alt={image.alt}
+                loading="lazy"
+                decoding="async"
+              />
+            )}
             {image.caption && <Claim as="figcaption" class="label" claim={image.caption} />}
           </figure>
         );
@@ -96,6 +111,37 @@ const shorts = media.flatMap((item) => ('kind' in item ? [item] : []));
   .fig img {
     width: 100%;
     border-radius: var(--radius-m);
+  }
+
+  /* Linked media (a video thumbnail): a play badge over the image. */
+  .fig-link {
+    position: relative;
+    display: block;
+    border-radius: var(--radius-m);
+  }
+
+  .fig-link::before,
+  .fig-link::after {
+    content: '';
+    position: absolute;
+    inset: 50% auto auto 50%;
+    translate: -50% -50%;
+  }
+
+  .fig-link::before {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 6px 24px rgb(0 0 0 / 0.35);
+  }
+
+  .fig-link::after {
+    width: 20px;
+    height: 24px;
+    margin-left: 3px;
+    background: var(--c-night);
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
   }
 
   .fig :global(figcaption) {
