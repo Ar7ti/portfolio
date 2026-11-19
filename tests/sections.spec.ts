@@ -45,7 +45,7 @@ test.describe('more work cards', () => {
     expect(label.y).toBeLessThan(fig.y + fig.height);
 
     const guardio = cards.nth(1);
-    await expect(guardio.locator('img.card-shot')).toHaveAttribute('alt', /.+/);
+    await expect(guardio.locator('.card-media.shot img')).toHaveAttribute('alt', /.+/);
     await expect(guardio.getByRole('link')).toHaveText(['Live', 'Code']);
 
     const now = cards.nth(2);

@@ -4,7 +4,7 @@
  */
 import { loop, SOFT, Spring } from './spring';
 
-const MEDIA = '.case .fig img, .case .fig video, .card-shot, .covers img';
+const MEDIA = '.case .fig img, .case .fig video, .card-media img';
 const MAX_DEG = 3;
 
 export function initBend(): () => void {
