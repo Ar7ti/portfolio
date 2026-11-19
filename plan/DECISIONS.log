@@ -31,3 +31,7 @@
 2026-11-19 20:29, Big figures on phones: figure column = widest figure (subgrid), not the mock's fixed 7.8rem. Why: the type check found 'Won'/'3-4x' overflowing 7.8rem at 768 px.
 2026-11-19 20:29, /styleguide ships as a noindex page with the longest real headings in every theme. Why: the Playwright type check and Lighthouse run against the built site.
 2026-11-19 20:29, CSS inlined into the HTML (inlineStylesheets: always). Why: removed the only render-blocking request before the hero text.
+2026-11-19 20:39, Content layer: YAML content collections (site, contacts, cases, projects, hackathons, timeline, archive). plan/FACTS.md is parsed at build time as the only list of valid ids. Why: one source of truth; a wrong or missing id fails the build.
+2026-11-19 20:39, "Number" = a digit that starts a token ("223", "3rd", "2.6M"); digits inside handles ("Ar7ti", "krnl_159") are not numbers. Non-claims carry nofacts with a reason ("404", the fact-check date). Why: strict rule without false alarms.
+2026-11-19 20:39, Second guard on the rendered pages: every number in the DOM must sit inside data-facts / data-nofacts. Why: catches numbers hard-coded in components, which a data-only check can't see.
+2026-11-19 20:39, Archive summary count "(6)" is rendered from items.length, not typed. Why: it can't drift from the list.
