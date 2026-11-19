@@ -11,7 +11,22 @@ export function initSmoothScroll(): () => void {
     lenis.raf(time);
     id = requestAnimationFrame(raf);
   });
+  // Native jumps win: an anchor click, a key press or a hash change cancels any wheel glide,
+  // so Lenis never pulls the page back to an old target.
+  const settle = () => {
+    lenis.stop();
+    lenis.start();
+  };
+  const onClick = (e: MouseEvent) => {
+    if ((e.target as Element | null)?.closest?.('a[href*="#"]')) settle();
+  };
+  addEventListener('click', onClick, { capture: true });
+  addEventListener('keydown', settle, { capture: true });
+  addEventListener('hashchange', settle);
   return () => {
+    removeEventListener('click', onClick, { capture: true });
+    removeEventListener('keydown', settle, { capture: true });
+    removeEventListener('hashchange', settle);
     cancelAnimationFrame(id);
     lenis.destroy();
   };

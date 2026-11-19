@@ -7,8 +7,9 @@ const motionReady = (page: Page) =>
   expect(page.locator('html')).toHaveClass(/motion-on/, { timeout: 8000 });
 
 test('the CSS spring token is the SOFT spring', () => {
-  const css = readFileSync('src/styles/tokens.css', 'utf8');
-  expect(css).toContain(`--ease-spring: ${springEasing()};`);
+  // Prettier wraps the long value, so compare without whitespace.
+  const css = readFileSync('src/styles/tokens.css', 'utf8').replace(/\s+/g, '');
+  expect(css).toContain(`--ease-spring:${springEasing().replace(/\s+/g, '')};`);
 });
 
 test('desktop: smooth wheel on, anchors and keyboard still native', async ({ page }) => {
@@ -21,7 +22,7 @@ test('desktop: smooth wheel on, anchors and keyboard still native', async ({ pag
     .getByRole('link', { name: 'Timeline' })
     .click();
   await expect(page.locator('#timeline')).toBeInViewport();
-  await expect(page.locator('#timeline h2')).toHaveCSS('opacity', '1');
+  await expect(page.locator('#timeline h2')).toHaveClass(/motion-in/);
   await page.locator('body').press('End');
   await expect(page.locator('footer')).toBeInViewport();
 });
@@ -35,7 +36,6 @@ test('headings below the fold reveal when scrolled to; nothing above the fold is
   const heading = page.locator('#more h2');
   await heading.scrollIntoViewIfNeeded();
   await expect(heading).toHaveClass(/motion-in/);
-  await expect(heading).toHaveCSS('opacity', '1');
 });
 
 test.describe('reduced motion', () => {

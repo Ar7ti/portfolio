@@ -34,15 +34,14 @@
   /* Headline mask reveal: the heading slides up from behind its own box. */
   .motion-on .motion-mask {
     clip-path: inset(0 0 0 0);
+    /* Only a mask and a slide: the text itself stays fully opaque (contrast is never reduced). */
     transition:
       translate var(--dur-spring) var(--ease-spring),
-      opacity calc(var(--dur-spring) * 0.6) var(--ease-spring),
       clip-path var(--dur-spring) var(--ease-spring);
   }
 
   .motion-on .motion-mask:not(.motion-in) {
     translate: 0 0.6em;
-    opacity: 0;
     clip-path: inset(-0.2em 0 100% 0);
   }
 
@@ -53,7 +52,6 @@
   @media (prefers-reduced-motion: reduce) {
     .motion-mask {
       translate: none !important;
-      opacity: 1 !important;
       clip-path: none !important;
     }
   }
