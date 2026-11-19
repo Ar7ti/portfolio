@@ -3,6 +3,7 @@ import { data } from '../lib/content';
 import Base from '../layouts/Base.astro';
 import Claim from '../components/content/Claim.astro';
 import Heading from '../components/type/Heading.astro';
+import Hackathons from '../components/sections/Hackathons.astro';
 
 // Placeholder until the hero issue (#7). Copy comes from src/content/site.yaml.
 const site = await data('site', 'site');
@@ -23,4 +24,5 @@ const email = await data('contacts', 'email');
       </p>
     </div>
   </section>
+  <Hackathons />
 </Base>
