@@ -10,13 +10,15 @@ interface Props {
   claim: { text: string; facts?: readonly string[]; nofacts?: string | undefined };
   as?: 'p' | 'span' | 'div' | 'li' | 'h1' | 'h2' | 'h3' | 'figcaption';
   class?: string;
+  id?: string;
 }
 
-const { claim, as: Tag = 'span', class: className } = Astro.props;
+const { claim, as: Tag = 'span', class: className, id } = Astro.props;
 const facts = claim.facts?.length ? claim.facts.join(' ') : undefined;
 ---
 
 <Tag
+  id={id}
   class={className}
   data-facts={facts}
   data-nofacts={claim.nofacts}
