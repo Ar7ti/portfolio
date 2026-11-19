@@ -18,7 +18,7 @@ const SIM_W = 64;
 const SIM_D = 48;
 const SIM_CELL = 2;
 /** Max drawing-buffer pixels: keeps phones cool. */
-const MAX_PIXELS = 1_200_000;
+const MAX_PIXELS = 700_000;
 
 const VERTEX = `
 attribute vec2 aPos;
@@ -133,8 +133,8 @@ void main() {
   vec2 ihi = uIsland.xy + vec2(uIsland.z) * vec2(1.0, 0.8) + 1.0;
   if (hi.x > ilo.x && lo.x < ihi.x && hi.y > ilo.y && lo.y < ihi.y) {
     float prevT = tTop;
-    for (int i = 1; i <= 40; i++) {
-      float tt = mix(tTop, tBot, float(i) / 40.0);
+    for (int i = 1; i <= 28; i++) {
+      float tt = mix(tTop, tBot, float(i) / 28.0);
       vec3 q = uCamPos + dir * tt;
       float top = BASE + islandTop(q.xz, lift);
       if (q.y <= top) {
@@ -263,16 +263,18 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     gl = context;
     const derivatives = gl.getExtension('OES_standard_derivatives');
 
+    // Compile without asking for the status: that query blocks the main thread until the GPU
+    // process is done. With KHR_parallel_shader_compile we poll for completion instead.
     const compile = (type: number, source: string) => {
       const shader = context.createShader(type);
       if (!shader) throw new Error('shader alloc failed');
       context.shaderSource(shader, derivatives ? source : source.replace(/#extension[^\n]*\n/, ''));
       context.compileShader(shader);
-      if (!context.getShaderParameter(shader, context.COMPILE_STATUS)) {
-        throw new Error(context.getShaderInfoLog(shader) ?? 'shader compile failed');
-      }
       return shader;
     };
+    const parallel = gl.getExtension('KHR_parallel_shader_compile') as {
+      COMPLETION_STATUS_KHR: number;
+    } | null;
     const program = gl.createProgram();
     if (!program) throw new Error('program alloc failed');
     const vs = compile(gl.VERTEX_SHADER, VERTEX);
@@ -280,8 +282,18 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     gl.attachShader(program, vs);
     gl.attachShader(program, fs);
     gl.linkProgram(program);
+    if (parallel) {
+      while (!context.getProgramParameter(program, parallel.COMPLETION_STATUS_KHR)) {
+        await new Promise((resolve) => setTimeout(resolve, 16));
+        if (destroyed) return;
+      }
+    }
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      throw new Error(gl.getProgramInfoLog(program) ?? 'link failed');
+      const log =
+        context.getShaderInfoLog(fs) ||
+        context.getShaderInfoLog(vs) ||
+        context.getProgramInfoLog(program);
+      throw new Error(log || 'link failed');
     }
     gl.useProgram(program);
 
@@ -337,7 +349,7 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       if (!gl) return;
       const r = layer.getBoundingClientRect();
       if (!r.width || !r.height) return;
-      let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      let dpr = Math.min(window.devicePixelRatio || 1, 1.25);
       const pixels = r.width * r.height * dpr * dpr;
       if (pixels > MAX_PIXELS) dpr *= Math.sqrt(MAX_PIXELS / pixels);
       canvas.width = Math.round(r.width * dpr);

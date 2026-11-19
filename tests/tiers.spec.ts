@@ -105,7 +105,7 @@ test.describe('slow tier 2 downgrade', () => {
     await page.waitForFunction(() => sessionStorage.getItem('sea:slow3d') === '1', null, {
       timeout: 90_000,
     });
-    // Tier 1 isn't built yet (#10), so the downgrade lands on the still.
+    // The downgrade lands on tier 1.
     await expect(page.locator('html')).not.toHaveAttribute('data-sea-tier', '2');
   });
 });

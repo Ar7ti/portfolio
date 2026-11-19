@@ -25,12 +25,12 @@ test('base layout: lang, landmarks, skip link', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test('hero font is inlined, only the body font is preloaded', async ({ page }) => {
+test('hero font is inlined, the small body and label fonts are preloaded', async ({ page }) => {
   await page.goto('/');
   const preloads = await page
     .locator('link[rel="preload"][as="font"]')
     .evaluateAll((links) => links.map((l) => l.getAttribute('href')));
-  expect(preloads).toEqual(['/fonts/schibsted-grotesk.woff2']);
+  expect(preloads).toEqual(['/fonts/schibsted-grotesk.woff2', '/fonts/martian-mono.woff2']);
   const inlined = await page.evaluate(() =>
     [...document.querySelectorAll('style')].some((s) =>
       /font-family:\s*['"]?Anybody['"]?[^}]*url\(\s*['"]?data:font\/woff2/.test(
