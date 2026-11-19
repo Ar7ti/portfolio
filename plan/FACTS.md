@@ -100,7 +100,7 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 |---|---|---|---|
 | G1 | Family safety prototype: kids learn everyday home risks through short games; parents get 2-minute safety actions | V | old site; profile README |
 | G2 | Live: https://guardioo.netlify.app/#/home | S (not fetched yet) | profile README |
-| G3 | Code: Ar7ti/Junction-Hackaton ("safety-quest-source": React/TS, shadcn, bun; games ChooseAction, DecisionStory, RiskChain, SafeOrRisky, SpotTheRisk); 2 commits on 2026-10-03 | V | GitHub API |
+| G3 | **Guardio IS the Junction X Vaasa project**: same repo, Ar7ti/Junction-Hackaton (profile README links Guardio's "Code" button to it). Code: Ar7ti/Junction-Hackaton ("safety-quest-source": React/TS, shadcn, bun; games ChooseAction, DecisionStory, RiskChain, SafeOrRisky, SpotTheRisk); 2 commits on 2026-10-03 | V | GitHub API |
 | G4 | Team of 4, two wrote the code. Kirill built most of the web app and split the rest of the coding 50/50 with the other developer. Teammates not named | S | Kirill 2026-11-19 |
 | G5 | Stack per old site: JavaScript, HTML/CSS, Gemini AI | S | old site; repo is TypeScript |
 
