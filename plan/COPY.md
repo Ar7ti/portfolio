@@ -1,6 +1,6 @@
 # COPY
 
-Status: **draft 2: complete**. Hero and case 01 approved by Kirill (2026-11-19). Everything else waits for review.
+Status: **draft 3**. Kirill answered all open questions except the Sky Island hardest call. Hero and case 01 approved by Kirill (2026-11-19). Everything else waits for review.
 Every claim carries its FACTS.md id in `[brackets]`; brackets never ship. `⚠` = needs Kirill's answer before build.
 Mock of every section: `concepts/f-full-copy.html` on branch `concepts/prototypes`.
 
@@ -88,15 +88,15 @@ RESULTS BIG "Live"  published on Roblox, 25 Oct 2026                      [ST1 S
 MEDIA   sky-island-map (large) + sky-island-all-clear (small) + Short "ALL TOWERS VS COLOSSUS" (link)   [ST13]
 
 LEAD My part.        **Everything**: game design, all the Luau code, the UI in React-lua.   [ST9]
-LEAD Hardest call.   **The server decides.** The player only asks to place a tower; the server checks the spot and takes the cash first.   [ST12 showcase README] ⚠ confirm this is the hardest call
+LEAD Hardest call.   The UI is **more than half the game**: ~23K lines of React-lua, touched in **96 of 223 commits**. In July I dropped plain Roblox GUIs and rebuilt it in React-lua, so new screens like summons and rewards could keep coming.   [ST14] ⚠ PENDING Kirill's OK
 LEAD Proof it works. My **Python scripts drive Roblox Studio**: they play a match, try bad placements, check phone layouts and measure frame times.   [ST12 showcase README]
-LEAD Next time.      ⚠ Kirill: one sentence.
+LEAD Next time.      Get **real players testing before launch**, not after.   [Kirill]
 LEAD Code.           Waves, enemy movement and the UI are **public**. Combat and economy stay private, so cheaters can't read them.   [ST12]
 
 LINKS   Play on Roblox · Read the code
 CTA     Want to build something together?  [k.jegosin@gmail.com]
 ```
-~110 words (+ "Next time").
+~140 words.
 
 ---
 
@@ -121,10 +121,9 @@ ONE     An AI copilot for big life moves: a new city, a first car, a trip. It ma
 LEAD My part.        Backend with OpenAI, frontend and Playwright tests. **Closed now**; the demo runs on example data.   [LS4 LS5]
 LINKS   Demo · Video
 
-LEAD Next time.      ⚠ Kirill: one sentence for the Turku weekend.
 CTA     Want to build something together?  [k.jegosin@gmail.com]
 ```
-~130 words (+ "Next time").
+~125 words. (No "Next time" block here, Kirill's call.)
 
 ---
 
@@ -167,8 +166,8 @@ LINKS   Live · Code
 LABEL   Now building · updated 19 Nov 2026 · IN PROGRESS                 [X1]
 H3      Throw Treats, Tame Pets!
 BODY    A Roblox game: **throw treats**, tame the pets that land, grow your yard.   [X1]
-LEAD Works now.  ⚠ Kirill
-LEAD Next.       ⚠ Kirill
+LEAD Works now.  Core game systems.   [Kirill]
+LEAD Next.       The throw mechanic, animations and pet models.   [Kirill]
 ```
 
 ---
@@ -197,9 +196,9 @@ H2      What I shipped, when.
 ```
 SUMMARY  More small things I built (6)
 - Resale ticket checker bot · 2026 · finds cheaper resale concert tickets for me · Code   [X4]
-- Blockfect ticket checker bot · 2026 · ⚠ one line · Code                [X5]
-- AI Food Checker · 2026 · ⚠ one line · Code                              [X2]
-- HealMe · 2026 · Flutter health app prototype · ⚠ school project or own? · Code   [X3]
+- Blockfect ticket checker bot · 2026 · an early bot that watched a summer concert's ticket sales · Code   [X5 Kirill]
+- AI Food Checker · 2026 · PAUSED · an early prototype of a bigger health checker · Code   [X2 Kirill]
+- HealMe · 2026 · PLANNED · workouts, health info and an AI food tracker; early Flutter prototype · Code   [X3 Kirill]
 - First Roblox experiments · 2026 · learning Rojo and React-lua           [X6]
 - Old portfolio · 2026 · the site this one replaced · Visit               [X7]
 ```
@@ -231,9 +230,11 @@ BUTTON  Back to the surface   ·   k.jegosin@gmail.com
 ---
 
 ## Open questions for Kirill
-1. **Sky Island, hardest call**: "the server decides everything" (from your showcase README). Right, or something else?
-2. **Sky Island, next time**: one sentence.
-3. **Turku, next time**: one sentence for the weekend with two solo projects.
-4. **Throw Treats**: what works now, what's next (one line each).
-5. **Archive**: one line each for Blockfect bot and AI Food Checker; is HealMe a school project?
-6. **CV**: we build it from scratch. I'll send a separate list of questions after the copy is approved.
+1. **Sky Island, hardest call**: approve the new wording (UI = biggest system) or pick the alternative (save-data migration to one live store).
+2. **CV**: separate list of questions after the copy is approved.
+
+## Mobile type rules (from Kirill's bug report, 2026-11-19)
+- Headings never break mid-word: `overflow-wrap: normal`, sizes from `clamp()` tuned so the longest word fits at 360 px.
+- Big figures in a row become a column on phones (figure + label side by side).
+- "2.6M views" stays on one line (`white-space: nowrap`).
+- Every heading and big figure checked at 360 and 390 px (automated: no element wider than its box, no page h-scroll).
