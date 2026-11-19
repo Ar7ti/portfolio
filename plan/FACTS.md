@@ -61,7 +61,8 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 | ST3 | Creator account **lollipop_hak** (user 824298538) is Kirill's | V | Roblox API; Kirill 2026-11-19 |
 | ST4 | 2026-11-19: 66 visits, 2 favorites, 2 likes / 0 dislikes. **Not shown on the site** (agreed). Framing: "published game, 223 commits, built solo" | V | Roblox API; Kirill |
 | ST13 | Gameplay Short on his channel: "ALL TOWERS VS COLOSSUS In Sky Island Tower Defense!" (2026-11-17) https://www.youtube.com/watch?v=U_WcrNfcY4A | V | channel RSS |
-| ST14 | React-lua UI is the largest system in the game: 23,053 of 42,050 lines in `src/` (55%), 98 files, touched in 96 of 223 commits; GUI work starts 2026-07-04, first React commit 2026-07-21 | V | `git log` + `wc -l` on Ar7ti/Tower-Defence-Game, 2026-11-19 |
+| ST14 | React-lua UI is the largest system in the game: 23,053 of 42,050 lines in `src/` (55%), 98 files, touched in 96 of 223 commits; first commit 2026-05-23, GUI work starts 2026-07-04, first React commit 2026-07-21 (~2 months in) | V | `git log` + `wc -l` on Ar7ti/Tower-Defence-Game, 2026-11-19 |
+| ST15 | Save data moved to one live store for every place ("Pin every place to the live Release2 profile store", #48); match rewards from the old Release/Default stores credited into Release2 once (#60), both 2026-11-18 | V | Tower-Defence-Game commit history, read 2026-11-19 |
 | ST5 | Co-op up to 4 players (party pads → teleport into a match); API maxPlayers = 25 (server size, not party size) | V | game description; showcase README; API |
 | ST6 | 15 waves, elites, splitting enemies, boss "the Colossus" | V | showcase README; game description |
 | ST7 | Update 1.1 "Ember Update": new map Ember Observatory, Ember Season from Nov 26 with 30 tiers of free rewards | V | game description (API) |

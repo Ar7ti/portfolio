@@ -1,6 +1,6 @@
 # COPY
 
-Status: **draft 3**. Kirill answered all open questions except the Sky Island hardest call. Hero and case 01 approved by Kirill (2026-11-19). Everything else waits for review.
+Status: **draft 3**. All copy approved by Kirill except the CV. Hero and case 01 approved by Kirill (2026-11-19). Everything else waits for review.
 Every claim carries its FACTS.md id in `[brackets]`; brackets never ship. `⚠` = needs Kirill's answer before build.
 Mock of every section: `concepts/f-full-copy.html` on branch `concepts/prototypes`.
 
@@ -87,8 +87,8 @@ RESULTS BIG "Live"  published on Roblox, 25 Oct 2026                      [ST1 S
         BIG "1.1"   Ember Update: new map, new season                     [ST7]
 MEDIA   sky-island-map (large) + sky-island-all-clear (small) + Short "ALL TOWERS VS COLOSSUS" (link)   [ST13]
 
-LEAD My part.        **Everything**: game design, all the Luau code, the UI in React-lua.   [ST9]
-LEAD Hardest call.   The UI is **more than half the game**: ~23K lines of React-lua, touched in **96 of 223 commits**. In July I dropped plain Roblox GUIs and rebuilt it in React-lua, so new screens like summons and rewards could keep coming.   [ST14] ⚠ PENDING Kirill's OK
+LEAD My part.        **Everything.** More than half the code is the UI: **~23K lines of React-lua**, which I switched to in July, two months in.   [ST9 ST14]
+LEAD Hardest call.   Moving **every place onto one live save store**. Old rewards are credited **exactly once**, so nobody loses progress or gets it twice.   [ST15] ✔ Kirill
 LEAD Proof it works. My **Python scripts drive Roblox Studio**: they play a match, try bad placements, check phone layouts and measure frame times.   [ST12 showcase README]
 LEAD Next time.      Get **real players testing before launch**, not after.   [Kirill]
 LEAD Code.           Waves, enemy movement and the UI are **public**. Combat and economy stay private, so cheaters can't read them.   [ST12]
@@ -96,7 +96,7 @@ LEAD Code.           Waves, enemy movement and the UI are **public**. Combat and
 LINKS   Play on Roblox · Read the code
 CTA     Want to build something together?  [k.jegosin@gmail.com]
 ```
-~140 words.
+149 words incl. title and figure labels (limit 150): no room for more.
 
 ---
 
@@ -230,8 +230,7 @@ BUTTON  Back to the surface   ·   k.jegosin@gmail.com
 ---
 
 ## Open questions for Kirill
-1. **Sky Island, hardest call**: approve the new wording (UI = biggest system) or pick the alternative (save-data migration to one live store).
-2. **CV**: separate list of questions after the copy is approved.
+1. **CV**: separate list of questions after the copy is approved.
 
 ## Mobile type rules (from Kirill's bug report, 2026-11-19)
 - Headings never break mid-word: `overflow-wrap: normal`, sizes from `clamp()` tuned so the longest word fits at 360 px.
