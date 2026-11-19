@@ -80,6 +80,18 @@ const {
 </html>
 
 <style>
+  /* Short pages (404) keep the footer at the bottom of the screen. */
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+
+  main {
+    flex: 1 0 auto;
+  }
+
   .site-header,
   .site-footer {
     padding: 16px;
@@ -98,5 +110,23 @@ const {
   .site-footer a {
     color: inherit;
     font-weight: 700;
+  }
+
+  /* Footer continues the deep-blue contact block. */
+  .site-footer {
+    padding: 28px var(--gutter) 36px;
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+    background: var(--c-deep);
+    color: var(--c-deep-label);
+    font-size: var(--size-small);
+  }
+
+  .site-footer p {
+    max-width: var(--content-max);
+    margin: 0 auto;
+  }
+
+  .site-footer a {
+    color: var(--c-foam);
   }
 </style>
