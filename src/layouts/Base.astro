@@ -1,0 +1,81 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Kirill Jegosin · games, web products & AI tools',
+  description = '18-year-old builder from Finland. Won the Oxylabs challenge at Junction 2026, shipped a solo Roblox game. Open to internships and junior roles.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <!-- Real favicon comes with the SEO issue (#23); this stops the /favicon.ico 404. -->
+    <link rel="icon" href="data:," />
+    <!-- Only the hero face is preloaded; body and label fonts load on demand. -->
+    <link rel="preload" href="/fonts/anybody.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <a class="skip-link" href="#point">
+      Skip to the point
+    </a>
+    <header class="site-header">
+      <nav aria-label="Main">
+        <ul>
+          <li>
+            <a href="/#work">Work</a>
+          </li>
+          <li>
+            <a href="/#hackathons">Hackathons</a>
+          </li>
+          <li>
+            <a href="/#timeline">Timeline</a>
+          </li>
+          <li>
+            <a href="/#contact">Contact</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>
+        This site's code is public →{' '}
+        <a href="https://github.com/Ar7ti/portfolio">github.com/Ar7ti/portfolio</a>
+      </p>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-header,
+  .site-footer {
+    padding: 16px;
+  }
+
+  .site-header ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-header a,
+  .site-footer a {
+    color: inherit;
+    font-weight: 700;
+  }
+</style>
