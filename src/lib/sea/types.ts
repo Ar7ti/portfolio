@@ -2,6 +2,12 @@
 export interface SeaOptions {
   /** Called once per rendered frame with its duration in ms (tier 2 downgrade check). */
   onFrame?: (ms: number) => void;
+  /**
+   * Allow a software WebGL renderer (SwiftShader, llvmpipe). Off by default: without a GPU the
+   * sea would only cost CPU, so the renderer refuses (failIfMajorPerformanceCaveat) and the
+   * still stays. On only for ?tier= / ?gpu=software (tests, CI).
+   */
+  allowSoftware?: boolean;
 }
 
 export interface SeaRenderer {

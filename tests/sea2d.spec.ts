@@ -21,7 +21,8 @@ test.describe('tier 1 sea (phones)', () => {
       };
     });
 
-    await page.goto('/');
+    // ?gpu=software: CI renders WebGL in software; real phones have a GPU.
+    await page.goto('/?gpu=software');
     await expect(page.locator('#hero-title')).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-sea-tier', '1', { timeout: 30_000 });
     await expect(page.locator('.hero-sea-live')).toHaveClass(/is-ready/, { timeout: 60_000 });

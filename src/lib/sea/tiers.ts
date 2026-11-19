@@ -10,6 +10,8 @@ export type Tier = 0 | 1 | 2;
 export interface Signals {
   /** `?tier=0|1|2` debug override. */
   override: Tier | null;
+  /** Let the renderers run on a software WebGL renderer (`?tier=` or `?gpu=software`; tests). */
+  allowSoftware: boolean;
   /** The visitor chose "Calm the water" (remembered). */
   calm: boolean;
   reducedMotion: boolean;
@@ -94,6 +96,8 @@ export function readSignals(): Signals {
   };
   return {
     override,
+    allowSoftware:
+      override !== null || new URLSearchParams(location.search).get('gpu') === 'software',
     calm: safeGet(() => localStorage, CALM_KEY) === '1',
     reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
     saveData: nav.connection?.saveData === true,
@@ -103,4 +107,13 @@ export function readSignals(): Signals {
     cores: nav.hardwareConcurrency || undefined,
     slow3d: safeGet(() => sessionStorage, SLOW_KEY) === '1',
   };
+}
+
+/** True when WebGL runs on the CPU (SwiftShader, llvmpipe, Microsoft Basic Render Driver). */
+export function isSoftwareRenderer(gl: WebGLRenderingContext | WebGL2RenderingContext): boolean {
+  const info = gl.getExtension('WEBGL_debug_renderer_info');
+  const name = String(
+    info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
+  );
+  return /swiftshader|llvmpipe|softpipe|basic render|software/i.test(name);
 }

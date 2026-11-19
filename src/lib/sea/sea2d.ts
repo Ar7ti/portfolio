@@ -9,6 +9,7 @@
  */
 import { DAY, type SeaPalette } from './palette';
 import { islandMask, Liquid } from './liquid';
+import { isSoftwareRenderer } from './tiers';
 import type { SeaFactory, SeaOptions, SeaRenderer } from './types';
 
 const BASE = 3;
@@ -258,8 +259,13 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       alpha: false,
       depth: false,
       powerPreference: 'low-power',
+      failIfMajorPerformanceCaveat: !options.allowSoftware,
     });
-    if (!context) throw new Error('WebGL unavailable');
+    if (!context) throw new Error('No hardware WebGL (software renderer or none)');
+    if (!options.allowSoftware && isSoftwareRenderer(context)) {
+      context.getExtension('WEBGL_lose_context')?.loseContext();
+      throw new Error('No hardware WebGL (software renderer)');
+    }
     gl = context;
     const derivatives = gl.getExtension('OES_standard_derivatives');
 

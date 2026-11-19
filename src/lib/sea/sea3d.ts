@@ -30,6 +30,7 @@ import {
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { DAY, hex } from './palette';
 import { islandMask, Liquid } from './liquid';
+import { isSoftwareRenderer } from './tiers';
 import type { SeaFactory, SeaOptions, SeaRenderer } from './types';
 
 /** Sea surface rest height (world units) and column depth below the surface. */
@@ -90,7 +91,11 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       antialias: true,
       alpha: true,
       powerPreference: 'high-performance',
+      failIfMajorPerformanceCaveat: !options.allowSoftware,
     });
+    if (!options.allowSoftware && isSoftwareRenderer(renderer.getContext())) {
+      throw new Error('No hardware WebGL (software renderer)');
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
     renderer.setSize(box.width, box.height, false);
     const canvas = renderer.domElement;

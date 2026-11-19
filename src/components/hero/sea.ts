@@ -45,8 +45,10 @@ async function apply(tier: Tier, layer: HTMLElement): Promise<void> {
   }
 
   const frames: number[] = [];
-  const forced = readSignals().override !== null;
+  const signals = readSignals();
+  const forced = signals.override !== null;
   const renderer = factory({
+    allowSoftware: signals.allowSoftware,
     onFrame: (ms) => {
       // A forced ?tier= is for testing: never downgrade it.
       if (tier !== 2 || forced || frames.length >= WARMUP_FRAMES + SLOW_SAMPLE_FRAMES) return;
@@ -61,7 +63,10 @@ async function apply(tier: Tier, layer: HTMLElement): Promise<void> {
     await renderer.mount(layer);
   } catch (error) {
     renderer.destroy();
-    if (run === generation) root.dataset['seaTier'] = '0';
+    if (run === generation) {
+      root.dataset['seaTier'] = '0';
+      root.dataset['seaFallback'] = error instanceof Error ? error.message : 'renderer failed';
+    }
     console.warn('Sea renderer failed, keeping the still.', error);
     return;
   }
