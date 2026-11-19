@@ -102,7 +102,12 @@ const site = defineCollection({
         small: z.array(claim),
       }),
       more: z.strictObject({ label: z.string(), h2: z.string() }),
-      timeline: z.strictObject({ label: z.string(), h2: z.string() }),
+      timeline: z.strictObject({
+        label: z.string(),
+        h2: z.string(),
+        /** Tag on the row marked `next` (Aalto 2027). */
+        next: z.string(),
+      }),
       notFound: z.strictObject({
         label: claim,
         h1: z.string(),

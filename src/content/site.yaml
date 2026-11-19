@@ -53,7 +53,7 @@ site:
   # Not in COPY.md: from the approved mock (concepts/f-full-copy.html), DECISIONS.log 2026-11-20.
   more: { label: More work, h2: Also built. }
 
-  timeline: { label: Timeline, h2: 'What I shipped, when.' }
+  timeline: { label: Timeline, h2: 'What I shipped, when.', next: next }
 
   notFound:
     label: { text: '404', nofacts: HTTP status code }
