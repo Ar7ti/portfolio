@@ -16,7 +16,9 @@ import {
   DirectionalLight,
   InstancedMesh,
   Matrix4,
+  Mesh,
   MeshStandardMaterial,
+  PlaneGeometry,
   PerspectiveCamera,
   Plane,
   Raycaster,
@@ -35,17 +37,37 @@ const BASE = 3;
 const COLUMN = 8;
 const STEP = 1 / 60;
 
+/** World z of the grid's near edge (towards the camera); the grid runs back from here. */
+const NEAR_Z = 30;
+
 interface Grid {
   width: number;
   depth: number;
+  /** Share of the grid left of x = 0: the camera looks right, so the grid extends further right. */
+  shift: number;
+  /** Island centre in world units (x right, z towards the camera). */
   island: { x: number; z: number; r: number };
 }
 
 function gridFor(aspect: number): Grid {
+  // The grid is wide and deep enough that its side and back edges are always outside the
+  // view or inside full fog, so the sea runs to the horizon at any width (no "table" edge).
   // Portrait boxes see less width; fewer columns keep it fast on tablets that get tier 2.
   return aspect < 1
-    ? { width: 48, depth: 44, island: { x: 34, z: 18, r: 5 } }
-    : { width: 84, depth: 52, island: { x: 73, z: 17, r: 7 } };
+    ? { width: 64, depth: 74, shift: 0.5, island: { x: 10, z: -4, r: 5 } }
+    : { width: 144, depth: 84, shift: 0.37, island: { x: 31, z: -9, r: 7 } };
+}
+
+/**
+ * Calm, constant swell: long slow waves from two directions, no short chop, so the idle sea
+ * reads as heavy water (honey-slow) and never twitches. World units, seconds.
+ */
+function swell(px: number, pz: number, t: number): number {
+  return (
+    Math.sin(px * 0.055 + pz * 0.04 - t * 0.5) * 0.55 +
+    Math.sin(-px * 0.03 + pz * 0.07 - t * 0.36) * 0.35 +
+    Math.sin(px * 0.12 + pz * 0.02 - t * 0.7) * 0.08
+  );
 }
 
 export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
@@ -58,8 +80,11 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
   async function mount(layer: HTMLElement): Promise<void> {
     const box = layer.getBoundingClientRect();
     const aspect = box.width / Math.max(1, box.height);
-    const { width: W, depth: D, island } = gridFor(aspect);
+    const { width: W, depth: D, shift, island } = gridFor(aspect);
     const N = W * D;
+    // Grid cell (x, z) sits at world (x + X0, z + Z0).
+    const X0 = -W * shift;
+    const Z0 = NEAR_Z - D;
 
     renderer = new WebGLRenderer({
       antialias: true,
@@ -71,10 +96,15 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     const canvas = renderer.domElement;
     canvas.className = 'hero-sea-live';
     // The sky is a CSS gradient behind the transparent canvas: cheaper than a sky mesh.
-    canvas.style.background = `linear-gradient(${hex(DAY.skyA)}, ${hex(DAY.skyB)})`;
+    // Sky: a CSS gradient behind the transparent canvas that reaches exactly the fog colour at
+    // the horizon line (set in placeCamera), so the fogged far water melts into the sky.
+    const setSky = (horizonPct: number) => {
+      canvas.style.background = `linear-gradient(${hex(DAY.skyA)}, ${hex(DAY.fog)} ${horizonPct.toFixed(1)}%, ${hex(DAY.fog)})`;
+    };
 
     const scene = new Scene();
-    scene.fog = new Fog(DAY.fog, 60, 140);
+    const fog = new Fog(DAY.fog, 60, 140);
+    scene.fog = fog;
     const camera = new PerspectiveCamera(32, aspect, 1, 300);
     const hemi = new HemisphereLight(0xffffff, 0x2a6d8c, DAY.hemi);
     const sun = new DirectionalLight(0xffffff, DAY.sun);
@@ -93,7 +123,19 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     mesh.frustumCulled = false;
     scene.add(mesh);
 
-    const mask = islandMask(W, D, island.x, island.z, island.r);
+    // Far water: a flat plane under and around the stud grid, in the sea's average colour.
+    // Wherever the grid ends, this continues to the horizon and dissolves into the fog.
+    const farGeometry = new PlaneGeometry(4000, 4000).rotateX(-Math.PI / 2);
+    const farMaterial = new MeshStandardMaterial({
+      color: new Color(DAY.deep).lerp(new Color(DAY.mid), 0.55),
+      roughness: 0.6,
+    });
+    const far = new Mesh(farGeometry, farMaterial);
+    // Below the deepest swell trough (≈ −1), so it never pokes through the studs.
+    far.position.y = BASE - 1.6;
+    scene.add(far);
+
+    const mask = islandMask(W, D, island.x - X0, island.z - Z0, island.r);
     const liquid = new Liquid({ width: W, depth: D, solid: mask });
 
     const deep = new Color(DAY.deep);
@@ -106,26 +148,26 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
 
     function write(t: number): void {
       const h = liquid.height;
+      // The island rides the swell: it rises and falls with the water at its centre and tilts
+      // gently with the local slope.
+      const islandLift = swell(island.x, island.z, t) * 0.7;
+      const islandSwell = swell(island.x, island.z, t);
       for (let z = 0; z < D; z++) {
-        const pz = z - D / 2;
+        const pz = z + Z0;
         for (let x = 0; x < W; x++) {
           const i = z * W + x;
-          const px = x - W / 2;
+          const px = x + X0;
           const cell = mask[i];
+          const s = swell(px, pz, t);
           let top: number;
           if (cell) {
-            top = BASE + (cell === 2 ? 2.6 : 1.4) + Math.sin(t * 0.8) * 0.12;
+            top = BASE + (cell === 2 ? 2.6 : 1.4) + islandLift + (s - islandSwell) * 0.35;
             color.copy(cell === 2 ? grass : sand);
           } else {
             const hi = h[i]!;
-            top =
-              BASE +
-              hi +
-              // Ambient swell: one long slow roll plus two short ripples, so the idle sea breathes.
-              Math.sin(px * 0.07 + pz * 0.05 - t * 0.6) * 0.42 +
-              Math.sin(px * 0.21 + t * 0.9) * 0.18 +
-              Math.sin(pz * 0.33 - t * 0.7) * 0.14;
-            const k = Math.min(1, Math.max(0, hi * 0.45 + 0.45));
+            top = BASE + hi + s;
+            // Crests a little lighter, troughs a little deeper: the swell reads even at rest.
+            const k = Math.min(1, Math.max(0, (hi + s * 0.6) * 0.45 + 0.45));
             color.copy(deep).lerp(mid, Math.min(1, k * 1.4));
             if (hi > 1.1) color.lerp(foam, Math.min(1, (hi - 1.1) * 0.7));
           }
@@ -144,6 +186,13 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       camera.position.set(-6, dist * 0.62, dist * 0.78);
       camera.lookAt(a < 1 ? 0 : 10, a < 1 ? 14 : 13, -2);
       camera.updateProjectionMatrix();
+      // Fog reaches the sky colour right at the grid's back edge, so no edge is ever visible.
+      const back = Math.hypot(camera.position.x, camera.position.y - BASE, camera.position.z - Z0);
+      fog.far = back * 0.97;
+      fog.near = back * 0.66;
+      // Where does the (infinitely far) sea meet the sky on screen? Put the gradient's fog stop there.
+      const horizon = new Vector3(camera.position.x, BASE, camera.position.z - 1e5).project(camera);
+      setSky(Math.min(100, Math.max(0, (1 - horizon.y) * 50)));
     }
 
     function resize(): void {
@@ -174,8 +223,8 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       );
       ray.setFromCamera(ndc, camera);
       if (!ray.ray.intersectPlane(surface, hit)) return;
-      const gx = hit.x + W / 2;
-      const gz = hit.z + D / 2;
+      const gx = hit.x - X0;
+      const gz = hit.z - Z0;
       if (gx < 0 || gz < 0 || gx >= W || gz >= D) {
         last = null;
         return;
@@ -209,7 +258,6 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     let prev = t0;
     let acc = 0;
     let first = true;
-    let nextDrop = 2.6;
     let resolveFirst: () => void = () => {};
     const firstFrame = new Promise<void>((resolve) => (resolveFirst = resolve));
 
@@ -223,11 +271,6 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       acc += Math.min(0.05, ms / 1000);
       // Opening wave: a crest rolls in from the left over ~2 s, then the sea settles.
       const sweep = (t - 0.2) / 1.9;
-      // Idle drops: a slow, thick splash every couple of seconds shows the viscosity.
-      if (t > nextDrop) {
-        nextDrop = t + 1.8 + Math.random() * 1.6;
-        liquid.impulse(8 + Math.random() * (W - 16), 6 + Math.random() * (D - 12), 2.4, -0.5);
-      }
       while (acc > STEP) {
         if (sweep > 0 && sweep < 1) liquid.pushColumn(sweep * W * 0.62, 0.55 * (1 - sweep * 0.5));
         liquid.step();
@@ -255,6 +298,8 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     cleanups.push(() => {
       geometry.dispose();
       material.dispose();
+      farGeometry.dispose();
+      farMaterial.dispose();
       mesh.dispose();
     });
     resume = () => {
