@@ -21,9 +21,12 @@ const { study, level } = Astro.props;
 const site = await data('site', 'site');
 const email = await data('contacts', 'email');
 const Title = `h${level}` as const;
+const SubTitle = level === 1 ? 'h2' : 'h3';
 const titleId = `case-${study.slug}-title`;
 const long = study.title.length > 16;
 const href = `/work/${study.slug}`;
+/** Two-sentence titles break after the first sentence ("Two solo projects. / One hackathon."). */
+const titleLines = study.title.split(/(?<=\.)\s+/);
 ---
 
 <section
@@ -34,7 +37,11 @@ const href = `/work/${study.slug}`;
   <div class="inner">
     <Claim as="p" class="label case-label" claim={study.label} />
     <Title id={titleId} class:list={['case-title', long ? 'h2-long' : 'h2']}>
-      {level === 2 ? <a href={href}>{study.title}</a> : study.title}
+      {level === 2 ? (
+        <a href={href}>{titleLines.map((line, i) => (i === 0 ? line : [' ', <br />, line]))}</a>
+      ) : (
+        titleLines.map((line, i) => (i === 0 ? line : [' ', <br />, line]))
+      )}
     </Title>
     <Claim as="p" class="oneliner case-oneliner" claim={study.oneliner} />
     <BigFigures class="case-results" items={study.results} />
@@ -47,7 +54,7 @@ const href = `/work/${study.slug}`;
       <div class="subs">
         {study.subprojects.map((sub) => (
           <div class="sub">
-            <h3 class="h3 sub-title">{sub.title}</h3>
+            <SubTitle class="h3 sub-title">{sub.title}</SubTitle>
             <Claim as="p" class="sub-oneliner" claim={sub.oneliner} />
             <CaseBody media={sub.media} blocks={sub.blocks} links={sub.links} stacked />
           </div>
@@ -70,6 +77,8 @@ const href = `/work/${study.slug}`;
   .case :global(.case-title) {
     margin: 14px 0 22px;
     max-width: 14ch;
+    /* A bit more than the 0.9 display leading: descenders ("projects") must not touch the next line. */
+    line-height: 0.96;
   }
 
   .case-title a {
