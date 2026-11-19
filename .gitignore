@@ -15,3 +15,5 @@ Thumbs.db
 plan/moodboard/*
 !plan/moodboard/.gitkeep
 
+playwright-report/
+test-results/
