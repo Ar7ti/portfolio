@@ -42,3 +42,20 @@ test('readable on a phone', async ({ page }) => {
   );
   expect(overflow).toBeLessThanOrEqual(0);
 });
+
+test('the committed PDF is one small file and the site links to it', async ({ page, request }) => {
+  const res = await request.get('/cv/kirill-jegosin-cv.pdf');
+  expect(res.status()).toBe(200);
+  const body = await res.body();
+  expect(body.byteLength).toBeLessThanOrEqual(300 * 1024);
+  expect(body.toString('latin1').match(/\/Type\s*\/Page[^s]/g)).toHaveLength(1);
+  await page.goto('/');
+  await expect(page.locator('#contact a[href="/cv/kirill-jegosin-cv.pdf"]')).toBeVisible();
+});
+
+test('no age, no phone on the CV', async ({ page }) => {
+  await page.goto('/cv');
+  const text = (await page.locator('main').textContent()) ?? '';
+  // "18" alone is fine ("as of 18 Nov 2026"); an age or a phone number is not.
+  expect(text).not.toMatch(/\b18[ -]year|\baged?\b|\+358|phone|born/i);
+});
