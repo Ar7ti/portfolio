@@ -3,7 +3,7 @@ import { factIds } from '../src/content/facts';
 
 // Every number shown on a page must sit inside an element that names its source:
 // data-facts="<FACTS.md ids>" or data-nofacts="<reason>". Hard-coded numbers in components fail here.
-const PAGES = ['/', '/styleguide'];
+const PAGES = ['/', '/styleguide', '/404'];
 
 for (const path of PAGES) {
   test(`every number on ${path} has a source`, async ({ page }) => {

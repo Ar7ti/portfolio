@@ -1,0 +1,53 @@
+---
+import Base from '../layouts/Base.astro';
+import Claim from '../components/content/Claim.astro';
+import Heading from '../components/type/Heading.astro';
+import Label from '../components/type/Label.astro';
+import { data } from '../lib/content';
+
+const site = await data('site', 'site');
+const email = await data('contacts', 'email');
+const { notFound } = site;
+---
+
+<Base title={`${notFound.h1} · Kirill Jegosin`} noindex>
+  <section id="point" class="section theme-day not-found" aria-labelledby="nf-title" tabindex="-1">
+    <div class="inner">
+      <Label>
+        <Claim claim={notFound.label} />
+      </Label>
+      <Heading level={1} size="h2-xl" id="nf-title">
+        {notFound.h1}
+      </Heading>
+      <p class="body">{notFound.body}</p>
+      <p class="actions">
+        <a class="button" href={notFound.button.href}>
+          {notFound.button.label}
+        </a>
+        <a href={email.href}>{email.display}</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .not-found {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-top: 6px solid var(--c-deep);
+  }
+
+  .not-found :global(.h2-xl) {
+    margin: 12px 0 14px;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 18px;
+    font-weight: 700;
+  }
+</style>
