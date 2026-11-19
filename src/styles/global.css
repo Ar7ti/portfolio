@@ -20,7 +20,8 @@ body {
   font-size: var(--size-body);
   line-height: 1.5;
   color: var(--fg);
-  background: var(--bg);
+  /* Same sky as the top of the hero, so the header doesn't sit on a different-coloured strip. */
+  background: var(--sea-day-sky-a);
   -webkit-font-smoothing: antialiased;
 }
 

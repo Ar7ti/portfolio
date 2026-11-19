@@ -262,6 +262,22 @@ const links = hero.contacts
 
   /* Sky-coloured scrim between the sea and the text: keeps every text pair AA
      where the sea runs under the text, without boxing the text in. */
+  /* Static still only: its bottom edge runs into the exact colour the dusk band starts with,
+     so the hero never ends in a line. (With the live sea the band is transparent.) */
+  .hero-sea::before {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 22%;
+    z-index: 1;
+    background: linear-gradient(transparent, var(--sea-day-near));
+    pointer-events: none;
+  }
+
+  :global(html.sea-live) .hero-sea::before {
+    display: none;
+  }
+
   .hero-sea::after {
     content: '';
     position: absolute;

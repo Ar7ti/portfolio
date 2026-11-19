@@ -40,6 +40,9 @@
   --sea-day-sky-a: #cfe4ef;
   --sea-day-sky-b: #dcebf3;
 
+  /* Colour of the static still's bottom edge, where the dusk band starts in the CSS fallback. */
+  --sea-day-near: #73afb7;
+
   --sea-dusk-sky-a: #8823b5;
   --sea-dusk-sky-b: #e0685b;
   --sea-dusk-fog: #b8506e;

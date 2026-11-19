@@ -3,16 +3,22 @@
  * A sky band between sections: the hour changes while it scrolls past.
  * 'dusk' (after the hero): day → violet/coral sunset → night.
  * 'sunrise' (before Case 02): night → sunset colours → day.
+ * 'deep' (before Contact): day sky → deep water, not tied to the hour.
  * With the live sea (html.sea-live) it is transparent and the sea shows through;
  * otherwise (tier 0, JS off) it is a static CSS gradient of the same colours.
  */
 interface Props {
-  kind: 'dusk' | 'sunrise';
+  kind: 'dusk' | 'sunrise' | 'deep';
 }
 const { kind } = Astro.props;
+const hourBand = kind === 'dusk' || kind === 'sunrise';
 ---
 
-<div class:list={['sky-band', `sky-band--${kind}`]} data-sky-band={kind} aria-hidden="true"></div>
+<div
+  class:list={['sky-band', `sky-band--${kind}`]}
+  data-sky-band={hourBand ? kind : undefined}
+  aria-hidden="true"
+></div>
 
 <style>
   .sky-band {
@@ -20,14 +26,23 @@ const { kind } = Astro.props;
     transition: background-color 0.6s ease-out;
   }
 
+  /* CSS fallback (tier 0, JS off): starts in the colour of the still's near water, so the hero
+     runs into it without a line; the sunset glows in the middle; ends in the night colour of
+     the hackathons strip. */
   .sky-band--dusk {
-    background: linear-gradient(
-      var(--sea-day-sky-a),
-      var(--sea-dusk-sky-b) 30%,
-      var(--sea-dusk-sky-a) 55%,
-      var(--c-dusk-bg) 80%,
-      var(--c-night)
-    );
+    background:
+      radial-gradient(
+        120% 38% at 50% 52%,
+        color-mix(in oklab, var(--sea-dusk-sky-b) 70%, transparent),
+        transparent 70%
+      ),
+      linear-gradient(
+        var(--sea-day-near),
+        var(--sea-day-deep) 28%,
+        var(--sea-dusk-sky-a) 52%,
+        var(--c-dusk-bg) 78%,
+        var(--c-night)
+      );
   }
 
   .sky-band--sunrise {
@@ -37,12 +52,38 @@ const { kind } = Astro.props;
       var(--c-dusk-bg) 20%,
       var(--sea-dusk-sky-a) 48%,
       var(--sea-dusk-sky-b) 72%,
-      var(--sea-day-sky-a)
+      var(--c-sky)
     );
   }
 
-  :global(html.sea-live) .sky-band {
+  .sky-band--deep {
+    height: 36vh;
+    background: linear-gradient(var(--c-sky), var(--sea-day-mid) 55%, var(--c-deep));
+  }
+
+  :global(html.sea-live) .sky-band--dusk,
+  :global(html.sea-live) .sky-band--sunrise {
     background: transparent;
+  }
+
+  /* --- Seams. Nothing may end in a hard line. ---------------------------------------------
+     The hackathons photo fades into its own night background at both ends (every tier). */
+  .sky-band--dusk + :global(section) :global(img) {
+    -webkit-mask-image: linear-gradient(transparent, #000 24%, #000 80%, transparent);
+    mask-image: linear-gradient(transparent, #000 24%, #000 80%, transparent);
+  }
+
+  /* With the live sea behind the page, the sections next to an hour band dissolve into the sea
+     instead of cutting it off (soft-edge mask, modern-web-guidance "soft-edge-content-fade"). */
+  :global(html.sea-live) .sky-band--dusk + :global(section),
+  :global(html.sea-live) .sky-band--sunrise + :global(section) {
+    -webkit-mask-image: linear-gradient(transparent, #000 var(--section-y));
+    mask-image: linear-gradient(transparent, #000 var(--section-y));
+  }
+
+  :global(html.sea-live :is(section, div):has(+ .sky-band--sunrise)) {
+    -webkit-mask-image: linear-gradient(#000 calc(100% - var(--section-y)), transparent);
+    mask-image: linear-gradient(#000 calc(100% - var(--section-y)), transparent);
   }
 
   @media (max-width: 860px) {
@@ -52,6 +93,10 @@ const { kind } = Astro.props;
 
     .sky-band--sunrise {
       height: 55vh;
+    }
+
+    .sky-band--deep {
+      height: 24vh;
     }
   }
 </style>
