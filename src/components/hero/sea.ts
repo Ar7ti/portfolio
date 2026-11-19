@@ -83,7 +83,6 @@ function setupToggle(layer: HTMLElement): void {
       label.textContent = calm ? (button.dataset['back'] ?? '') : (button.dataset['calm'] ?? '');
   };
   sync(readSignals().calm);
-  button.hidden = false;
   button.addEventListener('click', () => {
     const calm = button.getAttribute('aria-pressed') !== 'true';
     remember.calm(calm);

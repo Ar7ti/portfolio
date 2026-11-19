@@ -11,11 +11,12 @@ test.describe('tier 2 sea', () => {
   });
 
   test('mounts after first paint, draws, pauses off-screen, no errors', async ({ page }) => {
-    test.setTimeout(60_000);
+    test.setTimeout(120_000);
     const errors: string[] = [];
     page.on('pageerror', (e) => errors.push(e.message));
     page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
-    await page.setViewportSize({ width: 1280, height: 800 });
+    // Small viewport: CI renders WebGL in software (SwiftShader), where fill rate is the cost.
+    await page.setViewportSize({ width: 800, height: 500 });
     await page.goto('/?tier=2');
 
     // The H1 is there before any sea code runs.

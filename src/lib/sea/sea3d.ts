@@ -113,7 +113,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
 
     // Column + stud merged into one geometry, top of the stud base at y = 0.
     const column = new BoxGeometry(0.96, COLUMN, 0.96).translate(0, -COLUMN / 2, 0);
-    const stud = new CylinderGeometry(0.28, 0.28, 0.18, 14).translate(0, 0.09, 0);
+    const stud = new CylinderGeometry(0.28, 0.28, 0.18, 8).translate(0, 0.09, 0);
     const geometry = mergeGeometries([column, stud]);
     column.dispose();
     stud.dispose();

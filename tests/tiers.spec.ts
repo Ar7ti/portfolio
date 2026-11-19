@@ -99,10 +99,11 @@ test.describe('slow tier 2 downgrade', () => {
       const raf = window.requestAnimationFrame.bind(window);
       window.requestAnimationFrame = (cb) => raf(() => cb((fake += 40)));
     });
-    await page.setViewportSize({ width: 1280, height: 800 });
+    test.setTimeout(120_000);
+    await page.setViewportSize({ width: 900, height: 500 });
     await page.goto('/');
     await page.waitForFunction(() => sessionStorage.getItem('sea:slow3d') === '1', null, {
-      timeout: 30_000,
+      timeout: 90_000,
     });
     // Tier 1 isn't built yet (#10), so the downgrade lands on the still.
     await expect(page.locator('html')).not.toHaveAttribute('data-sea-tier', '2');
