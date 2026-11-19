@@ -1,0 +1,14 @@
+{
+  // Cloudflare Workers static assets: no Worker code, just the built site in dist/.
+  "name": "portfolio",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    // Unknown paths get dist/404.html with a real 404 status.
+    "not_found_handling": "404-page",
+    "html_handling": "drop-trailing-slash",
+  },
+  // workers.dev URL for prod and per-version preview URLs for PRs.
+  "workers_dev": true,
+  "preview_urls": true,
+}

@@ -63,3 +63,13 @@ for (const width of WIDTHS) {
     expect(tooWide).toEqual([]);
   });
 }
+
+test('unknown paths get the custom 404', async ({ page }) => {
+  const response = await page.goto('/this-page-does-not-exist');
+  expect(response?.status()).toBe(404);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('This island sank.');
+  await expect(page.getByRole('link', { name: 'Back to the surface' })).toHaveAttribute(
+    'href',
+    '/',
+  );
+});
