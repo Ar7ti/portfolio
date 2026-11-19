@@ -1,0 +1,22 @@
+/* Self-hosted, subset fonts (SIL OFL 1.1). Regenerate with `npm run fonts`. */
+@font-face {
+  font-family: 'Anybody';
+  src: url('/fonts/anybody.woff2') format('woff2');
+  font-weight: 600 900;
+  font-stretch: 100% 125%;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Schibsted Grotesk';
+  src: url('/fonts/schibsted-grotesk.woff2') format('woff2');
+  font-weight: 400 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Martian Mono';
+  src: url('/fonts/martian-mono.woff2') format('woff2');
+  font-weight: 400 500;
+  font-display: swap;
+}
