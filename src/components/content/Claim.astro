@@ -1,0 +1,24 @@
+---
+/**
+ * Renders one piece of content copy with its sources attached:
+ * `data-facts="H3 SC5"` (FACTS.md ids) or `data-nofacts="<reason>"`.
+ * The rendered-page test requires every number on the page to sit inside one of these.
+ */
+import { rich } from '../../lib/rich';
+
+interface Props {
+  claim: { text: string; facts?: readonly string[]; nofacts?: string | undefined };
+  as?: 'p' | 'span' | 'div' | 'li' | 'h1' | 'h2' | 'h3' | 'figcaption';
+  class?: string;
+}
+
+const { claim, as: Tag = 'span', class: className } = Astro.props;
+const facts = claim.facts?.length ? claim.facts.join(' ') : undefined;
+---
+
+<Tag
+  class={className}
+  data-facts={facts}
+  data-nofacts={claim.nofacts}
+  set:html={rich(claim.text)}
+/>

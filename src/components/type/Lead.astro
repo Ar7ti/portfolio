@@ -1,14 +1,18 @@
 ---
 /** LEAD + BODY block: a bold lead-in ("My part.") followed by one or two sentences. */
+import { rich } from '../../lib/rich';
+
 interface Props {
-  lead: string;
+  block: { lead: string; text: string; facts?: readonly string[] };
 }
-const { lead } = Astro.props;
+
+const { block } = Astro.props;
+const facts = block.facts?.length ? block.facts.join(' ') : undefined;
 ---
 
-<p class="body lead-block">
-  <span class="lead">{lead}</span>
-  <slot />
+<p class="body lead-block" data-facts={facts}>
+  <span class="lead">{block.lead}</span>
+  <Fragment set:html={rich(block.text)} />
 </p>
 
 <style>
