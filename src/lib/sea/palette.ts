@@ -54,3 +54,32 @@ export const NEON = [0x8823b5, 0xe0685b, 0xcf2672] as const;
 export function hex(color: number): string {
   return `#${color.toString(16).padStart(6, '0')}`;
 }
+
+function lerpColor(a: number, b: number, t: number): number {
+  const r = Math.round(((a >> 16) & 255) + (((b >> 16) & 255) - ((a >> 16) & 255)) * t);
+  const g = Math.round(((a >> 8) & 255) + (((b >> 8) & 255) - ((a >> 8) & 255)) * t);
+  const bl = Math.round((a & 255) + ((b & 255) - (a & 255)) * t);
+  return (r << 16) | (g << 8) | bl;
+}
+
+/**
+ * Day (0) → night (1). Sky and fog pass through the DUSK stop (violet → coral) at 0.5 so the
+ * sunset never goes muddy grey; the sea, island and lights blend straight from day to night.
+ */
+export function mixPalette(p: number): SeaPalette {
+  const t = Math.min(1, Math.max(0, p));
+  const out = {} as SeaPalette;
+  for (const key of Object.keys(DAY) as (keyof SeaPalette)[]) {
+    if (key === 'hemi' || key === 'sun') {
+      out[key] = DAY[key] + (NIGHT[key] - DAY[key]) * t;
+    } else if (key === 'skyA' || key === 'skyB' || key === 'fog') {
+      out[key] =
+        t < 0.5
+          ? lerpColor(DAY[key], DUSK[key], t * 2)
+          : lerpColor(DUSK[key], NIGHT[key], (t - 0.5) * 2);
+    } else {
+      out[key] = lerpColor(DAY[key], NIGHT[key], t);
+    }
+  }
+  return out;
+}

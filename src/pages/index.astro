@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Hero from '../components/hero/Hero.astro';
+import SkyBand from '../components/hero/SkyBand.astro';
 import Hackathons from '../components/sections/Hackathons.astro';
 import CaseSection from '../components/sections/CaseSection.astro';
 import MoreWork from '../components/sections/MoreWork.astro';
@@ -12,13 +13,16 @@ import StickyContact from '../components/sections/StickyContact.astro';
 
 <Base>
   <Hero />
+  <SkyBand kind="dusk" />
   <Hackathons />
   <CaseSection slug="shill-or-chill" />
   <CaseSection slug="junction-x-turku" />
+  <SkyBand kind="sunrise" />
   <CaseSection slug="sky-island-tower-defense" />
   <MoreWork />
   <Timeline />
   <Archive />
+  <SkyBand kind="deep" />
   <Contact />
   <StickyContact />
 </Base>

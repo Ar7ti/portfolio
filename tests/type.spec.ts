@@ -11,6 +11,9 @@ const PAGES = [
 ];
 const WIDTHS = [360, 390, 768, 1440];
 
+// Measure the final layout: count-up and reveal animations (reduced motion = their end state).
+test.use({ reducedMotion: 'reduce' });
+
 for (const path of PAGES) {
   for (const width of WIDTHS) {
     test(`type check ${path} at ${width}px`, async ({ page }) => {

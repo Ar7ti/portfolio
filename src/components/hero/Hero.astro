@@ -27,6 +27,10 @@ const links = hero.contacts
   .filter((c): c is NonNullable<typeof c> & { href: string } => Boolean(c?.href));
 ---
 
+<!-- Fixed backdrop for the live sea (tier 1/2), behind the whole page. Opaque sections cover
+     it; the hero and the dusk/sunrise sky bands let it show. -->
+<div class="sea-backdrop" data-sea-backdrop aria-hidden="true"></div>
+
 <section id="point" class="hero theme-day" aria-labelledby="hero-title" tabindex="-1">
   <div class="hero-sea" data-sea-layer aria-hidden="true">
     <Picture
@@ -177,12 +181,39 @@ const links = hero.contacts
   }
 
   /* The live sea (tier 1/2) fades in over the still once its first frame is drawn. */
-  .hero-sea :global(.hero-sea-live) {
+  .sea-backdrop {
+    position: fixed;
+    inset: 0 0 auto;
+    /* lvh: the largest viewport, so the mobile URL bar hiding doesn't resize the canvas */
+    height: 100vh;
+    height: 100lvh;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .sea-backdrop :global(canvas) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Live sea: the hero lets it through; the still stays as a fallback underneath. */
+  :global(html.sea-live) .hero {
+    background: transparent;
+  }
+
+  :global(html.sea-live) .hero-sea :global(img),
+  :global(html.sea-live) .hero-sea-canvas {
+    visibility: hidden;
+  }
+
+  .sea-backdrop :global(.hero-sea-live) {
     opacity: 0;
     transition: opacity 0.6s ease-out;
   }
 
-  .hero-sea :global(.hero-sea-live.is-ready) {
+  .sea-backdrop :global(.hero-sea-live.is-ready) {
     opacity: 1;
   }
 
@@ -231,6 +262,22 @@ const links = hero.contacts
 
   /* Sky-coloured scrim between the sea and the text: keeps every text pair AA
      where the sea runs under the text, without boxing the text in. */
+  /* Static still only: its bottom edge runs into the exact colour the dusk band starts with,
+     so the hero never ends in a line. (With the live sea the band is transparent.) */
+  .hero-sea::before {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 22%;
+    z-index: 1;
+    background: linear-gradient(transparent, var(--sea-day-near));
+    pointer-events: none;
+  }
+
+  :global(html.sea-live) .hero-sea::before {
+    display: none;
+  }
+
   .hero-sea::after {
     content: '';
     position: absolute;
@@ -242,6 +289,8 @@ const links = hero.contacts
       transparent 62%
     );
     pointer-events: none;
+    /* Soft bottom edge: over the live sea at dusk the scrim must not end in a line. */
+    mask-image: linear-gradient(to bottom, #000 72%, transparent);
   }
 
   @media (max-width: 860px) {
@@ -337,12 +386,14 @@ const links = hero.contacts
     gap: 12px 18px;
   }
 
+  /* The lower hero runs over the sea: Copy and the links carry their own light backing,
+     so their text stays AA on any water, day or dusk. */
   .copy {
     min-height: 48px;
     padding: 0 16px;
     border: 2px solid currentColor;
     border-radius: var(--radius-pill);
-    background: transparent;
+    background: color-mix(in srgb, var(--c-foam) 88%, transparent);
     color: var(--c-deep);
     cursor: pointer;
   }
@@ -362,7 +413,9 @@ const links = hero.contacts
 
   .links a {
     display: inline-block;
-    padding: 12px 0;
+    padding: 10px 14px;
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--c-foam) 88%, transparent);
     font-weight: 700;
     color: var(--c-deep);
   }

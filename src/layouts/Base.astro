@@ -109,8 +109,11 @@ const {
   }
 
   .site-header,
+  /* The page ends in deep water: the footer continues the contact block's colour, no seam. */
   .site-footer {
-    padding: 16px;
+    padding: 16px var(--gutter) 32px;
+    background: var(--c-deep);
+    color: var(--c-foam);
   }
 
   .site-header ul {

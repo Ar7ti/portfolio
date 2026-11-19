@@ -28,7 +28,8 @@ import {
   WebGLRenderer,
 } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { DAY, hex } from './palette';
+import { AdditiveBlending, MeshBasicMaterial } from 'three';
+import { DAY, hex, mixPalette, NEON } from './palette';
 import { islandMask, Liquid } from './liquid';
 import { isSoftwareRenderer } from './tiers';
 import type { SeaFactory, SeaOptions, SeaRenderer } from './types';
@@ -76,6 +77,9 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
   let frame = 0;
   let paused = false;
   let destroyed = false;
+  /** Day (0) → night (1), set from outside, applied in the render loop. */
+  let night = 0;
+  let applied = -1;
   const cleanups: (() => void)[] = [];
 
   async function mount(layer: HTMLElement): Promise<void> {
@@ -103,8 +107,10 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     // The sky is a CSS gradient behind the transparent canvas: cheaper than a sky mesh.
     // Sky: a CSS gradient behind the transparent canvas that reaches exactly the fog colour at
     // the horizon line (set in placeCamera), so the fogged far water melts into the sky.
-    const setSky = (horizonPct: number) => {
-      canvas.style.background = `linear-gradient(${hex(DAY.skyA)}, ${hex(DAY.fog)} ${horizonPct.toFixed(1)}%, ${hex(DAY.fog)})`;
+    let horizonPct = 50;
+    let palette = DAY;
+    const setSky = () => {
+      canvas.style.background = `linear-gradient(${hex(palette.skyA)}, ${hex(palette.skyB)} ${(horizonPct * 0.6).toFixed(1)}%, ${hex(palette.fog)} ${horizonPct.toFixed(1)}%, ${hex(palette.fog)})`;
     };
 
     const scene = new Scene();
@@ -139,6 +145,61 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     // Below the deepest swell trough (≈ −1), so it never pokes through the studs.
     far.position.y = BASE - 1.6;
     scene.add(far);
+
+    // --- neon light sticks (Junction 2026 photos): crossing pairs standing in the far water,
+    // invisible by day, glowing at night; their streaks are added to the water colours below.
+    const STICK_Z = -40;
+    const stickDefs: [number, number, number][] =
+      aspect < 1
+        ? [
+            [-14, 9, 0],
+            [-4, -9, 1],
+            [4, 10, 2],
+            [14, -8, 0],
+          ]
+        : [
+            [6, 10, 0],
+            [13, -10, 1],
+            [20, 11, 2],
+            [27, -9, 0],
+            [34, 10, 1],
+            [41, -11, 2],
+            [47, 8, 0],
+          ];
+    const stickGeometry = new CylinderGeometry(0.22, 0.22, 30, 8).translate(0, 15, 0);
+    const haloGeometry = new CylinderGeometry(1.1, 1.1, 30, 8).translate(0, 15, 0);
+    const sticks = stickDefs.map(([bx, lean, c]) => {
+      const neon = new Color(NEON[c]!);
+      const core = new Mesh(
+        stickGeometry,
+        new MeshBasicMaterial({
+          color: neon.clone().lerp(new Color(0xffffff), 0.45),
+          transparent: true,
+          opacity: 0,
+          fog: false,
+        }),
+      );
+      const halo = new Mesh(
+        haloGeometry,
+        new MeshBasicMaterial({
+          color: neon,
+          transparent: true,
+          opacity: 0,
+          blending: AdditiveBlending,
+          depthWrite: false,
+          fog: false,
+        }),
+      );
+      const angle = Math.atan2(lean, 30);
+      for (const m of [core, halo]) {
+        m.position.set(bx, BASE - 1, STICK_Z);
+        m.rotation.z = -angle;
+        m.visible = false;
+        scene.add(m);
+      }
+      return { core, halo, bx, tx: bx + lean, color: neon };
+    });
+    const streak = new Color();
 
     const mask = islandMask(W, D, island.x - X0, island.z - Z0, island.r);
     const liquid = new Liquid({ width: W, depth: D, solid: mask });
@@ -175,6 +236,30 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
             const k = Math.min(1, Math.max(0, (hi + s * 0.6) * 0.45 + 0.45));
             color.copy(deep).lerp(mid, Math.min(1, k * 1.4));
             if (hi > 1.1) color.lerp(foam, Math.min(1, (hi - 1.1) * 0.7));
+            if (night > 0.01 && pz > STICK_Z) {
+              // Reflections: each stick throws a streak towards the viewer; the waves bend it
+              // (local slope shifts x) and the swell breaks it into bands.
+              const slope =
+                (x < W - 1 ? h[i + 1]! : hi) -
+                (x > 0 ? h[i - 1]! : hi) +
+                (swell(px + 1, pz, t) - s);
+              const tt = Math.min(1, (pz - STICK_Z) / (NEAR_Z - STICK_Z));
+              for (const st of sticks) {
+                const xs =
+                  st.bx +
+                  (st.tx - st.bx) * tt * 0.55 +
+                  slope * 3.2 +
+                  Math.sin(pz * 0.9 + t * 2.2) * 0.35;
+                const width = 1.3 + tt * 3.2;
+                const dx = px - xs;
+                const intensity =
+                  Math.exp((-dx * dx) / width) *
+                  (1 - tt * 0.55) *
+                  (0.55 + 0.45 * Math.max(0, Math.min(1, hi + s + 0.6)));
+                if (intensity > 0.02)
+                  color.add(streak.copy(st.color).multiplyScalar(intensity * 1.6 * night));
+              }
+            }
           }
           m4.makeTranslation(px, top, pz);
           mesh.setMatrixAt(i, m4);
@@ -188,8 +273,9 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     function placeCamera(): void {
       const a = camera.aspect;
       const dist = a < 1 ? 110 : 82;
-      camera.position.set(-6, dist * 0.62, dist * 0.78);
-      camera.lookAt(a < 1 ? 0 : 10, a < 1 ? 14 : 13, -2);
+      // At night the camera drops a little so the reflections stretch towards the viewer.
+      camera.position.set(-6, dist * (0.62 - 0.14 * night), dist * (0.78 + 0.06 * night));
+      camera.lookAt(a < 1 ? 0 : 10, (a < 1 ? 14 : 13) - 3 * night, -2);
       camera.updateProjectionMatrix();
       // Fog reaches the sky colour right at the grid's back edge, so no edge is ever visible.
       const back = Math.hypot(camera.position.x, camera.position.y - BASE, camera.position.z - Z0);
@@ -197,7 +283,8 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       fog.near = back * 0.66;
       // Where does the (infinitely far) sea meet the sky on screen? Put the gradient's fog stop there.
       const horizon = new Vector3(camera.position.x, BASE, camera.position.z - 1e5).project(camera);
-      setSky(Math.min(100, Math.max(0, (1 - horizon.y) * 50)));
+      horizonPct = Math.min(100, Math.max(0, (1 - horizon.y) * 50));
+      setSky();
     }
 
     function resize(): void {
@@ -281,6 +368,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
         liquid.step();
         acc -= STEP;
       }
+      if (Math.abs(night - applied) > 1e-3) applyNight(t);
       write(t);
       renderer.render(scene, camera);
       if (first) {
@@ -289,6 +377,30 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
         resolveFirst();
       }
       if (!paused) frame = requestAnimationFrame(tick);
+    }
+
+    /** Palette, fog, lights, sky, sticks and camera for the current hour. */
+    function applyNight(t: number): void {
+      applied = night;
+      palette = mixPalette(night);
+      deep.set(palette.deep);
+      mid.set(palette.mid);
+      foam.set(palette.foam);
+      sand.set(palette.sand);
+      grass.set(palette.grass);
+      fog.color.set(palette.fog);
+      farMaterial.color.set(palette.deep).lerp(new Color(palette.mid), 0.55);
+      hemi.intensity = palette.hemi;
+      sun.intensity = palette.sun;
+      for (const st of sticks) {
+        const on = night > 0.01;
+        st.core.visible = on;
+        st.halo.visible = on;
+        (st.core.material as MeshBasicMaterial).opacity = night;
+        (st.halo.material as MeshBasicMaterial).opacity =
+          0.22 * night * (0.85 + 0.15 * Math.sin(t * 3 + st.bx));
+      }
+      placeCamera();
     }
 
     function wake(): void {
@@ -305,6 +417,12 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       material.dispose();
       farGeometry.dispose();
       farMaterial.dispose();
+      stickGeometry.dispose();
+      haloGeometry.dispose();
+      for (const st of sticks) {
+        (st.core.material as MeshBasicMaterial).dispose();
+        (st.halo.material as MeshBasicMaterial).dispose();
+      }
       mesh.dispose();
     });
     resume = () => {
@@ -319,6 +437,9 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
 
   return {
     mount,
+    setProgress(p) {
+      night = Math.min(1, Math.max(0, p));
+    },
     setPaused(next) {
       if (next === paused) return;
       paused = next;

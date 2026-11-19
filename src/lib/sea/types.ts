@@ -15,6 +15,8 @@ export interface SeaRenderer {
   mount(layer: HTMLElement): Promise<void>;
   /** Stops/starts the render loop (hero off-screen, tab hidden). */
   setPaused(paused: boolean): void;
+  /** Day (0) → dusk (0.5) → night (1); see src/lib/sea/progress.ts. */
+  setProgress?(p: number): void;
   /** Removes the canvas and frees GPU resources. */
   destroy(): void;
 }

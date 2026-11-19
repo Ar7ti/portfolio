@@ -7,7 +7,7 @@
  * Island ray-marched inside its bounding box. The thick liquid (touch stirring, scroll waves)
  * runs on the CPU on a coarse grid and is uploaded as an 8-bit texture each frame.
  */
-import { DAY, type SeaPalette } from './palette';
+import { DAY, mixPalette, NEON, type SeaPalette } from './palette';
 import { islandMask, Liquid } from './liquid';
 import { isSoftwareRenderer } from './tiers';
 import type { SeaFactory, SeaOptions, SeaRenderer } from './types';
@@ -16,7 +16,7 @@ const BASE = 3;
 const STEP = 1 / 60;
 /** Liquid grid: SIM_W × SIM_D cells of SIM_CELL world units each. */
 const SIM_W = 64;
-const SIM_D = 48;
+const SIM_D = 56;
 const SIM_CELL = 2;
 /** Max drawing-buffer pixels: keeps phones cool. */
 const MAX_PIXELS = 700_000;
@@ -55,6 +55,11 @@ uniform vec3 uFog;
 uniform vec3 uSkyA;
 uniform float uLight;
 
+uniform float uNight;
+uniform vec3 uSkyB;
+uniform vec4 uSticks[7]; // base x, top x, neon index, active
+uniform vec3 uNeon[3];
+const float STICK_Z = -40.0;
 uniform sampler2D uLiquid;
 uniform vec4 uSimRect;   // x0, z0, width, depth (world units)
 uniform vec3 uIsland;    // centre x, centre z, radius (world units)
@@ -70,7 +75,10 @@ float swell(vec2 p, float t) {
 float liquid(vec2 p) {
   vec2 uv = (p - uSimRect.xy) / uSimRect.zw;
   if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) return 0.0;
-  return (texture2D(uLiquid, uv).r - 0.5) * 4.0;
+  // Fade out towards the grid's edges so the liquid never ends in a visible line.
+  float edge = smoothstep(0.0, 0.15, uv.x) * smoothstep(0.0, 0.15, 1.0 - uv.x)
+             * smoothstep(0.0, 0.25, uv.y) * smoothstep(0.0, 0.05, 1.0 - uv.y);
+  return (texture2D(uLiquid, uv).r - 0.5) * 4.0 * edge;
 }
 
 /** Island height above BASE at a world point (0 = no island). Blocky: one value per cell. */
@@ -108,7 +116,37 @@ float studs(vec2 p, vec2 light) {
 }
 
 vec3 sky(vec3 dir) {
-  return mix(uFog, uSkyA, smoothstep(0.0, 0.35, dir.y));
+  // fog at the horizon → skyB (the sunset band at dusk) → skyA overhead
+  vec3 low = mix(uFog, uSkyB, smoothstep(0.0, 0.08, dir.y));
+  return mix(low, uSkyA, smoothstep(0.06, 0.35, dir.y));
+}
+
+vec3 neon(float i) {
+  return i < 0.5 ? uNeon[0] : (i < 1.5 ? uNeon[1] : uNeon[2]);
+}
+
+/** Glow of the light sticks along a ray, only where they are nearer than maxT. */
+vec3 stickGlow(vec3 ro, vec3 rd, float maxT) {
+  vec3 glow = vec3(0.0);
+  for (int k = 0; k < 7; k++) {
+    vec4 st = uSticks[k];
+    if (st.w < 0.5) continue;
+    vec3 a = vec3(st.x, BASE - 1.0, STICK_Z);
+    vec3 b = vec3(st.y, BASE + 29.0, STICK_Z);
+    vec3 ba = b - a;
+    vec3 oa = ro - a;
+    float bb = dot(ba, ba), bd = dot(ba, rd), bo = dot(ba, oa), dd = dot(rd, oa);
+    float denom = bb - bd * bd;
+    float sSeg = clamp((bo - bd * dd) / max(denom, 1e-4) , 0.0, 1.0);
+    // closest point on the segment, then on the ray
+    vec3 q = a + ba * sSeg;
+    float tRay = max(0.0, dot(q - ro, rd));
+    if (tRay > maxT) continue;
+    float d = length(ro + rd * tRay - q);
+    vec3 c = neon(st.z);
+    glow += mix(c, vec3(1.0), 0.45) * smoothstep(0.35, 0.12, d) + c * 0.22 * exp(-d * d / 1.4);
+  }
+  return glow * uNight;
 }
 
 void main() {
@@ -116,7 +154,12 @@ void main() {
   vec2 light = normalize(vec2(-0.6, -0.8));
   float t = uTime;
 
-  if (dir.y > -0.002) { gl_FragColor = vec4(sky(dir), 1.0); return; }
+  if (dir.y > -0.002) {
+    vec3 skyCol = sky(dir);
+    if (uNight > 0.01) skyCol += stickGlow(uCamPos, dir, 1e5);
+    gl_FragColor = vec4(skyCol, 1.0);
+    return;
+  }
 
   vec3 col;
   float dist;
@@ -180,12 +223,28 @@ void main() {
     vec3 n = normalize(vec3(-hx / e, 1.0, -hz / e));
     float diffuse = clamp(dot(n, normalize(vec3(-0.45, 0.85, 0.35))), 0.0, 1.0);
     col = water * (0.72 + 0.4 * diffuse) * studs(p.xz, light);
+    if (uNight > 0.01 && p.z > STICK_Z) {
+      // Reflections: a streak from each stick towards the viewer, bent by the surface slope.
+      float slope = (hx / e) * 2.0;
+      float tt2 = clamp((p.z - STICK_Z) / (30.0 - STICK_Z), 0.0, 1.0);
+      for (int k = 0; k < 7; k++) {
+        vec4 st = uSticks[k];
+        if (st.w < 0.5) continue;
+        float xs = st.x + (st.y - st.x) * tt2 * 0.55 + slope * 3.2 + sin(p.z * 0.9 + t * 2.2) * 0.35;
+        float width = 1.3 + tt2 * 3.2;
+        float dx = p.x - xs;
+        float inten = exp(-dx * dx / width) * (1.0 - tt2 * 0.55) * (0.55 + 0.45 * clamp(h + s + 0.6, 0.0, 1.0));
+        col += neon(st.z) * inten * 1.6 * uNight;
+      }
+    }
     dist = tt;
   }
 
   col *= uLight;
   float f = smoothstep(uFogNear, uFogFar, dist);
-  gl_FragColor = vec4(mix(col, uFog, f), 1.0);
+  vec3 outCol = mix(col, uFog, f);
+  if (uNight > 0.01) outCol += stickGlow(uCamPos, dir, dist);
+  gl_FragColor = vec4(outCol, 1.0);
 }`;
 
 type Vec3 = [number, number, number];
@@ -249,6 +308,7 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
   let paused = false;
   let destroyed = false;
   let resume: () => void = () => {};
+  let applyNight: (p: number) => void = () => {};
   const cleanups: (() => void)[] = [];
 
   async function mount(layer: HTMLElement): Promise<void> {
@@ -333,6 +393,10 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       liquid: u('uLiquid'),
       simRect: u('uSimRect'),
       island: u('uIsland'),
+      night: u('uNight'),
+      skyB: u('uSkyB'),
+      sticks: u('uSticks'),
+      neon: u('uNeon'),
     };
 
     let camera = viewFor(1).camera;
@@ -348,6 +412,7 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       gl.uniform3fv(loc.grass, rgb(p.grass));
       gl.uniform3fv(loc.fog, rgb(p.fog));
       gl.uniform3fv(loc.skyA, rgb(p.skyA));
+      gl.uniform3fv(loc.skyB, rgb(p.skyB));
       gl.uniform1f(loc.light, Math.min(1.15, 0.45 + p.hemi * 0.35));
     }
 
@@ -368,7 +433,7 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       // Liquid grid in front of the camera, covering what the eye can stir.
       simRect =
         aspect < 1
-          ? { x0: -50, z0: -40, w: SIM_W * SIM_CELL, d: SIM_D * SIM_CELL }
+          ? { x0: -64, z0: -64, w: SIM_W * SIM_CELL, d: SIM_D * SIM_CELL }
           : { x0: -50, z0: -66, w: SIM_W * SIM_CELL, d: SIM_D * SIM_CELL };
       gl.uniform3fv(loc.camPos, camera.pos);
       gl.uniform3fv(loc.camRight, camera.right);
@@ -378,6 +443,28 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       gl.uniform1f(loc.aspect, aspect);
       gl.uniform4f(loc.simRect, simRect.x0, simRect.z0, simRect.w, simRect.d);
       gl.uniform3fv(loc.island, island);
+      // Same light sticks as tier 2 (x at the base, x at the top, neon colour).
+      const defs: [number, number, number][] =
+        aspect < 1
+          ? [
+              [-14, 9, 0],
+              [-4, -9, 1],
+              [4, 10, 2],
+              [14, -8, 0],
+            ]
+          : [
+              [6, 10, 0],
+              [13, -10, 1],
+              [20, 11, 2],
+              [27, -9, 0],
+              [34, 10, 1],
+              [41, -11, 2],
+              [47, 8, 0],
+            ];
+      const packed = new Float32Array(28);
+      defs.forEach(([bx, lean, c], k) => packed.set([bx, bx + lean, c, 1], k * 4));
+      gl.uniform4fv(loc.sticks, packed);
+      gl.uniform3fv(loc.neon, new Float32Array(NEON.flatMap((c) => rgb(c))));
       gl.uniform1f(loc.fogNear, view.fogNear);
       gl.uniform1f(loc.fogFar, view.fogFar);
       buildLiquid();
@@ -477,7 +564,13 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     cleanups.push(() => observer.disconnect());
 
     setPalette(DAY);
+    gl.uniform1f(loc.night, 0);
     layout();
+    applyNight = (p: number) => {
+      if (!gl) return;
+      setPalette(mixPalette(p));
+      gl.uniform1f(loc.night, p);
+    };
 
     const t0 = performance.now();
     let prev = t0;
@@ -532,6 +625,9 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
 
   return {
     mount,
+    setProgress(p) {
+      applyNight(Math.min(1, Math.max(0, p)));
+    },
     setPaused(next) {
       if (next === paused) return;
       paused = next;
