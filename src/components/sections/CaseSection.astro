@@ -1,0 +1,13 @@
+---
+/** A case study on the home page (H2; the title links to the case's own page). */
+import { caseBySlug } from '../../lib/cases';
+import CaseStudy from '../case/CaseStudy.astro';
+
+interface Props {
+  slug: string;
+}
+
+const study = await caseBySlug(Astro.props.slug);
+---
+
+<CaseStudy study={study} level={2} />

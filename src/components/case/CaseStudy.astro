@@ -1,0 +1,144 @@
+---
+/**
+ * Reusable case study (plan/COPY.md §2–4): label, title, one-liner, three BIG results, media,
+ * LEAD blocks, optional sub-projects, receipts, CTA. Used on the home page (H2, title links to
+ * the case page) and on /work/<slug> (H1).
+ */
+import type { CollectionEntry } from 'astro:content';
+import { data } from '../../lib/content';
+import Claim from '../content/Claim.astro';
+import BigFigures from '../type/BigFigures.astro';
+import CaseBody from './CaseBody.astro';
+import Receipts from './Receipts.astro';
+
+interface Props {
+  study: CollectionEntry<'cases'>['data'];
+  /** 1 on the case's own page, 2 on the home page. */
+  level: 1 | 2;
+}
+
+const { study, level } = Astro.props;
+const site = await data('site', 'site');
+const email = await data('contacts', 'email');
+const Title = `h${level}` as const;
+const titleId = `case-${study.slug}-title`;
+const long = study.title.length > 16;
+const href = `/work/${study.slug}`;
+---
+
+<section
+  id={`case-${study.slug}`}
+  class:list={['case', 'section', `theme-${study.theme}`]}
+  aria-labelledby={titleId}
+>
+  <div class="inner">
+    <Claim as="p" class="label case-label" claim={study.label} />
+    <Title id={titleId} class:list={['case-title', long ? 'h2-long' : 'h2']}>
+      {level === 2 ? <a href={href}>{study.title}</a> : study.title}
+    </Title>
+    <Claim as="p" class="oneliner case-oneliner" claim={study.oneliner} />
+    <BigFigures class="case-results" items={study.results} />
+
+    {(study.media.length > 0 || study.blocks.length > 0) && (
+      <CaseBody media={study.media} blocks={study.blocks} links={study.links} />
+    )}
+
+    {study.subprojects && study.subprojects.length > 0 && (
+      <div class="subs">
+        {study.subprojects.map((sub) => (
+          <div class="sub">
+            <h3 class="h3 sub-title">{sub.title}</h3>
+            <Claim as="p" class="sub-oneliner" claim={sub.oneliner} />
+            <CaseBody media={sub.media} blocks={sub.blocks} links={sub.links} stacked />
+          </div>
+        ))}
+      </div>
+    )}
+
+    {study.receipts && study.receipts.length > 0 && <Receipts receipts={study.receipts} />}
+
+    <p class="case-cta">
+      <span class="lead">{site.cta}</span>
+      <a class="button" href={email.href} data-facts={email.facts.join(' ')}>
+        {email.display}
+      </a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .case :global(.case-title) {
+    margin: 14px 0 22px;
+    max-width: 14ch;
+  }
+
+  .case-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .case-title a:hover,
+  .case-title a:focus-visible {
+    text-decoration: underline;
+    text-decoration-thickness: 0.06em;
+    text-underline-offset: 0.12em;
+  }
+
+  .case :global(.case-oneliner) {
+    margin: 0 0 48px;
+  }
+
+  .case :global(.case-results) {
+    margin: 0 0 56px;
+  }
+
+  .subs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(28px, 5vw, 64px);
+  }
+
+  .sub {
+    min-width: 0;
+    padding-top: 34px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .sub-title {
+    margin: 0 0 10px;
+    text-wrap: balance;
+  }
+
+  .case :global(.sub-oneliner) {
+    max-width: 32ch;
+    margin: 0 0 22px;
+    font-size: 20px;
+    line-height: 1.4;
+  }
+
+  .case :global(.sub-oneliner b) {
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .case-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    align-items: center;
+    margin: 64px 0 0;
+    padding-top: 28px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .case-cta .lead {
+    margin: 0;
+    font-size: 22px;
+  }
+
+  @media (max-width: 860px) {
+    .subs {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

@@ -1,0 +1,27 @@
+---
+/** Each case at its own URL: /work/<slug> (H1). */
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import CaseStudy from '../../components/case/CaseStudy.astro';
+import { cases, type CaseData } from '../../lib/cases';
+import { plain } from '../../lib/rich';
+
+export const getStaticPaths = (async () =>
+  (await cases()).map((study) => ({
+    params: { slug: study.slug },
+    props: { study },
+  }))) satisfies GetStaticPaths;
+
+interface Props {
+  study: CaseData;
+}
+
+const { study } = Astro.props;
+---
+
+<Base title={`${study.title} · Kirill Jegosin`} description={plain(study.oneliner.text)}>
+  <!-- Skip-link target (Base links to #point). -->
+  <div id="point" tabindex="-1">
+    <CaseStudy study={study} level={1} />
+  </div>
+</Base>

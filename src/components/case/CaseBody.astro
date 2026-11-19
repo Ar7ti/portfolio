@@ -1,0 +1,156 @@
+---
+/**
+ * Media + LEAD blocks + link pills of a case (or a sub-project).
+ * Two columns on desktop (media left, text right); `stacked` puts media on top (sub-projects).
+ */
+import type { CollectionEntry } from 'astro:content';
+import { imageInfo } from '../../lib/media';
+import Claim from '../content/Claim.astro';
+import Lead from '../type/Lead.astro';
+
+type Case = CollectionEntry<'cases'>['data'];
+
+interface Props {
+  media: Case['media'];
+  blocks: Case['blocks'];
+  links: Case['links'];
+  stacked?: boolean;
+}
+
+const { media, blocks, links, stacked = false } = Astro.props;
+const images = media.flatMap((item) => ('src' in item ? [item] : []));
+const shorts = media.flatMap((item) => ('kind' in item ? [item] : []));
+---
+
+<div class:list={['case-body', { stacked }]}>
+  {(images.length > 0 || shorts.length > 0) && (
+    <div class="figs">
+      {images.map((image) => {
+        const info = imageInfo(image.src);
+        return (
+          <figure class:list={['fig', image.size ?? 'large']} data-facts={image.facts?.join(' ')}>
+            <img
+              src={info.src}
+              srcset={info.srcset}
+              sizes="(max-width: 860px) 100vw, 50vw"
+              width={info.width}
+              height={info.height}
+              alt={image.alt}
+              loading="lazy"
+              decoding="async"
+            />
+            {image.caption && <Claim as="figcaption" class="label" claim={image.caption} />}
+          </figure>
+        );
+      })}
+      {shorts.map((short) => (
+        <a class="pill short-link" href={short.href} data-facts={short.facts.join(' ')}>
+          {short.label}
+        </a>
+      ))}
+    </div>
+  )}
+  <div class="blocks">
+    {blocks.map((block) => (
+      <Lead block={block} />
+    ))}
+    {links.length > 0 && (
+      <p class="pills">
+        {links.map((link) => (
+          <a class="pill" href={link.href} data-facts={link.facts?.join(' ')}>
+            {link.label}
+          </a>
+        ))}
+      </p>
+    )}
+  </div>
+</div>
+
+<style>
+  .case-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(28px, 5vw, 72px);
+    align-items: start;
+  }
+
+  .case-body.stacked {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+  }
+
+  .figs {
+    display: grid;
+    gap: 18px;
+    min-width: 0;
+  }
+
+  .fig {
+    margin: 0;
+  }
+
+  .fig.small {
+    max-width: 70%;
+  }
+
+  .fig img {
+    width: 100%;
+    border-radius: var(--radius-m);
+  }
+
+  .fig :global(figcaption) {
+    margin-top: 10px;
+  }
+
+  .blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    min-width: 0;
+  }
+
+  .blocks :global(.lead-block) {
+    max-width: 34em;
+  }
+
+  .blocks :global(.lead-block a) {
+    font-weight: 700;
+    color: var(--fg-strong);
+  }
+
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 8px 16px;
+    border: 2px solid currentColor;
+    border-radius: var(--radius-pill);
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--fg-strong);
+  }
+
+  .pill:hover {
+    background: var(--fg-strong);
+    border-color: var(--fg-strong);
+    color: var(--bg);
+  }
+
+  .short-link {
+    justify-self: start;
+  }
+
+  @media (max-width: 860px) {
+    .case-body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
