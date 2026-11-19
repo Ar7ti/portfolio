@@ -21,14 +21,16 @@ cv:
                 text: Spots coordinated meme spread. I built the detector and the data pipeline.,
                 facts: [SC1, SC5],
               }
-            - { text: '**Won the Oxylabs challenge.**', facts: [H3] }
+            - {
+                text: '**Won the Oxylabs challenge** · 3rd in the Hostinger challenge.',
+                facts: [H3, H4],
+              }
           stack: Python · Postgres
         - title: Sky Island Tower Defense
           meta: { text: Roblox · solo, facts: [ST9] }
-          asOf: 2026-11-18
           lines:
             - { text: Co-op tower defense for up to 4 players., facts: [ST5] }
-            - { text: '**Live on Roblox**; 223 commits (as of {asOf}).', facts: [ST1, ST10] }
+            - { text: '**Live on Roblox**; 223 commits.', facts: [ST1, ST10] }
           stack: Luau · React-lua · Rojo
         - title: Ocean Opportunity Radar
           meta: { text: Junction X Turku · solo, facts: [H8, OR5] }
@@ -37,7 +39,7 @@ cv:
                 text: AI research tool for ocean investors. Every answer cites a source.,
                 facts: [OR1],
               }
-            - { text: '**36 tests.**', facts: [OR4] }
+            - { text: '**Built solo in one weekend** · 36 tests.', facts: [H8, OR4] }
           stack: React · TypeScript · OpenAI API
     - id: experience
       title: Experience
@@ -72,3 +74,4 @@ cv:
         - { text: Finnish (A2–B1), facts: [P15] }
         - { text: Driving licence B, facts: [P17] }
         - { text: CS50x (in progress), facts: [P16] }
+        - { text: Video editing — 2.6M views on my Roblox Shorts, facts: [P20, YT2] }

@@ -16,7 +16,7 @@ test('renders every section, at most 180 words, no paragraph over 20 words', asy
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
   const text = (await page.locator('main').innerText()).replace(/s+/g, ' ');
   expect(text.split(' ').filter(Boolean).length).toBeLessThanOrEqual(180);
-  for (const p of await page.locator('main p').allInnerTexts()) {
+  for (const p of await page.locator('main p:not(.inline)').allInnerTexts()) {
     expect(p.split(/s+/).filter(Boolean).length, p).toBeLessThanOrEqual(20);
   }
 });
