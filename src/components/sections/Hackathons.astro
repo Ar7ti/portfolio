@@ -1,0 +1,174 @@
+---
+/**
+ * Hackathons strip (plan/COPY.md §5): the night section opens here.
+ * Photo 04 sits behind the text as a real image (responsive, lazy) under a dark scrim.
+ * All copy and numbers come from src/content/hackathons.yaml.
+ */
+import { data } from '../../lib/content';
+import { rich } from '../../lib/rich';
+import Claim from '../content/Claim.astro';
+
+const strip = await data('hackathons', 'strip');
+const { photo } = strip;
+const srcset = [
+  `${photo.src}-sm.webp 800w`,
+  `${photo.src}-lg.webp 1600w`,
+  `${photo.src}-full.webp 2400w`,
+].join(', ');
+---
+
+<section id="hackathons" class="strip section theme-night" aria-labelledby="hackathons-title">
+  <img
+    class="strip-photo"
+    src={`${photo.src}-lg.webp`}
+    srcset={srcset}
+    sizes="100vw"
+    width="1600"
+    height="1066"
+    alt={photo.alt}
+    loading="lazy"
+    decoding="async"
+  />
+  <div class="inner">
+    <Claim as="div" class="label" claim={strip.label} />
+    <Claim as="h2" id="hackathons-title" class="h2-sec strip-title" claim={strip.title} />
+    <ul class="events">
+      {strip.rows.map((row) => (
+        <li class:list={['event', { win: row.highlight }]} data-facts={row.facts.join(' ')}>
+          <div class="label">{`${row.month} · ${row.team}`}</div>
+          <h3 class="event-name">{row.event}</h3>
+          <p class="event-project">
+            {row.project}
+            {row.result && (
+              <>
+                {' · '}
+                <b set:html={rich(row.result)} />
+              </>
+            )}
+          </p>
+        </li>
+      ))}
+    </ul>
+    {photo.caption && <Claim as="p" class="label credit" claim={photo.caption} />}
+  </div>
+</section>
+
+<style>
+  .strip {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: flex-end;
+    min-height: 80vh;
+    min-height: 80svh;
+    overflow: hidden;
+  }
+
+  .strip-photo {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 60% center;
+  }
+
+  /* Dark scrim on the text side: left on wide screens, bottom on phones. */
+  .strip::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(90deg, rgb(9 7 9 / 0.92), rgb(9 7 9 / 0.62) 60%, rgb(9 7 9 / 0.3));
+  }
+
+  .strip .inner {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .strip :global(.strip-title) {
+    max-width: 11em;
+    margin: 14px 0 34px;
+  }
+
+  .events {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    max-width: 980px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .event {
+    min-width: 0;
+    padding-top: 12px;
+    border-top: 2px solid rgb(255 255 255 / 0.25);
+  }
+
+  .event-name {
+    margin: 6px 0 4px;
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: 850;
+    font-stretch: 110%;
+    line-height: 1.1;
+    color: var(--fg-strong);
+    overflow-wrap: normal;
+  }
+
+  .event-project {
+    margin: 0;
+    font-size: var(--size-small);
+    line-height: 1.4;
+    color: var(--fg-body);
+  }
+
+  .event.win {
+    border-top-color: var(--c-hl);
+  }
+
+  .event.win .event-project b {
+    font-weight: 800;
+    color: var(--c-hl);
+  }
+
+  .strip :global(.credit) {
+    margin: 28px 0 0;
+  }
+
+  @media (max-width: 860px) {
+    .strip {
+      min-height: 0;
+      padding-top: clamp(200px, 58vw, 420px);
+      background: var(--c-night);
+    }
+
+    .strip-photo {
+      height: clamp(260px, 75vw, 520px);
+      object-position: 62% 55%;
+    }
+
+    .strip::before {
+      background: linear-gradient(
+        180deg,
+        rgb(9 7 9 / 0) 0%,
+        rgb(9 7 9 / 0) clamp(120px, 35vw, 280px),
+        var(--c-night) clamp(260px, 75vw, 520px)
+      );
+    }
+
+    /* '3 hackathons.' stays on one line down to 360 px. */
+    .strip :global(.strip-title) {
+      font-size: clamp(32px, 9.8vw, 88px);
+    }
+
+    .events {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 18px;
+    }
+  }
+</style>
