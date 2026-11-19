@@ -8,6 +8,7 @@ import type { CollectionEntry } from 'astro:content';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { imageInfo } from '../../lib/media';
+import { matchReceipt } from '../../lib/receipts';
 import Claim from '../content/Claim.astro';
 import Lead from '../type/Lead.astro';
 
@@ -18,9 +19,12 @@ interface Props {
   blocks: Case['blocks'];
   links: Case['links'];
   stacked?: boolean;
+  /** For claim → receipt links. */
+  slug?: string;
+  receipts?: Case['receipts'];
 }
 
-const { media, blocks, links, stacked = false } = Astro.props;
+const { media, blocks, links, stacked = false, slug = '', receipts } = Astro.props;
 const inPublic = (path: string) => existsSync(join(process.cwd(), 'public', path));
 
 /** Short thumbnails live at /media/projects/short-<video id>.webp (SOURCES.md). */
@@ -139,7 +143,7 @@ const sizes = '(max-width: 860px) 100vw, 50vw';
   )}
   <div class="blocks">
     {blocks.map((block) => (
-      <Lead block={block} />
+      <Lead block={block} receipt={matchReceipt(slug, block.facts, receipts)} />
     ))}
     {links.length > 0 && (
       <p class="pills">

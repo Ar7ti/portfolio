@@ -6,12 +6,16 @@
  * `asOf` adds the dated-number stamp ("as of 18 Nov 2026") under the label.
  */
 import { asOf } from '../../lib/dates';
+import type { ReceiptRef } from '../../lib/receipts';
+import ReceiptMark from '../receipts/ReceiptMark.astro';
 export interface Figure {
   value: string;
   label: string;
   note?: string | undefined;
   asOf?: Date | undefined;
   facts: readonly string[];
+  /** Link to the receipt behind this figure (case studies). */
+  receipt?: ReceiptRef | undefined;
 }
 
 interface Props {
@@ -30,6 +34,11 @@ const { items, class: className } = Astro.props;
         {item.label}
         {item.note && <small class="label">{item.note}</small>}
         {item.asOf && <small class="label">{asOf(item.asOf)}</small>}
+        {item.receipt && (
+          <small>
+            <ReceiptMark receipt={item.receipt} />
+          </small>
+        )}
       </span>
     </li>
   ))}
