@@ -1,22 +1,28 @@
-/* Self-hosted, subset fonts (SIL OFL 1.1). Regenerate with `npm run fonts`. */
+/*
+ * Self-hosted, subset fonts (SIL OFL 1.1). Regenerate with `npm run fonts`.
+ * Anybody (the H1 / LCP face) is imported from src/assets and inlined into the CSS by Vite
+ * (see astro.config.mjs), so the hero renders in it on first paint: no swap, no layout shift.
+ * Body and label fonts use `optional`: if they are not there within ~100 ms the fallback stays
+ * for this view, so they can never shift the layout either (CLS budget < 0.1).
+ */
 @font-face {
   font-family: 'Anybody';
-  src: url('/fonts/anybody.woff2') format('woff2');
+  src: url('../assets/fonts/anybody.woff2') format('woff2');
   font-weight: 600 900;
   font-stretch: 100% 125%;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
   font-family: 'Schibsted Grotesk';
   src: url('/fonts/schibsted-grotesk.woff2') format('woff2');
   font-weight: 400 800;
-  font-display: swap;
+  font-display: optional;
 }
 
 @font-face {
   font-family: 'Martian Mono';
   src: url('/fonts/martian-mono.woff2') format('woff2');
   font-weight: 400 500;
-  font-display: swap;
+  font-display: optional;
 }
