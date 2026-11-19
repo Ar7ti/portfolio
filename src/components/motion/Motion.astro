@@ -1,0 +1,60 @@
+---
+/**
+ * Motion layer loader (#20). The code lives in src/scripts/motion/ and is imported only after
+ * the first paint and an idle period, and only without prefers-reduced-motion, so it never
+ * delays content and is not in the initial bundle. No-JS: nothing here does anything.
+ */
+---
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  let stop: (() => void) | null = null;
+
+  const start = () => {
+    if (reduce.matches || stop) return;
+    void import('../../scripts/motion/index').then(({ startMotion }) => {
+      if (!reduce.matches && !stop) stop = startMotion();
+    });
+  };
+  const idle = (fn: () => void) =>
+    'requestIdleCallback' in window
+      ? requestIdleCallback(fn, { timeout: 2500 })
+      : setTimeout(fn, 1200);
+
+  addEventListener('load', () => idle(start), { once: true });
+  reduce.addEventListener('change', () => {
+    if (reduce.matches) {
+      stop?.();
+      stop = null;
+    } else start();
+  });
+</script>
+
+<style is:global>
+  /* Headline mask reveal: the heading slides up from behind its own box. */
+  .motion-on .motion-mask {
+    clip-path: inset(0 0 0 0);
+    transition:
+      translate var(--dur-spring) var(--ease-spring),
+      opacity calc(var(--dur-spring) * 0.6) var(--ease-spring),
+      clip-path var(--dur-spring) var(--ease-spring);
+  }
+
+  .motion-on .motion-mask:not(.motion-in) {
+    translate: 0 0.6em;
+    opacity: 0;
+    clip-path: inset(-0.2em 0 100% 0);
+  }
+
+  .motion-on .button {
+    will-change: translate;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .motion-mask {
+      translate: none !important;
+      opacity: 1 !important;
+      clip-path: none !important;
+    }
+  }
+</style>

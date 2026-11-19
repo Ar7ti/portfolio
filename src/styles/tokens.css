@@ -73,6 +73,45 @@
   --size-label: 12px;
   --measure: 60ch;
 
+  /* Motion (#20): the SOFT spring from src/scripts/motion/spring.ts sampled as linear(); a test
+     keeps them in sync. Use for every transition instead of ease/linear. */
+  --ease-spring: linear(
+    0,
+    0.056,
+    0.171,
+    0.309,
+    0.446,
+    0.572,
+    0.679,
+    0.767,
+    0.836,
+    0.889,
+    0.928,
+    0.956,
+    0.975,
+    0.988,
+    0.996,
+    1.001,
+    1.004,
+    1.005,
+    1.005,
+    1.004,
+    1.004,
+    1.003,
+    1.003,
+    1.002,
+    1.001,
+    1.001,
+    1.001,
+    1.001,
+    1,
+    1,
+    1,
+    1,
+    1
+  );
+  --dur-spring: 900ms;
+
   /* Space, shape */
   --gutter: clamp(16px, 5vw, 72px);
   --section-y: clamp(40px, 8vw, 120px);
