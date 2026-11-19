@@ -1,0 +1,226 @@
+---
+/**
+ * One card in the "More work" grid (plan/COPY.md §6), rendered from a src/content/projects entry.
+ * Media: one wide screenshot sits above the text; several portrait covers (Shorts) sit below it.
+ * An in-progress project gets the dashed "Now building" look.
+ */
+import type { CollectionEntry } from 'astro:content';
+import { fillAsOf } from '../../lib/dates';
+import Claim from '../content/Claim.astro';
+import BigFigures from '../type/BigFigures.astro';
+import Lead from '../type/Lead.astro';
+
+interface Props {
+  project: CollectionEntry<'projects'>['data'];
+}
+
+const { project } = Astro.props;
+const label = fillAsOf(project.label, project.asOf);
+const media = project.media ?? [];
+const covers = media.length > 1 ? media : [];
+const shot = media.length === 1 ? media[0] : undefined;
+const nowBuilding = project.status === 'in-progress';
+---
+
+<article class:list={['card', { now: nowBuilding }]}>
+  <Claim as="p" class="label" claim={label} />
+  <h3 class="card-title">{project.title}</h3>
+
+  {project.big && <BigFigures class="card-big" items={[project.big]} />}
+  {project.row && <Claim as="p" class="card-row" claim={project.row} />}
+
+  {shot && (
+    <img
+      class="card-shot"
+      src={`${shot.src}.webp`}
+      width="1440"
+      height="900"
+      alt={shot.alt}
+      loading="lazy"
+      decoding="async"
+    />
+  )}
+
+  {project.body.map((claim) => (
+    <Claim as="p" class="card-text" claim={claim} />
+  ))}
+  {project.blocks?.map((block) => (
+    <Lead block={block} />
+  ))}
+
+  {covers.length > 0 && (
+    <ul class="covers">
+      {covers.map((cover) => (
+        <li>
+          <a href={cover.href}>
+            <figure>
+              <img
+                src={`${cover.src}.webp`}
+                width="720"
+                height="1280"
+                alt={cover.alt}
+                loading="lazy"
+                decoding="async"
+              />
+              {cover.caption && <Claim as="figcaption" class="cover-views" claim={cover.caption} />}
+            </figure>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  {project.links.length > 0 && (
+    <p class="pills">
+      {project.links.map((link) => (
+        <a class="pill" href={link.href} data-facts={link.facts?.join(' ')}>
+          {link.label}
+        </a>
+      ))}
+    </p>
+  )}
+</article>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    padding: 22px;
+    border: 2px solid var(--c-deep);
+    border-radius: var(--radius-l);
+    background: #fff;
+    box-shadow: var(--shadow-block);
+  }
+
+  .card > :global(*) {
+    margin: 0;
+  }
+
+  .card.now {
+    border-style: dashed;
+    background: var(--c-foam);
+    box-shadow: none;
+  }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 850;
+    font-stretch: 110%;
+    line-height: 1.05;
+    color: var(--fg-strong);
+    overflow-wrap: normal;
+    text-wrap: balance;
+  }
+
+  /* "2.6M views" on one line: figure and label side by side at every width. */
+  .card :global(.card-big) {
+    display: block;
+    --big-1: var(--c-magenta);
+  }
+
+  .card :global(.card-big li) {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .card :global(.card-big .big) {
+    font-size: clamp(48px, 5vw, 64px);
+  }
+
+  .card :global(.card-big .big-label) {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(20px, 2.1vw, 27px);
+    font-weight: 900;
+    font-stretch: 118%;
+    color: var(--c-magenta);
+    white-space: nowrap;
+  }
+
+  .card :global(.card-row) {
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .card :global(.card-text),
+  .card :global(.lead-block) {
+    font-size: 17px;
+    line-height: 1.45;
+  }
+
+  .card :global(.lead-block .lead) {
+    display: inline;
+    margin-right: 0.3em;
+    font-size: inherit;
+  }
+
+  .card-shot {
+    width: 100%;
+    border: 1px solid rgb(0 0 0 / 0.07);
+    border-radius: 12px;
+  }
+
+  .covers {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .covers a {
+    display: block;
+    border-radius: 10px;
+    text-decoration: none;
+  }
+
+  .covers figure {
+    margin: 0;
+  }
+
+  .covers img {
+    width: 100%;
+    aspect-ratio: 9 / 16;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  .card :global(.cover-views) {
+    margin-top: 4px;
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--fg-strong);
+  }
+
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 4px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 8px 16px;
+    border: 2px solid currentColor;
+    border-radius: var(--radius-pill);
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--fg-strong);
+  }
+
+  .pill:hover {
+    background: var(--c-deep);
+    border-color: var(--c-deep);
+    color: var(--c-foam);
+  }
+</style>
