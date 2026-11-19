@@ -115,8 +115,8 @@ const site = defineCollection({
         button: z.strictObject({ label: z.string(), href: z.string() }),
       }),
       cta: z.string(),
-      /** Summary of the collapsed receipts list in each case. */
-      receipts: z.string(),
+      /** Receipts list: summary text, "checked <date>" word, screen-reader prefix for claim marks. */
+      receipts: z.strictObject({ summary: z.string(), checked: z.string(), markLabel: z.string() }),
     }),
   ),
 });
