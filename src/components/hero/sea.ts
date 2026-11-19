@@ -16,8 +16,7 @@ import type { SeaFactory, SeaRenderer } from '../../lib/sea/types';
 const LOADERS: Record<1 | 2, () => Promise<SeaFactory | null>> = {
   // Tier 1 lands with #10; until then phones keep the still.
   1: async () => null,
-  // Tier 2 lands with #9.
-  2: async () => null,
+  2: () => import('../../lib/sea/sea3d').then((m) => m.createSea3D),
 };
 
 const root = document.documentElement;
@@ -46,9 +45,11 @@ async function apply(tier: Tier, layer: HTMLElement): Promise<void> {
   }
 
   const frames: number[] = [];
+  const forced = readSignals().override !== null;
   const renderer = factory({
     onFrame: (ms) => {
-      if (tier !== 2 || frames.length >= SLOW_SAMPLE_FRAMES) return;
+      // A forced ?tier= is for testing: never downgrade it.
+      if (tier !== 2 || forced || frames.length >= SLOW_SAMPLE_FRAMES) return;
       frames.push(ms);
       if (isTooSlow(frames)) {
         remember.slow3d();
@@ -82,7 +83,6 @@ function setupToggle(layer: HTMLElement): void {
       label.textContent = calm ? (button.dataset['back'] ?? '') : (button.dataset['calm'] ?? '');
   };
   sync(readSignals().calm);
-  button.hidden = false;
   button.addEventListener('click', () => {
     const calm = button.getAttribute('aria-pressed') !== 'true';
     remember.calm(calm);
@@ -105,6 +105,15 @@ function start(): void {
   document.addEventListener('visibilitychange', () => setPaused(!visible || document.hidden));
 
   void apply(decideTier(readSignals()), layer);
+
+  // Free the GPU when leaving the page (also before a view-transition swap, #19).
+  const teardown = () => {
+    generation++;
+    current?.destroy();
+    current = null;
+  };
+  addEventListener('pagehide', teardown);
+  document.addEventListener('astro:before-swap', teardown);
 }
 
 // After first paint and once the page is idle, so the sea never competes with the hero text.

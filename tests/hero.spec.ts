@@ -4,14 +4,24 @@ test.describe('hero', () => {
   test('LCP element is the H1, not the sea image', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
+    // Wait until fonts and the page are done, then read the final LCP candidate
+    // (an early, smaller candidate can be reported before the H1's font is ready).
+    await page.waitForLoadState('load');
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(500);
     const lcp = await page.evaluate(
       () =>
         new Promise<string>((resolve) => {
-          new PerformanceObserver((list) => {
-            const entries = list.getEntries() as (PerformanceEntry & { element?: Element })[];
-            const last = entries.at(-1);
+          const seen: (PerformanceEntry & { element?: Element | null })[] = [];
+          const observer = new PerformanceObserver((list) => {
+            seen.push(...(list.getEntries() as typeof seen));
+          });
+          observer.observe({ type: 'largest-contentful-paint', buffered: true });
+          setTimeout(() => {
+            observer.disconnect();
+            const last = seen.at(-1);
             resolve(last?.element?.closest('h1') ? 'h1' : (last?.element?.tagName ?? 'none'));
-          }).observe({ type: 'largest-contentful-paint', buffered: true });
+          }, 300);
         }),
     );
     expect(lcp).toBe('h1');

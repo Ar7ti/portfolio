@@ -33,7 +33,7 @@ const links = hero.contacts
       src={seaDay}
       formats={['avif', 'webp']}
       fallbackFormat="webp"
-      widths={[640, 960, 1280, 1600]}
+      widths={[640, 960, 1280, 1600, 2400]}
       sizes="100vw"
       alt=""
       loading="eager"
@@ -51,7 +51,6 @@ const links = hero.contacts
     data-calm={site.motionToggle.calm}
     data-back={site.motionToggle.back}
     aria-pressed="false"
-    hidden
   >
     <span data-sea-toggle-label>{site.motionToggle.calm}</span>
   </button>
@@ -79,7 +78,7 @@ const links = hero.contacts
         <a class="button" href={email.href} data-facts={email.facts.join(' ')}>
           {email.display}
         </a>
-        <button class="copy" type="button" data-copy={email.display} hidden>
+        <button class="copy" type="button" data-copy={email.display}>
           <span class="label copy-text">Copy</span>
         </button>
         <span class="copy-status visually-hidden" role="status" aria-live="polite"></span>
@@ -105,10 +104,12 @@ const links = hero.contacts
 
   // Progressive enhancement: the Copy button only exists where the Clipboard API does.
   for (const button of document.querySelectorAll<HTMLButtonElement>('button[data-copy]')) {
-    if (!navigator.clipboard) continue;
+    if (!navigator.clipboard) {
+      button.hidden = true;
+      continue;
+    }
     const text = button.querySelector('.copy-text');
     const status = button.parentElement?.querySelector('.copy-status');
-    button.hidden = false;
     button.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(button.dataset['copy'] ?? '');
@@ -173,6 +174,16 @@ const links = hero.contacts
     opacity: 1;
   }
 
+  /* The live sea (tier 1/2) fades in over the still once its first frame is drawn. */
+  .hero-sea :global(.hero-sea-live) {
+    opacity: 0;
+    transition: opacity 0.6s ease-out;
+  }
+
+  .hero-sea :global(.hero-sea-live.is-ready) {
+    opacity: 1;
+  }
+
   .hero-inner {
     width: 100%;
     max-width: calc(var(--content-max) + 2 * var(--gutter));
@@ -184,7 +195,14 @@ const links = hero.contacts
     max-width: 960px;
   }
 
-  /* Calm the water / Bring the water back. JS-only, so it starts hidden. */
+  /* JS-only controls: hidden by CSS until the inline head script has set <html class="js">,
+     so they are in place at first paint and never shift the layout. */
+  :global(html:not(.js)) .copy,
+  :global(html:not(.js)) .sea-toggle {
+    display: none;
+  }
+
+  /* Calm the water / Bring the water back. */
   .sea-toggle {
     position: absolute;
     top: 16px;

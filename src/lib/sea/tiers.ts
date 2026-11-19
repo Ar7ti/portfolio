@@ -70,13 +70,12 @@ export const remember = {
   slow3d: () => safeSet(() => sessionStorage, SLOW_KEY, '1'),
 };
 
+/**
+ * Cheap check: is the API there? Creating a throwaway context costs ~50–100 ms on phones.
+ * If the GPU is blocklisted anyway, the renderer's mount fails and the still stays (sea.ts).
+ */
 function hasWebGL(): boolean {
-  try {
-    const canvas = document.createElement('canvas');
-    return Boolean(canvas.getContext('webgl2') ?? canvas.getContext('webgl'));
-  } catch {
-    return false;
-  }
+  return 'WebGL2RenderingContext' in window || 'WebGLRenderingContext' in window;
 }
 
 export function readSignals(): Signals {

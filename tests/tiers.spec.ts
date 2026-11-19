@@ -85,3 +85,27 @@ test.describe('tiers in the browser', () => {
     });
   });
 });
+
+test.describe('slow tier 2 downgrade', () => {
+  test('a slow first 30 frames downgrades tier 2 and is remembered for the visit', async ({
+    page,
+  }) => {
+    // Make every frame look slow: rAF timestamps advance 40 ms per frame.
+    await page.addInitScript(() => {
+      // A capable desktop, whatever machine runs the test.
+      Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 8 });
+      Object.defineProperty(navigator, 'deviceMemory', { get: () => 8 });
+      let fake = performance.now();
+      const raf = window.requestAnimationFrame.bind(window);
+      window.requestAnimationFrame = (cb) => raf(() => cb((fake += 40)));
+    });
+    test.setTimeout(120_000);
+    await page.setViewportSize({ width: 900, height: 500 });
+    await page.goto('/');
+    await page.waitForFunction(() => sessionStorage.getItem('sea:slow3d') === '1', null, {
+      timeout: 90_000,
+    });
+    // Tier 1 isn't built yet (#10), so the downgrade lands on the still.
+    await expect(page.locator('html')).not.toHaveAttribute('data-sea-tier', '2');
+  });
+});
