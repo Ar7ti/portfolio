@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>F · Full copy (static mock)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,300..900&family=Martian+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --deep:#0E3B57; --ink:#0B2233; --foam:#F7FBFC; --sig:#FFC933; --night:#090709; --violet:#8823b5; --coral:#e0685b; --magenta:#cf2672; --hl:#C8F560; --soft:#cbbfd3; --sky:#e7f1f6; --mute:#4b6476; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: "Schibsted Grotesk", system-ui, sans-serif; color: var(--ink); background: var(--sky); -webkit-font-smoothing: antialiased; }
+  img { max-width: 100%; height: auto; display: block; }
+  .label { font-family: "Martian Mono", ui-monospace, monospace; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+  .display { font-family: "Anybody", sans-serif; font-weight: 850; font-variation-settings: "wdth" 112; line-height: .9; letter-spacing: -.01em; margin: 0; }
+  section, header, footer { padding: clamp(40px, 8vw, 120px) clamp(20px, 5vw, 72px); }
+  .inner { max-width: 1120px; }
+  a { color: inherit; text-underline-offset: 4px; }
+  a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--sig); outline-offset: 3px; }
+  .night { background: var(--night); color: #f4eef7; }
+  .night .label { color: var(--soft); }
+  .day .label { color: var(--mute); }
+  .mail { display: inline-flex; align-items: center; background: var(--deep); color: var(--foam); text-decoration: none; padding: 14px 22px; border-radius: 999px; font-weight: 700; font-size: 17px; }
+  .night .mail { background: var(--hl); color: #111; }
+  .copy { background: transparent; color: inherit; border: 2px solid currentColor; border-radius: 999px; padding: 11px 16px; font: 500 12px "Martian Mono", monospace; cursor: pointer; }
+  .links a { font-weight: 700; margin-right: 16px; }
+  .cta { margin-top: 64px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 20px; font-weight: 700; }
+
+  /* hero */
+  .hero { min-height: 100svh; background: #dcebf3 url(assets/sea-day.webp) right bottom / cover no-repeat; display: flex; flex-direction: column; justify-content: center; }
+  .hero h1 { font-size: clamp(48px, 7.2vw, 116px); color: var(--deep); margin: 16px 0 22px; }
+  .hero .line { font-size: clamp(18px, 1.6vw, 22px); font-weight: 500; margin: 0 0 28px; }
+  .hero .line b { font-weight: 800; }
+  .chips { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 30px; padding: 0; list-style: none; }
+  .chips li { display: flex; align-items: center; gap: 12px; background: var(--foam); border: 2px solid var(--deep); border-radius: 18px; padding: 10px 18px 10px 14px; box-shadow: 0 4px 0 var(--deep); }
+  .chips .big { font-family: "Anybody"; font-weight: 900; font-variation-settings: "wdth" 120; font-size: 34px; line-height: 1; color: var(--deep); }
+  .chips .big.won { background: var(--sig); padding: 2px 8px; border-radius: 8px; }
+  .chips .txt { font-size: 15px; font-weight: 500; line-height: 1.25; max-width: 15ch; }
+  .contact-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+
+  /* hackathons strip */
+  .strip { background: linear-gradient(90deg, rgba(9,7,9,.92), rgba(9,7,9,.55) 60%, rgba(9,7,9,.25)), var(--night) url(../public/media/junction-2026/04-main-hall-wide-lg.webp) center / cover; min-height: 80vh; display: flex; align-items: flex-end; }
+  .strip .inner { width: 100%; min-width: 0; }
+  .display { overflow-wrap: anywhere; }
+  .strip h2 { font-size: clamp(44px, 8vw, 128px); color: #fff; margin: 14px 0 34px; }
+  .events { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; max-width: 980px; }
+  .ev { border-top: 2px solid #ffffff40; padding-top: 12px; }
+  .ev h3 { margin: 6px 0 4px; font-size: 20px; color: #fff; }
+  .ev p { margin: 0; color: #e6dcec; font-size: 16px; }
+  .ev.win { border-color: var(--hl); }
+  .ev.win b { color: var(--hl); }
+  .credit { margin-top: 28px; }
+
+  /* cases */
+  .case h2 { font-size: clamp(52px, 8.4vw, 140px); margin: 14px 0 22px; }
+  #case-03 h2, #case-02 h2 { font-size: clamp(42px, 6.2vw, 100px); }
+  .night .case-h { color: #fff; }
+  .day .case-h { color: var(--deep); }
+  .oneliner { font-size: clamp(22px, 2.3vw, 30px); line-height: 1.3; font-weight: 500; max-width: 26ch; margin: 0 0 48px; }
+  .oneliner b { font-weight: 800; }
+  .night .oneliner b, .oneliner mark { background: none; color: var(--coral); font-weight: 800; }
+  .day .oneliner b { color: var(--deep); background: linear-gradient(transparent 62%, var(--sig) 62%); }
+  .results { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; max-width: 860px; margin: 0 0 56px; }
+  .results .big { font-family: "Anybody"; font-weight: 900; font-variation-settings: "wdth" 118; font-size: clamp(46px, 6vw, 84px); line-height: .9; }
+  .night .results div:nth-child(1) .big { color: var(--hl); } .night .results div:nth-child(2) .big { color: var(--coral); } .night .results div:nth-child(3) .big { color: #d9a6f2; }
+  .day .results .big { color: var(--deep); }
+  .day .results div:nth-child(1) .big { color: #1a8f62; }
+  .results p { margin: 8px 0 0; font-size: 16px; font-weight: 500; }
+  .night .results p { color: #e6dcec; }
+  .results p small { display: block; margin-top: 4px; }
+  .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
+  figure { margin: 0; }
+  figure img { border-radius: 16px; width: 100%; }
+  figcaption { margin-top: 10px; }
+  .figs { display: grid; gap: 18px; }
+  .blocks { display: flex; flex-direction: column; gap: 32px; }
+  .block p { margin: 0; font-size: 18px; line-height: 1.5; max-width: 34em; }
+  .night .block p { color: #e9e1ee; }
+  .block .lead { display: block; font-weight: 800; font-size: 19px; margin-bottom: 4px; }
+  .night .block .lead, .night .block b { color: #fff; }
+  .day .block .lead, .day .block b { color: var(--deep); }
+  .block b { font-weight: 800; }
+  .todo { opacity: .6; font-style: italic; }
+  .btnrow { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .pill { display: inline-block; border: 2px solid currentColor; border-radius: 999px; padding: 8px 14px; font-weight: 700; text-decoration: none; font-size: 15px; }
+  details { margin-top: 48px; border-top: 1px solid #ffffff22; padding-top: 18px; max-width: 860px; }
+  summary { cursor: pointer; }
+  details ul { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 10px; font-size: 15px; }
+  details .tag { display: inline-block; min-width: 9ch; background: var(--hl); color: #111; padding: 1px 6px; margin-right: 10px; }
+  .case01 { background: linear-gradient(90deg, rgba(9,7,9,.94) 0%, rgba(9,7,9,.86) 52%, rgba(9,7,9,.25) 82%, rgba(9,7,9,.1)), var(--night) url(assets/sea-night.webp) right bottom / cover; }
+  .sub { border-top: 1px solid #ffffff22; padding-top: 34px; margin-top: 10px; }
+  .sub h3 { font-family: "Anybody"; font-weight: 850; font-variation-settings: "wdth" 110; font-size: clamp(30px, 3.6vw, 48px); margin: 0 0 10px; color: #fff; }
+  .sub .one { font-size: 20px; line-height: 1.4; margin: 0 0 22px; max-width: 32ch; }
+  .sub .one b { color: var(--coral); }
+  .subs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); }
+  .sunrise { height: 36vh; background: linear-gradient(var(--night), #1a0b24 25%, #8823b5 55%, #e0685b 78%, var(--sky)); }
+
+  /* cards */
+  .cards { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 18px; }
+  .card { background: #fff; border: 2px solid var(--deep); border-radius: 20px; padding: 22px; box-shadow: 0 5px 0 var(--deep); display: flex; flex-direction: column; gap: 12px; }
+  .card h3 { font-family: "Anybody"; font-weight: 850; font-variation-settings: "wdth" 110; font-size: 30px; margin: 0; color: var(--deep); }
+  .card p { margin: 0; font-size: 17px; line-height: 1.45; }
+  .card b { color: var(--deep); }
+  .card .big { font-family: "Anybody"; font-weight: 900; font-variation-settings: "wdth" 120; font-size: 64px; line-height: .9; color: var(--magenta); }
+  .card .row { font-weight: 700; font-size: 17px; }
+  .shorts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .shorts figure img { border-radius: 10px; aspect-ratio: 9 / 16; object-fit: cover; }
+  .shorts figcaption { font-family: "Anybody"; font-weight: 900; font-size: 18px; color: var(--deep); margin-top: 4px; }
+  .card img.shot { border-radius: 12px; border: 1px solid #0001; }
+  .wip { background: var(--sig); color: #111; padding: 2px 8px; border-radius: 6px; }
+  .now { border-style: dashed; }
+
+  /* timeline */
+  .tl { list-style: none; padding: 0; margin: 30px 0 0; display: grid; gap: 0; max-width: 860px; }
+  .tl li { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 20px; padding: 16px 0; border-top: 1px solid #0e3b5722; font-size: 19px; }
+  .tl b { color: var(--deep); }
+  .tl li.next { opacity: .7; border-top-style: dashed; }
+  .tl li.big-one { font-size: 22px; }
+  .tl li.big-one b { background: linear-gradient(transparent 60%, var(--sig) 60%); }
+  h2.sec { font-size: clamp(40px, 6vw, 88px); color: var(--deep); margin: 12px 0 0; }
+
+  /* archive */
+  .archive summary { font-size: 20px; font-weight: 800; color: var(--deep); }
+  .archive ul { list-style: none; padding: 0; margin: 18px 0 0; max-width: 860px; }
+  .archive li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; padding: 12px 0; border-top: 1px solid #0e3b5722; font-size: 17px; }
+  .archive li b { color: var(--deep); }
+
+  /* contact */
+  .contact { background: var(--deep); color: var(--foam); }
+  .contact .label { color: #a9c6d6; }
+  .contact h2 { font-size: clamp(56px, 9vw, 150px); color: #fff; margin: 14px 0 24px; }
+  .contact p.line { font-size: clamp(20px, 2vw, 26px); max-width: 30ch; margin: 0 0 30px; line-height: 1.35; }
+  .contact p.line b { color: var(--sig); }
+  .contact .mail { background: var(--sig); color: #111; font-size: 20px; padding: 16px 26px; }
+  .contact .small { margin-top: 40px; color: #a9c6d6; }
+  .notfound { min-height: 70vh; background: var(--sky) url(assets/sea-day.webp) right bottom / cover; display: flex; flex-direction: column; justify-content: center; border-top: 6px solid var(--deep); }
+  .notfound h1 { font-size: clamp(56px, 9vw, 150px); color: var(--deep); margin: 12px 0 14px; }
+  .notfound p { font-size: 22px; margin: 0 0 24px; }
+  .mocknote { background: #111; color: #fff; text-align: center; padding: 10px; }
+
+  @media (max-width: 860px) { .two, .subs, .cards, .events { grid-template-columns: 1fr; } .results { gap: 10px; } .results p { font-size: 13px; } .tl li { grid-template-columns: 1fr; gap: 2px; } }
+</style>
+</head>
+<body>
+
+<!-- 1 HERO -->
+<header class="hero day" id="hero">
+  <div class="label">Kirill Jegosin · 18 · Kanta-Häme, Finland</div>
+  <h1 class="display">I build games,<br>web products<br>&amp; AI tools.</h1>
+  <p class="line">Open to <b>internships, summer jobs &amp; junior roles</b>.</p>
+  <ul class="chips">
+    <li><span class="big won">Won</span><span class="txt">Oxylabs challenge · Junction 2026</span></li>
+    <li><span class="big">223</span><span class="txt">commits · solo Roblox game</span></li>
+    <li><span class="big">2.6M</span><span class="txt">views · Roblox Shorts</span></li>
+  </ul>
+  <div class="contact-row">
+    <a class="mail" href="mailto:k.jegosin@gmail.com">k.jegosin@gmail.com</a>
+    <button class="copy" type="button">Copy</button>
+    <span class="links"><a href="https://www.linkedin.com/in/kirill-jegosin-807199412/">LinkedIn</a><a href="https://github.com/Ar7ti">GitHub</a><a href="#">CV</a></span>
+  </div>
+</header>
+
+<!-- 5 HACKATHONS STRIP -->
+<section class="strip night" id="hackathons">
+  <div class="inner">
+    <div class="label">Hackathons · 2026</div>
+    <h2 class="display">3 hackathons.<br>4 projects.</h2>
+    <div class="events">
+      <div class="ev"><div class="label">Oct · Team</div><h3>Junction X Vaasa</h3><p>Guardio</p></div>
+      <div class="ev"><div class="label">Oct · Solo</div><h3>Junction X Turku</h3><p>Ocean Radar + Life Simulator</p></div>
+      <div class="ev win"><div class="label">Nov · Team of 4</div><h3>Junction 2026</h3><p>Shill or Chill · <b>won the Oxylabs challenge</b></p></div>
+    </div>
+    <div class="label credit">Junction 2026, Espoo · Photo: Junction</div>
+  </div>
+</section>
+
+<!-- 2 CASE 01 -->
+<section class="case case01 night" id="case-01">
+  <div class="inner">
+    <div class="label">Case 01 · Junction 2026 · 48-hour hackathon · Team of 4</div>
+    <h2 class="display case-h">Shill or Chill</h2>
+    <p class="oneliner">Paste a meme or post. See where it started, and whether its spread is <mark>real or coordinated</mark>.</p>
+    <div class="results">
+      <div><div class="big">Won</div><p>Oxylabs challenge</p></div>
+      <div><div class="big">3rd</div><p>Hostinger challenge</p></div>
+      <div><div class="big">3–4×</div><p>faster detection, same output</p></div>
+    </div>
+    <div class="two">
+      <div class="figs">
+        <figure><img src="../public/media/junction-2026/01-team-gemini-4-brain-cells-lg.webp" width="1600" height="1200" alt="Team Gemini 4 Brain Cells, four people arm in arm in front of the Junction 2026 stage; Kirill holds a badge that says Builder"><figcaption class="label">Team Gemini 4 Brain Cells · Junction 2026</figcaption></figure>
+        <figure style="max-width:70%"><img src="../public/media/junction-2026/02-team-building-at-tables-sm.webp" width="800" height="533" alt="The team working at long tables in the dark hall, lit in red and violet"><figcaption class="label">Building, night one · Photo: Junction</figcaption></figure>
+      </div>
+      <div class="blocks">
+        <div class="block"><p><span class="lead">My part.</span>I built the <b>coordination detector</b> and the pipeline that pulls <b>Bluesky posts</b> into our database.</p></div>
+        <div class="block"><p><span class="lead">Hardest call.</span>Friend groups and bots that say they're bots look coordinated too. I added <b>guards for both</b>, so real communities don't get flagged.</p></div>
+        <div class="block"><p><span class="lead">Proof it works.</span>Tested against <b>real Bluesky takedowns</b>, not our own examples.</p></div>
+        <div class="block"><p><span class="lead">Next time.</span>Start the <b>demo on day one</b>, not the last night.</p></div>
+        <div class="block"><p><span class="lead">Team.</span><a href="https://github.com/JustinasLa">Justinas Launikonis</a>, <a href="https://github.com/akmet777">Temuulen Norovpel</a>, <a href="https://github.com/valtteripertila">Valtteri Pertilä</a>.</p></div>
+      </div>
+    </div>
+    <details><summary class="label">Receipts (4)</summary><ul>
+      <li><span class="tag label">verified</span>Oxylabs on LinkedIn: "Meet Shill or Chill, built by Justinas Launikonis, Kirill Jegosin, Temuulen Norovpel and Valtteri Pertilä."</li>
+      <li><span class="tag label">source</span>Hostinger 3rd: my LinkedIn post + a comment under the Oxylabs post</li>
+      <li><span class="tag label">live</span>noise-radar.srv2159172.hstgr.cloud</li>
+      <li><span class="tag label">code</span>github.com/JustinasLa/gemini-4-braincells</li></ul></details>
+    <div class="cta">Want to build something together? <a class="mail" href="mailto:k.jegosin@gmail.com">k.jegosin@gmail.com</a></div>
+  </div>
+</section>
+
+<!-- 4 CASE 03 -->
+<section class="case night" id="case-03">
+  <div class="inner">
+    <div class="label">Case 03 · Junction X Turku · Solo · Oct 2026</div>
+    <h2 class="display case-h">Two solo projects.<br>One hackathon.</h2>
+    <p class="oneliner">At Junction X Turku I built <b>two products alone</b>: one for ocean investors, one for big life decisions.</p>
+    <div class="results">
+      <div><div class="big">2</div><p>solo projects, one weekend</p></div>
+      <div><div class="big">2</div><p>partner challenges: A'Pelago / Redstone and If</p></div>
+      <div><div class="big">36</div><p>tests in Ocean Radar</p></div>
+    </div>
+    <div class="subs">
+      <div class="sub">
+        <h3>Ocean Opportunity Radar</h3>
+        <p class="one">Helps ocean funds decide the next step with a startup. <b>Every answer has a source.</b></p>
+        <figure><img src="../public/media/projects/ocean-radar-hero.webp" width="1600" height="1000" alt="Ocean Opportunity Radar: a startup overview with a radar of matched funding opportunities"></figure>
+        <div class="blocks" style="margin-top:26px">
+          <div class="block"><p><span class="lead">Hardest call.</span>AI can find evidence, but it <b>never changes a score alone</b>. A person confirms first.</p></div>
+          <div class="block"><p><span class="lead">Proof it works.</span>If the AI quotes a pitch, <b>the quote must really be in the text</b>, or it's rejected.</p></div>
+          <div class="btnrow"><a class="pill" href="https://ocean-opportunity-radar.kirills-portfolio.workers.dev/">Live demo</a><a class="pill" href="https://github.com/Ar7ti/Ocean-Opportunity-Radar">Code</a></div>
+        </div>
+      </div>
+      <div class="sub">
+        <h3>Life Simulator</h3>
+        <p class="one">An AI copilot for big life moves: a new city, a first car, a trip. It makes a <b>plan, a budget and tasks</b>.</p>
+        <figure><img src="../public/media/projects/life-simulator-demo.webp" width="1440" height="900" alt="Life Simulator demo: the headline 'Your life. Beautifully planned.' with a prompt box and example life moments"></figure>
+        <div class="blocks" style="margin-top:26px">
+          <div class="block"><p><span class="lead">My part.</span>Backend with OpenAI, frontend and Playwright tests. <b>Closed now</b>; the demo runs on example data.</p></div>
+          <div class="btnrow"><a class="pill" href="https://ar7ti.github.io/life-simulator-demo/">Demo</a><a class="pill" href="https://www.youtube.com/watch?v=1SZf0ZxGyEs">Video</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="blocks" style="margin-top:44px"><div class="block"><p><span class="lead">Next time.</span><span class="todo">[Kirill: one sentence for the Turku weekend]</span></p></div></div>
+    <div class="cta">Want to build something together? <a class="mail" href="mailto:k.jegosin@gmail.com">k.jegosin@gmail.com</a></div>
+  </div>
+</section>
+
+<div class="sunrise" aria-hidden="true"></div>
+
+<!-- 3 CASE 02 -->
+<section class="case day" id="case-02">
+  <div class="inner">
+    <div class="label">Case 02 · Roblox · Solo · May–Nov 2026</div>
+    <h2 class="display case-h">Sky Island<br>Tower Defense</h2>
+    <p class="oneliner">A co-op tower defense on Roblox. <b>Up to 4 players</b> hold a floating island against <b>15 waves</b> and a boss.</p>
+    <div class="results">
+      <div><div class="big">Live</div><p>published on Roblox, 25 Oct 2026</p></div>
+      <div><div class="big">223</div><p>commits, all mine<small class="label">as of 18 Nov 2026</small></p></div>
+      <div><div class="big">1.1</div><p>Ember Update: new map, new season</p></div>
+    </div>
+    <div class="two">
+      <div class="figs">
+        <figure><img src="../public/media/projects/sky-island-map.webp" width="1600" height="1000" alt="The Sky Island map: a floating voxel island with a winding enemy path, tower spots and a castle"></figure>
+        <figure style="max-width:70%"><img src="../public/media/projects/sky-island-all-clear.webp" width="1600" height="900" alt="Gameplay: the tower loadout bar, the boss health bar and the ALL CLEAR banner"><figcaption class="label">Wave 15 cleared</figcaption></figure>
+      </div>
+      <div class="blocks">
+        <div class="block"><p><span class="lead">My part.</span><b>Everything</b>: game design, all the Luau code, the UI in React-lua.</p></div>
+        <div class="block"><p><span class="lead">Hardest call.</span><b>The server decides.</b> The player only asks to place a tower; the server checks the spot and takes the cash first.</p></div>
+        <div class="block"><p><span class="lead">Proof it works.</span>My <b>Python scripts drive Roblox Studio</b>: they play a match, try bad placements, check phone layouts and measure frame times.</p></div>
+        <div class="block"><p><span class="lead">Next time.</span><span class="todo">[Kirill: one sentence]</span></p></div>
+        <div class="block"><p><span class="lead">Code.</span>Waves, enemy movement and the UI are <b>public</b>. Combat and economy stay private, so cheaters can't read them.</p></div>
+        <div class="btnrow"><a class="pill" href="https://www.roblox.com/games/86140743290043/Sky-Island-Tower-Defense">Play on Roblox</a><a class="pill" href="https://github.com/Ar7ti/sky-island-td-showcase">Read the code</a></div>
+      </div>
+    </div>
+    <div class="cta">Want to build something together? <a class="mail" href="mailto:k.jegosin@gmail.com">k.jegosin@gmail.com</a></div>
+  </div>
+</section>
+
+<!-- 6 CARDS -->
+<section class="day" id="more">
+  <div class="inner">
+    <div class="label">More work</div>
+    <h2 class="display sec">Also built.</h2>
+    <div class="cards" style="margin-top:30px">
+      <article class="card">
+        <div class="label">YouTube · Roblox Shorts · since 2023 · as of 19 Nov 2026</div>
+        <h3>Sharky_blox</h3>
+        <div class="big">2.6M <span style="font-size:.4em">views</span></div>
+        <div class="row">9.95K subscribers · 33 Shorts</div>
+        <p>My top Short has <b>1.19M views</b>. Same audience my games are for.</p>
+        <div class="shorts">
+          <figure><img src="../public/media/projects/short-nYNWmpUQma0.webp" width="405" height="720" alt="Short cover: dinosaurs versus tsunami waves in Roblox"><figcaption>1.19M</figcaption></figure>
+          <figure><img src="../public/media/projects/short-qhQ8C8tMOUk.webp" width="405" height="720" alt="Short cover: ultimate fight, dinosaurs versus tsunamis"><figcaption>412K</figcaption></figure>
+          <figure><img src="../public/media/projects/short-kK4hmX_hrv0.webp" width="405" height="720" alt="Short cover: a rainbow ladder in the sky versus waves"><figcaption>172K</figcaption></figure>
+        </div>
+        <a class="pill" href="https://www.youtube.com/@Sharky_main" style="align-self:flex-start">Watch on YouTube</a>
+      </article>
+      <article class="card">
+        <div class="label">Junction X Vaasa · Team of 4 · Oct 2026</div>
+        <h3>Guardio</h3>
+        <img class="shot" src="../public/media/projects/guardio-home.webp" width="1440" height="900" alt="Guardio home page: 'Little lessons. Safer lives.' with two paths, I'm a kid and I'm an adult">
+        <p>Kids spot home risks in <b>mini-games</b>. Parents get <b>2-minute</b> safety checks.</p>
+        <p><b>My part:</b> most of the web app. Two of us coded; we split the rest <b>50/50</b>.</p>
+        <div class="btnrow"><a class="pill" href="https://guardioo.netlify.app/#/home">Live</a><a class="pill" href="https://github.com/Ar7ti/Junction-Hackaton">Code</a></div>
+      </article>
+      <article class="card now">
+        <div class="label">Now building · updated 19 Nov 2026</div>
+        <h3>Throw Treats, Tame Pets!</h3>
+        <p><span class="wip label">In progress</span></p>
+        <p>A Roblox game: <b>throw treats</b>, tame the pets that land, grow your yard.</p>
+        <p><b>Works now:</b> <span class="todo">[Kirill]</span></p>
+        <p><b>Next:</b> <span class="todo">[Kirill]</span></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 7 TIMELINE -->
+<section class="day" id="timeline">
+  <div class="inner">
+    <div class="label">Timeline</div>
+    <h2 class="display sec">What I shipped, when.</h2>
+    <ol class="tl">
+      <li><span class="label">May 2023</span><span>Started <b>Sharky_blox</b>, a Roblox Shorts channel</span></li>
+      <li><span class="label">2025</span><span>Started <b>ICT at LHKK</b></span></li>
+      <li><span class="label">Apr 2026</span><span>A Short hits <b>1.19M views</b></span></li>
+      <li><span class="label">May 2026</span><span>First commit on my <b>tower defense</b> game</span></li>
+      <li><span class="label">Oct 2026</span><span>Junction X Vaasa: <b>Guardio</b></span></li>
+      <li><span class="label">Oct 2026</span><span>Junction X Turku: <b>2 solo projects</b></span></li>
+      <li><span class="label">25 Oct 2026</span><span><b>Sky Island Tower Defense</b> goes live on Roblox</span></li>
+      <li class="big-one"><span class="label">13–15 Nov 2026</span><span>Junction 2026: <b>won the Oxylabs challenge</b></span></li>
+      <li><span class="label">Nov 2026</span><span>Building <b>Throw Treats, Tame Pets!</b></span></li>
+      <li class="next"><span class="label">2027 · next</span><span>Applying to <b>Aalto University</b></span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 8 ARCHIVE -->
+<section class="day archive" id="archive" style="padding-top:0">
+  <div class="inner">
+    <details open><summary>More small things I built (6)</summary>
+      <ul>
+        <li><span><b>Resale ticket checker bot</b> · finds cheaper resale concert tickets for me</span><a href="https://github.com/Ar7ti/Ticketmaster_autochecker_bot">Code</a></li>
+        <li><span><b>Blockfect ticket checker bot</b> · <span class="todo">[Kirill: one line]</span></span><a href="https://github.com/Ar7ti/BlockfectTicketChecker_bot">Code</a></li>
+        <li><span><b>AI Food Checker</b> · <span class="todo">[Kirill: one line]</span></span><a href="https://github.com/Ar7ti/Ai_FoodChecker">Code</a></li>
+        <li><span><b>HealMe</b> · Flutter health app prototype</span><a href="https://github.com/Ar7ti/heal_me">Code</a></li>
+        <li><span><b>First Roblox experiments</b> · learning Rojo and React-lua</span><span class="label">2026</span></li>
+        <li><span><b>Old portfolio</b> · the site this one replaced</span><a href="https://home.kirills-portfolio.workers.dev/">Visit</a></li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<!-- 9 CONTACT -->
+<section class="contact" id="contact">
+  <div class="inner">
+    <div class="label">Contact</div>
+    <h2 class="display">Let's build<br>something.</h2>
+    <p class="line">Open to <b>internships, summer jobs &amp; junior roles</b>. Remote, or on-site <b>within ~1 hour of Forssa</b>.</p>
+    <div class="contact-row">
+      <a class="mail" href="mailto:k.jegosin@gmail.com">k.jegosin@gmail.com</a>
+      <button class="copy" type="button">Copy</button>
+    </div>
+    <p class="links" style="margin-top:22px"><a href="https://www.linkedin.com/in/kirill-jegosin-807199412/">LinkedIn</a><a href="https://github.com/Ar7ti">GitHub</a><a href="#">CV (PDF)</a><a href="https://t.me/krnl_159">Telegram</a></p>
+    <p class="label small">ICT student at LHKK, 2025–2027 · Applying to Aalto University in 2027 · Kanta-Häme, Finland</p>
+  </div>
+</section>
+
+<!-- 10 404 (shown here only for review) -->
+<div class="mocknote label">↓ 404 page (separate page on the real site)</div>
+<section class="notfound day" id="notfound">
+  <div class="label">404</div>
+  <h1 class="display">This island sank.</h1>
+  <p>The page you wanted isn't here.</p>
+  <div class="contact-row"><a class="mail" href="#hero">Back to the surface</a><a href="mailto:k.jegosin@gmail.com" style="font-weight:700">k.jegosin@gmail.com</a></div>
+</section>
+</body>
+</html>
