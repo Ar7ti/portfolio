@@ -103,8 +103,8 @@ test.describe('slow tier 2 downgrade', () => {
       window.requestAnimationFrame = (cb) => raf(() => cb((fake += 40)));
     });
     test.setTimeout(300_000);
-    // Small: CI renders it on the CPU (SwiftShader), where every pixel costs.
-    await page.setViewportSize({ width: 640, height: 360 });
+    // Wider than 860 px (narrower counts as a phone → tier 1), short to keep SwiftShader fast.
+    await page.setViewportSize({ width: 900, height: 420 });
     // ?gpu=software: CI has no GPU; let tier 2 run on SwiftShader so the downgrade can be measured.
     await page.goto('/?gpu=software');
     await page.waitForFunction(() => sessionStorage.getItem('sea:slow3d') === '1', null, {
