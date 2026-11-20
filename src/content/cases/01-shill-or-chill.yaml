@@ -31,8 +31,11 @@ blocks:
     text: Friend groups and bots that say they're bots look coordinated too. I added **guards for both**, so real communities don't get flagged.
     facts: [SC5]
   - lead: Proof it works.
-    text: Tested against **real Bluesky takedowns**, not our own examples. The team's cascade caught **18 of 28** coordinated clusters that were later taken down.
-    facts: [SC5, SC4]
+    text: Tested against **real Bluesky takedowns**, not our own examples.
+    facts: [SC5]
+  - lead: Team result.
+    text: "The team's LLM cascade (Nemotron, then Gemini) caught **18 of 28** coordinated clusters that were later taken down."
+    facts: [SC4]
   - lead: Built with AI.
     text: We built it with **AI coding agents** (Codex, Entire). The detector lines on the case page are mine, linked at the commit.
     facts: [SC8, SC12]

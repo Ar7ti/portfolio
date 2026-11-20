@@ -262,3 +262,16 @@ BUTTON  Back to the surface   ·   k.jegosin@gmail.com
         test matches in Studio                                     [ST14 ST8 ST9 ST15 ST12]
   CODE  WaveService.luau lines 96–117 (WaveService:Track), pinned to c067a81   [ST16 ST12]
 ```
+
+## Review-loop additions to Case 01 (2026-11-20, need Kirill's sign-off)
+
+```
+LEAD  Team result.   The team's LLM cascade (Nemotron, then Gemini) caught **18 of 28** coordinated clusters
+                     that were later taken down.                                                      [SC4]
+LEAD  Built with AI. We built it with **AI coding agents** (Codex, Entire). The detector lines on the
+                     case page are mine, linked at the commit.                                        [SC8 SC12]
+MEDIA The live app (team product) · noise-radar.srv2159172.hstgr.cloud                                 [SC1 SC2]
+```
+Hero changes in the same loop: label "Kirill Jegosin · 18 · ICT student · Finland" [P1 P2 P3]; Won chip
+"Oxylabs challenge · Junction 2026 · AI meme tracker" [H3 SC1 SC3]. Timeline: "Sky Island Tower Defense is
+created on Roblox" [ST2]. Guardio: "2-minute safety actions" [G1].
