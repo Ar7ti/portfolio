@@ -57,7 +57,7 @@ H2      Shill or Chill
 ONE     Paste a meme or post. See where it started, and whether its spread is **real or coordinated**.   [SC1]
 RESULTS BIG "Won"   Oxylabs challenge                                     [H3]
         BIG "3rd"   Hostinger challenge                                   [H4]
-        BIG "3–4×"  faster detection, same output                         [SC6]  (Kirill's own result)
+        BIG "3–4×"  faster detection passes, same output                         [SC6]  (Kirill's own result)
 PHOTO   01-team-gemini-4-brain-cells · LABEL "Team Gemini 4 Brain Cells · Junction 2026"   [M1 M2]
 PHOTO 2 02-team-building-at-tables (small, below) · LABEL "Building, night one · Photo: Junction"   [M3 M4]
 
@@ -112,7 +112,7 @@ RESULTS BIG "2"     solo projects, one hackathon                            [H8]
         BIG "36"    tests in Ocean Radar                                  [OR4]
 
 SUB-H   Ocean Opportunity Radar                                           MEDIA ocean-radar-hero
-ONE     Helps ocean funds decide the next step with a startup. **Every answer has a source.**   [OR1]
+ONE     Helps ocean funds decide the next step with a startup. **Every claim comes with its quote and source.**   [OR1]
 LEAD Hardest call.   AI can find evidence, but it **never changes a score alone**. A person confirms first.   [OR1]
 LEAD Proof it works. If the AI quotes a pitch, **the quote must really be in the text**, or it's rejected.   [Ocean README]
 LINKS   Live demo · Code

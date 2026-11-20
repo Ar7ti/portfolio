@@ -70,7 +70,7 @@ function prepare(el: HTMLElement): Figure {
 
 export function initCount(): () => void {
   const fold = innerHeight;
-  const figures = [...document.querySelectorAll<HTMLElement>('main .big')]
+  const figures = [...document.querySelectorAll<HTMLElement>('main .big:not(.motion-static .big)')]
     .filter((el) => el.getBoundingClientRect().top > fold)
     .map(prepare);
   const byEl = new Map(figures.map((f) => [f.el as Element, f]));

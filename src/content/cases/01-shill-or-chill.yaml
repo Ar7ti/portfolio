@@ -10,7 +10,7 @@ oneliner:
 results:
   - { value: Won, label: Oxylabs challenge, facts: [H3] }
   - { value: 3rd, label: Hostinger challenge, facts: [H4] }
-  - { value: 3–4×, label: 'faster detection, same output', facts: [SC6] }
+  - { value: 3–4×, label: 'faster detection passes, same output', facts: [SC6] }
 media:
   - src: /media/projects/shill-or-chill-app
     alt: The Shill or Chill start page, a search box saying "Drop a meme or paste a link" over a dark classical painting, with "Spreading now" memes below.
@@ -63,6 +63,10 @@ receipts:
     href: 'https://noise-radar.srv2159172.hstgr.cloud'
     facts: [SC2]
   - kind: code
+    text: 'My commit: "3-4x faster detection passes with identical output"'
+    href: 'https://github.com/JustinasLa/gemini-4-braincells/commit/5d56c15d3bc9a72bd9690df803b6f3d0a6dc681a'
+    facts: [SC6]
+  - kind: code
     text: github.com/JustinasLa/gemini-4-braincells
     href: 'https://github.com/JustinasLa/gemini-4-braincells'
     facts: [H2]
@@ -94,7 +98,7 @@ deep:
   code:
     caption:
       {
-        text: 'The verdict is a rule: **enough families fire, the p-value is low and no strong organic guard**; otherwise it says likely organic, or unsure.',
+        text: 'The verdict is a rule: **enough families fire, the score is high enough, the p-value is low and no strong organic guard fires**; otherwise it says likely organic, or unsure.',
         facts: [SC12],
       }
     file: signals/score.py · lines 998–1012
