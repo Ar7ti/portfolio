@@ -12,6 +12,8 @@
 import {
   AdditiveBlending,
   BackSide,
+  DoubleSide,
+  FrontSide,
   BoxGeometry,
   Color,
   CylinderGeometry,
@@ -20,7 +22,6 @@ import {
   InstancedBufferAttribute,
   InstancedBufferGeometry,
   Mesh,
-  MeshBasicMaterial,
   NearestFilter,
   PerspectiveCamera,
   Plane,
@@ -56,6 +57,8 @@ import {
   SEA_VERTEX,
   SKY_FRAGMENT,
   SKY_VERTEX,
+  BEAM_VERTEX,
+  BEAM_FRAGMENT,
 } from './sea3d-shaders';
 
 /** Sea surface rest height (world units) and column depth below the surface. */
@@ -167,7 +170,15 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     geometry.instanceCount = N;
 
     const mask = islandMask(W, D, island.x - X0, island.z - Z0, island.r);
-    const liquid = new Liquid({ width: W, depth: D, solid: mask });
+    // Rings spread further and settle over a few seconds (still thick, no ringing).
+    const liquid = new Liquid({
+      width: W,
+      depth: D,
+      solid: mask,
+      spring: 0.3,
+      damping: 0.982,
+      viscosity: 0.09,
+    });
     // Dev only (scripts/hero-still.mjs): '?still=sea' renders the frozen sea without the island,
     // '?still=island' the same frame with the island (the sprite is their difference).
     const still = import.meta.env.DEV ? new URLSearchParams(location.search).get('still') : null;
@@ -232,6 +243,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       uFogNear: { value: 60 },
       uFogFar: { value: 140 },
       uMistZ: { value: Z0 },
+      uSunDirV: { value: new Vector3(0.4, 0.5, -1).normalize() },
     };
     const material = new ShaderMaterial({
       uniforms: seaUniforms,
@@ -269,22 +281,36 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     // --- neon light sticks (Junction 2026 photos): crossing pairs standing in the far water,
     // invisible by day, glowing at night (HDR colours, so the bloom pass gives them a halo).
     const stickGeometry = new CylinderGeometry(0.2, 0.2, 30, 8).translate(0, 15, 0);
+    const haloGeometry = new CylinderGeometry(1.6, 1.6, 30, 16, 1, true).translate(0, 15, 0);
+    const beamMaterial = (color: Color, halo: boolean) =>
+      new ShaderMaterial({
+        uniforms: {
+          uColor: { value: color },
+          uOpacity: { value: 0 },
+          uHalo: { value: halo ? 1 : 0 },
+        },
+        vertexShader: BEAM_VERTEX,
+        fragmentShader: BEAM_FRAGMENT,
+        transparent: true,
+        blending: AdditiveBlending,
+        depthWrite: false,
+        side: halo ? DoubleSide : FrontSide,
+      });
     const sticks = stickDefs.map(([bx, lean, c]) => {
+      const neon = new Color(NEON[c]!);
+      // Core: bright (bloom picks it up); halo: a soft volume of light around it.
       const core = new Mesh(
         stickGeometry,
-        new MeshBasicMaterial({
-          color: new Color(NEON[c]!).lerp(new Color(0xffffff), 0.12).multiplyScalar(2.2),
-          transparent: true,
-          opacity: 0,
-          blending: AdditiveBlending,
-          depthWrite: false,
-        }),
+        beamMaterial(neon.clone().lerp(new Color(0xffffff), 0.15).multiplyScalar(2.4), false),
       );
-      core.position.set(bx, BASE - 1, STICK_Z);
-      core.rotation.z = -Math.atan2(lean, 30);
-      core.visible = false;
-      scene.add(core);
-      return { core, bx };
+      const halo = new Mesh(haloGeometry, beamMaterial(neon.clone().multiplyScalar(0.9), true));
+      for (const m of [core, halo]) {
+        m.position.set(bx, BASE - 1, STICK_Z);
+        m.rotation.z = -Math.atan2(lean, 30);
+        m.visible = false;
+        scene.add(m);
+      }
+      return { core, halo, bx };
     });
 
     // --- post: render → bloom (half res) → ACES + sRGB → far blur, vignette, grain
@@ -454,7 +480,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
         return;
       }
       const speed = last ? Math.min(3, Math.hypot(gx - last[0], gz - last[1])) : 0;
-      liquid.impulse(gx, gz, 3.4, -0.24 - speed * 0.26);
+      liquid.impulse(gx, gz, 3.2, -0.13 - speed * 0.14);
       last = [gx, gz];
       wake();
     };
@@ -521,8 +547,9 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       for (const st of sticks) {
         // The sticks light up as dusk turns to night, with a slow flicker.
         const on = Math.min(1, Math.max(0, (night - 0.35) / 0.4));
-        (st.core.material as MeshBasicMaterial).opacity =
-          on * (0.85 + 0.15 * Math.sin(t * 3 + st.bx));
+        const flicker = on * (0.85 + 0.15 * Math.sin(t * 3 + st.bx));
+        (st.core.material as ShaderMaterial).uniforms['uOpacity']!.value = flicker;
+        (st.halo.material as ShaderMaterial).uniforms['uOpacity']!.value = flicker;
       }
       composer.render();
       if (first) {
@@ -543,6 +570,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       skyUniforms.uSkyMid.value.set(sky.mid);
       skyUniforms.uHaze.value.set(sky.haze);
       skyUniforms.uSunDir.value.set(...sun.dir);
+      seaUniforms.uSunDirV.value.set(...sun.dir);
       skyUniforms.uSunColor.value.setRGB(...sun.color);
       skyUniforms.uSunGlow.value = sun.glow;
       skyUniforms.uNight.value = night;
@@ -559,7 +587,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
         .add(new Color(0.012, 0.01, 0.03).multiplyScalar(night));
       bloom.strength = 0.28 + night * 0.42;
       bloom.threshold = 0.9 - night * 0.12;
-      for (const st of sticks) st.core.visible = night > 0.01;
+      for (const st of sticks) st.core.visible = st.halo.visible = night > 0.01;
       placeCamera();
     }
 
@@ -584,7 +612,11 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       stickGeometry.dispose();
       heightTex.dispose();
       maskTex.dispose();
-      for (const st of sticks) (st.core.material as MeshBasicMaterial).dispose();
+      haloGeometry.dispose();
+      for (const st of sticks) {
+        (st.core.material as ShaderMaterial).dispose();
+        (st.halo.material as ShaderMaterial).dispose();
+      }
       composer.dispose();
     });
     resume = () => {

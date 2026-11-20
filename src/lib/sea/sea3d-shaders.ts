@@ -30,8 +30,8 @@ uniform float uNight;
 
 vec3 skyBase(vec3 dir) {
   float y = dir.y;
-  vec3 col = mix(uHaze, uSkyMid, smoothstep(0.0, 0.07, y));
-  col = mix(col, uSkyTop, smoothstep(0.05, 0.32, y));
+  vec3 col = mix(uHaze, uSkyMid, smoothstep(0.0, 0.045, y));
+  col = mix(col, uSkyTop, smoothstep(0.03, 0.2, y));
   // Below the horizon (reflections of the far water): darker haze.
   col = mix(col, uHaze * 0.82, smoothstep(0.0, -0.12, y));
   return col;
@@ -69,6 +69,7 @@ uniform vec4 uSticks[7];     // base x, top x, neon index, active
 uniform vec3 uNeon[3];
 uniform float uStickZ;
 uniform float uNearZ;
+uniform vec3 uSunDirV;
 
 varying vec3 vWorld;
 varying vec3 vNormal;
@@ -136,10 +137,15 @@ void main() {
     float k = clamp((hi + s * 0.6) * 0.45 + 0.45, 0.0, 1.0);
     vAlbedo = mix(uDeep, uMid, min(1.0, k * 1.4));
     // Crest foam (pushed water) and a breaking ring of foam around the island.
-    float crest = clamp((hi - 1.0) * 0.8, 0.0, 1.0);
+    float crest = clamp((hi - 1.2) * 0.5, 0.0, 0.6);
     float d = length(vec2(p.x - uIsland.x, (p.y - uIsland.y) * 1.25)) - uIsland.z;
     float ring = smoothstep(2.8, 0.2, d) * (0.55 + 0.45 * sin(t * 1.4 - d * 2.6 + p.x * 0.7));
     vFoam = max(crest, ring * (1.0 - uNightV * 0.6));
+    // The island casts a soft shadow away from the sun, and darkens the water where it sits.
+    vec2 away = -normalize(uSunDirV.xz + vec2(1e-4)) * clamp(2.4 / max(uSunDirV.y, 0.18), 0.0, 9.0);
+    float ds = length(vec2(p.x - uIsland.x - away.x, (p.y - uIsland.y - away.y) * 1.25)) - uIsland.z * 0.92;
+    float shade = smoothstep(1.6, -1.2, ds) * 0.42 * (1.0 - uNightV) + smoothstep(1.4, 0.0, d) * 0.3;
+    vAO *= 1.0 - shade;
 
     vSlope = (hr - hl) * 1.6;
     vCrest = 0.55 + 0.45 * clamp(hi + s + 0.6, 0.0, 1.0);
@@ -164,6 +170,7 @@ uniform vec4 uSticks[7];
 uniform vec3 uNeon[3];
 uniform float uStickZ;
 uniform float uNearZ;
+uniform vec3 uSunDirV;
 
 varying vec3 vWorld;
 varying vec3 vNormal;
@@ -238,7 +245,8 @@ void main() {
   float F = 0.04 + 0.96 * pow(1.0 - nv, 5.0);
   vec3 spec = uSunColor * uSunPower * min(ggx(nh, rough), 12.0) * F * nl * 0.55;
   vec3 refl = skyBase(reflect(-V, N)) * min(F, 0.6) * 0.42 * ao * (topFace || vWater > 1.5 ? 1.0 : 0.12);
-  vec3 rim = uSunColor * uSunPower * bevel * (0.18 + 0.5 * pow(nh, 8.0)) * (1.0 - uNight * 0.7);
+  float near = 1.0 - smoothstep(25.0, 80.0, length(vWorld - uCam));
+  vec3 rim = uSunColor * uSunPower * bevel * (0.05 + 0.3 * pow(nh, 8.0)) * (1.0 - uNight * 0.7) * near;
 
   // Caustic shimmer on the water tops (day only): two drifting interference patterns.
   float caus = 0.0;
@@ -269,7 +277,7 @@ void main() {
     }
   }
   // At dusk the streaks run warm (sunset light), turning neon as night falls.
-  glow *= mix(vec3(1.25, 0.78, 0.5), vec3(1.0), smoothstep(0.45, 0.9, uNight));
+  glow *= mix(vec3(0.95, 0.62, 0.42), vec3(1.0), smoothstep(0.45, 0.9, uNight));
   // Night: deep navy instead of a black void, and a cool rim so shapes (the island) still read.
   vec3 nightFloor = vec3(0.004, 0.008, 0.02) * uNight * (0.6 + 0.4 * N.y);
   vec3 rimN = vec3(0.12, 0.1, 0.32) * pow(1.0 - nv, 3.0) * uNight * (vWater > 0.5 ? 0.35 : 1.0);
@@ -280,7 +288,9 @@ void main() {
   // Atmospheric perspective: exponential haze, so distance (and the end of the blocks) melts away.
   float f = clamp(1.0 - exp(-max(dist - uFogNear, 0.0) / uFogFar), 0.0, 0.97);
   // A bank of sea mist where the blocks end (and beyond): both surfaces meet in the same haze.
-  f = max(f, 0.62 * smoothstep(uMistZ + 46.0, uMistZ + 4.0, vWorld.z));
+  // Thinner at dusk, so the sunset sky and the sun path stay visible.
+  float duskK = 1.0 - abs(uNight - 0.5) * 2.0;
+  f = max(f, (0.8 - 0.35 * max(duskK, 0.0)) * smoothstep(uMistZ + 70.0, uMistZ + 4.0, vWorld.z));
   col = mix(col, skyBase(normalize(vec3(-V.x, max(-V.y, 0.0) * 0.2, -V.z))), f);
 
   gl_FragColor = vec4(col, 1.0);
@@ -388,11 +398,49 @@ void main() {
     b += texture2D(tDiffuse, uv + vec2(-px.x, px.y)).rgb * 0.05;
     col = mix(col, b, far * 0.85);
   }
+  // Near foreground (bottom of the frame, behind the hero buttons): slightly soft and calmer.
+  float nearB = 1.0 - smoothstep(0.0, 0.3, uv.y);
+  if (nearB > 0.01) {
+    vec2 q = 1.5 / uRes;
+    vec3 nb = (texture2D(tDiffuse, uv + vec2(q.x, q.y)).rgb + texture2D(tDiffuse, uv - vec2(q.x, q.y)).rgb
+      + texture2D(tDiffuse, uv + vec2(q.x, -q.y)).rgb + texture2D(tDiffuse, uv + vec2(-q.x, q.y)).rgb) * 0.25;
+    col = mix(col, nb, nearB * 0.7);
+    col = mix(col, vec3(dot(col, vec3(0.333))), nearB * 0.12);
+  }
   // Soft vignette, a touch of grain (moves every frame, so it reads as film, not dirt).
   vec2 d = uv - 0.5;
   col *= 1.0 - dot(d, d) * 0.32;
   float n = fract(sin(dot(uv * uRes + uTime * 61.0, vec2(12.9898, 78.233))) * 43758.5453);
   col += (n - 0.5) * uGrain;
   gl_FragColor = vec4(col, 1.0);
+}
+`;
+
+/** Neon light sticks: a bright core and a soft halo, both fading out towards the top. */
+export const BEAM_VERTEX = /* glsl */ `
+varying float vUp;
+varying vec3 vN;
+varying vec3 vV;
+void main() {
+  vUp = position.y / 30.0;
+  vec4 w = modelMatrix * vec4(position, 1.0);
+  vN = normalize(mat3(modelMatrix) * normal);
+  vV = normalize(cameraPosition - w.xyz);
+  gl_Position = projectionMatrix * viewMatrix * w;
+}
+`;
+
+export const BEAM_FRAGMENT = /* glsl */ `
+uniform vec3 uColor;
+uniform float uOpacity;
+uniform float uHalo;
+varying float vUp;
+varying vec3 vN;
+varying vec3 vV;
+void main() {
+  float facing = abs(dot(normalize(vN), normalize(vV)));
+  float shape = uHalo > 0.5 ? pow(facing, 3.0) * 0.32 : 0.6 + 0.4 * facing;
+  float fade = (1.0 - smoothstep(0.35, 0.95, vUp)) * smoothstep(0.0, 0.05, vUp);
+  gl_FragColor = vec4(uColor * shape * fade * uOpacity, 1.0);
 }
 `;
