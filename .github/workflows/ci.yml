@@ -62,6 +62,7 @@ jobs:
             --fallback-extensions html
             --root-dir ${{ github.workspace }}/dist
             --exclude 'linkedin\.com'
+            --exclude 'github.com/[^/]+/[^/]+/commit/[0-9a-f]{40}'
             --exclude 'portfolio\.kirills-portfolio\.workers\.dev'
             --timeout 60
             --max-retries 4
