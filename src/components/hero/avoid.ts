@@ -25,13 +25,13 @@ export function heroBoxes(): DOMRect[] {
 /** Air kept between the island and any text box, in CSS pixels. */
 export const ISLAND_GAP = 28;
 
-/** True when `box` keeps ISLAND_GAP from every box in `boxes`. */
-export function isClear(box: DOMRect, boxes: readonly DOMRect[]): boolean {
+/** True when `box` keeps `gap` (default ISLAND_GAP) from every box in `boxes`. */
+export function isClear(box: DOMRect, boxes: readonly DOMRect[], gap = ISLAND_GAP): boolean {
   return boxes.every(
     (t) =>
-      box.right <= t.left - ISLAND_GAP ||
-      box.left >= t.right + ISLAND_GAP ||
-      box.bottom <= t.top - ISLAND_GAP ||
-      box.top >= t.bottom + ISLAND_GAP,
+      box.right <= t.left - gap ||
+      box.left >= t.right + gap ||
+      box.bottom <= t.top - gap ||
+      box.top >= t.bottom + gap,
   );
 }

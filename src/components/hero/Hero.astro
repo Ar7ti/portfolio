@@ -80,7 +80,7 @@ const links = hero.contacts
         <span data-facts={hero.label.facts.join(' ')}>
           {hero.label.text
             .split(' · ')
-            .map((part, i) => [i > 0 && ' · ', <span class="label-part" set:html={rich(part)} />])}
+            .map((part, i) => [i > 0 && ' · ', <span class="label-part" set:html={rich(part)} />])}
         </span>
       </Label>
       <h1 id="hero-title" class="h1 hero-title">
@@ -268,11 +268,12 @@ const links = hero.contacts
     width: 100%;
     max-width: calc(var(--content-max) + 2 * var(--gutter));
     margin: 0 auto;
-    padding: clamp(72px, 22vh, 220px) var(--gutter) clamp(40px, 8vh, 96px);
+    padding: clamp(56px, 15vh, 170px) var(--gutter) clamp(40px, 8vh, 96px);
   }
 
   .hero-text {
-    max-width: 960px;
+    /* Wide enough for "web products" on one line at the largest H1 size (1920 px: 3 lines, not 5). */
+    max-width: 1120px;
   }
 
   /* Hidden (layout kept) until the hero face is decoded; see the head script in Base.astro. */
@@ -341,9 +342,21 @@ const links = hero.contacts
     }
   }
 
-  .hero-stack {
+  /* Light backing like the links below it: the line sits over the sea and must stay AA. */
+  :global(.hero-stack) {
+    display: inline-block;
     margin: -14px 0 24px;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--c-foam) 82%, transparent);
     color: var(--fg-strong);
+  }
+
+  /* Reduced motion: the sea is already still, so there is nothing to pause. */
+  @media (prefers-reduced-motion: reduce) {
+    .sea-toggle {
+      display: none;
+    }
   }
 
   .sea-toggle[hidden] {
@@ -402,6 +415,14 @@ const links = hero.contacts
 
     :global(.hero-label) {
       padding-right: 56px;
+    }
+
+    .hero-line {
+      margin-bottom: 18px;
+    }
+
+    :global(.hero-stack) {
+      margin: -4px 0 16px;
     }
   }
 

@@ -150,6 +150,9 @@ const {
   .site-header {
     display: flex;
     align-items: baseline;
+    /* Same left edge as the page content (and the same vertical padding top and bottom). */
+    padding-block: 22px;
+    padding-inline: max(var(--gutter), calc((100% - var(--content-max)) / 2));
     gap: 8px 40px;
   }
 

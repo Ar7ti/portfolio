@@ -112,6 +112,17 @@ const titleLines = study.title.split(/(?<=\.)\s+/);
     text-underline-offset: 0.12em;
   }
 
+  /* One ring around the whole multi-line title, not a broken ring per line. */
+  .case-title a {
+    display: inline-block;
+    text-wrap: inherit;
+  }
+
+  .case-title a:focus-visible {
+    outline-offset: 8px;
+    border-radius: var(--radius-s);
+  }
+
   .case :global(.case-oneliner) {
     margin: 0 0 48px;
   }
