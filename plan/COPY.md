@@ -27,7 +27,7 @@ OG title        Kirill Jegosin
 OG desc         I build games, web products & AI tools. Won the Oxylabs challenge at Junction 2026.
 NAV             Work · Hackathons · Timeline · Contact
 SKIP LINK       Skip to the point          (jumps to the static summary + contacts)
-MOTION TOGGLE   Calm the water / Bring the water back
+MOTION TOGGLE   Pause animation / Play animation   (review loop 2026-11-20; was "Calm the water / Bring the water back", read by two recruiter reviews as the main CTA)
 FOOTER          Built with AI coding agents I direct and review. Code, prompts and decisions are public → github.com/Ar7ti/portfolio · Numbers checked 19 Nov 2026   [P22]
 ```
 
@@ -38,7 +38,8 @@ FOOTER          Built with AI coding agents I direct and review. Code, prompts a
 ```
 LABEL   Kirill Jegosin · 18 · Kanta-Häme, Finland                       [P1 P2]
 H1      I build games, / web products / & AI tools.
-BODY    Open to **internships, summer jobs & junior roles**.              [P11]
+BODY    Open to **internships, summer jobs & junior roles**. Remote, or near Forssa.   [P11]
+STACK   TypeScript · React · Python · Luau   (LABEL, review loop 2026-11-20)   [OR3 LS4 SC11 ST11]
 CHIPS   BIG "Won"   Oxylabs challenge · Junction 2026                     [H3]
         BIG "223"   commits · solo Roblox game                            [ST10 ST9]
         BIG "2.6M"  views · Roblox Shorts                                 [YT2]

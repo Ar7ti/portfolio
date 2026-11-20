@@ -82,9 +82,12 @@ test('phones: sticky Contact steps aside while scrolling down, returns on scroll
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/work/shill-or-chill');
   const sticky = page.locator('[data-sticky-contact]');
-  await page.mouse.wheel(0, 500);
+  // Real scroll steps (no smooth-scroll easing in between), down then up.
+  for (const y of [200, 400, 600])
+    await page.evaluate((top) => scrollTo({ top, behavior: 'instant' }), y);
   await expect(sticky).toHaveClass(/is-away/);
-  await page.mouse.wheel(0, -200);
+  for (const y of [500, 400])
+    await page.evaluate((top) => scrollTo({ top, behavior: 'instant' }), y);
   await expect(sticky).not.toHaveClass(/is-away/);
 
   const context = await browser.newContext({ javaScriptEnabled: false });

@@ -12,6 +12,7 @@ import { getCollection } from 'astro:content';
 import { Picture } from 'astro:assets';
 import Claim from '../content/Claim.astro';
 import Label from '../type/Label.astro';
+import { rich } from '../../lib/rich';
 import { data } from '../../lib/content';
 import seaDay from '../../assets/hero/sea-day.webp';
 import seaIsland from '../../assets/hero/sea-island.webp';
@@ -66,18 +67,27 @@ const links = hero.contacts
     data-back={site.motionToggle.back}
     aria-pressed="false"
   >
-    <span data-sea-toggle-label>{site.motionToggle.calm}</span>
+    <span class="sea-toggle-icon" aria-hidden="true"></span>
+    <span class="sea-toggle-label" data-sea-toggle-label>
+      {site.motionToggle.calm}
+    </span>
   </button>
 
   <div class="hero-inner">
     <div class="hero-text">
       <Label as="p" class="hero-label">
-        <Claim claim={hero.label} />
+        {/* Each part stays whole ("Kanta-Häme" never splits at its hyphen); lines break at "·". */}
+        <span data-facts={hero.label.facts.join(' ')}>
+          {hero.label.text
+            .split(' · ')
+            .map((part, i) => [i > 0 && ' · ', <span class="label-part" set:html={rich(part)} />])}
+        </span>
       </Label>
       <h1 id="hero-title" class="h1 hero-title">
         {hero.h1.map((line, i) => (i === 0 ? line : [<br />, line]))}
       </h1>
       <Claim as="p" class="hero-line" claim={hero.line} />
+      <Claim as="p" class="label hero-stack" claim={hero.stack} />
 
       <ul class="chips">
         {hero.chips.map((chip) => (
@@ -277,20 +287,63 @@ const links = hero.contacts
     display: none;
   }
 
-  /* Calm the water / Bring the water back. */
+  /* Pause animation / Play animation: a quiet control, never mistaken for the main action
+     (two recruiter reviews read the old filled pill as the call to action). */
   .sea-toggle {
     position: absolute;
     top: 16px;
     right: var(--gutter);
     z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     min-height: 44px;
-    padding: 0 18px;
-    border: 2px solid var(--c-deep);
+    min-width: 44px;
+    padding: 0 14px;
+    border: 1.5px solid color-mix(in srgb, var(--c-deep) 45%, transparent);
     border-radius: var(--radius-pill);
-    background: color-mix(in srgb, var(--c-foam) 85%, transparent);
+    background: color-mix(in srgb, var(--c-foam) 55%, transparent);
     color: var(--c-deep);
-    font: 700 15px/1 var(--font-body);
+    font: 600 14px/1 var(--font-body);
     cursor: pointer;
+  }
+
+  /* Pause bars; a play triangle once paused. */
+  .sea-toggle-icon {
+    width: 10px;
+    height: 12px;
+    border-inline: 3px solid currentColor;
+    box-sizing: border-box;
+  }
+
+  .sea-toggle[aria-pressed='true'] .sea-toggle-icon {
+    width: 0;
+    height: 0;
+    border-block: 6px solid transparent;
+    border-inline: 10px solid currentColor;
+    border-inline-end-width: 0;
+  }
+
+  @media (max-width: 860px) {
+    .sea-toggle {
+      justify-content: center;
+      padding: 0;
+    }
+
+    /* Icon only on phones; the label stays the accessible name. */
+    .sea-toggle-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  .hero-stack {
+    margin: -14px 0 24px;
+    color: var(--fg-strong);
   }
 
   .sea-toggle[hidden] {
@@ -343,8 +396,12 @@ const links = hero.contacts
 
   @media (max-width: 860px) {
     .hero-inner {
-      /* Clears the Calm the water button (16 px + 44 px) with a gap. */
-      padding-top: 76px;
+      /* The pause icon (44 px) sits at the top right, beside the label. */
+      padding-top: 24px;
+    }
+
+    :global(.hero-label) {
+      padding-right: 56px;
     }
   }
 
@@ -355,6 +412,10 @@ const links = hero.contacts
       min-height: 3em;
       margin: 0;
     }
+  }
+
+  .label-part {
+    white-space: nowrap;
   }
 
   /* The name is the one thing in the label a recruiter looks for first. */

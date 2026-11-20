@@ -83,6 +83,9 @@ const {
       {skipLink}
     </a>
     <header class="site-header">
+      <a class="brand" href="/">
+        Kirill Jegosin
+      </a>
       <nav aria-label="Main">
         <ul>
           {nav.map((item) => (
@@ -132,6 +135,32 @@ const {
     padding: 16px var(--gutter) 32px;
     background: var(--c-deep);
     color: var(--c-foam);
+  }
+
+  /* Name on the left on wide screens; phones show it in the hero label instead. */
+  .site-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px 40px;
+  }
+
+  .brand {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 850;
+    font-stretch: 112%;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 860px) {
+    .site-header .brand {
+      display: none;
+    }
+  }
+
+  .site-header nav {
+    flex: 1;
   }
 
   .site-header ul {

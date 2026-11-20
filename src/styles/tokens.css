@@ -62,7 +62,7 @@
   --font-label: 'Martian Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
 
   /* Type sizes. Mobile values keep the longest word of each heading inside 360 px. */
-  --size-h1: clamp(38px, 11.5vw, 116px);
+  --size-h1: clamp(36px, 10.6vw, 116px);
   --size-h2: clamp(34px, 10.4vw, 100px); /* case titles */
   --size-h2-long: clamp(34px, 10.4vw, 100px); /* longer case titles (Case 02, 03) */
   --size-h2-xl: clamp(38px, 11.6vw, 150px); /* contact, 404 */

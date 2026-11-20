@@ -17,7 +17,7 @@ site:
     - { label: Timeline, href: '/#timeline' }
     - { label: Contact, href: '/#contact' }
   skipLink: Skip to the point
-  motionToggle: { calm: Calm the water, back: Bring the water back }
+  motionToggle: { calm: Pause animation, back: Play animation }
   footer:
     code:
       {
@@ -31,7 +31,13 @@ site:
   hero:
     label: { text: '**Kirill Jegosin** · 18 · Kanta-Häme, Finland', facts: [P1, P2] }
     h1: ['I build games,', web products, '& AI tools.']
-    line: { text: 'Open to **internships, summer jobs & junior roles**.', facts: [P11] }
+    line:
+      {
+        text: 'Open to **internships, summer jobs & junior roles**. Remote, or near Forssa.',
+        facts: [P11],
+      }
+    # What he writes, so a recruiter can match a role (OR3/LS4 TypeScript + React, SC11 Python, ST11 Luau).
+    stack: { text: 'TypeScript · React · Python · Luau', facts: [OR3, LS4, SC11, ST11] }
     chips:
       - { value: Won, label: Oxylabs challenge · Junction 2026, facts: [H3], highlight: true }
       - { value: '223', label: commits · solo Roblox game, facts: [ST10, ST9], asOf: 2026-11-18 }
