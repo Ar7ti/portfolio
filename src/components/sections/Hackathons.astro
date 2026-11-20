@@ -150,8 +150,10 @@ const srcset = [
     }
 
     :global(html.sea-live) .strip-photo {
-      inset: 14vh var(--gutter) 14vh auto;
-      width: min(44vw, 720px);
+      /* Bottom right, compact: the island and its lighthouse stay visible above it. */
+      inset: auto var(--gutter) 6vh auto;
+      width: min(27vw, 520px);
+      aspect-ratio: 3 / 2;
       height: auto;
       border-radius: 22px;
       box-shadow:
@@ -171,8 +173,12 @@ const srcset = [
     }
 
     /* The text column ends before the card. */
-    :global(html.sea-live) .strip .inner {
-      padding-right: calc(min(44vw, 720px) + 48px);
+    :global(html.sea-live) .strip .events {
+      max-width: 46%;
+    }
+
+    :global(html.sea-live) .strip :global(.strip-title) {
+      max-width: 60%;
     }
 
     :global(html.sea-live) .strip :global(.strip-title) {
