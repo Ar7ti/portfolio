@@ -50,7 +50,8 @@ async function overlaps(page: Page, canvasSelector: string): Promise<string[]> {
 }
 
 test.describe('hero island stays clear of the text', () => {
-  test.describe.configure({ timeout: 180_000 });
+  // Tier 2 compiles its shaders on the CPU (SwiftShader) for each of the 8 sizes in CI.
+  test.describe.configure({ timeout: 360_000 });
 
   for (const tier of [0, 1, 2] as const) {
     test(`tier ${tier}, 1280–1920 px`, async ({ page }) => {

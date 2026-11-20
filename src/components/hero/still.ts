@@ -57,11 +57,12 @@ export function mountStill(): void {
     const cy = home.y + home.height / 2;
     let best: DOMRect | null = null;
     let bestCost = Infinity;
-    for (let f = 0.7; f >= 0.4; f -= 0.05) {
+    // Coarse grid (14 px, three sizes): this runs on the main thread at load on phones.
+    for (let f = 0.7; f >= 0.4; f -= 0.15) {
       const w = home.width * f;
       const h = home.height * f;
-      for (let y0 = Math.max(horizon, 0); y0 + h <= box.height; y0 += 6) {
-        for (let x0 = 12; x0 + w <= box.width - 12; x0 += 6) {
+      for (let y0 = Math.max(horizon, 0); y0 + h <= box.height; y0 += 14) {
+        for (let x0 = 12; x0 + w <= box.width - 12; x0 += 14) {
           const c = new DOMRect(x0, y0, w, h);
           const cost = Math.hypot(x0 + w / 2 - cx, y0 + h / 2 - cy) + (0.7 - f) * 200;
           if (cost < bestCost && isClear(c, boxes, 10)) {
@@ -100,24 +101,31 @@ export function mountStill(): void {
     return home;
   }
 
+  /** Last drawn size + island spot: resize, fonts and the first observer callback often change nothing. */
+  let drawn = '';
   const draw = () => {
     if (!sea) return;
     const box = canvas.getBoundingClientRect();
     const [width, height] = size(sea);
     if (!box.width || !box.height || !width) return;
+    // Cover, in CSS pixels; `scale` maps still pixels to CSS pixels.
+    const scale = Math.max(box.width / width, box.height / height);
+    const ox = (box.width - width * scale) * POSITION_X;
+    const oy = (box.height - height * scale) * POSITION_Y;
+    const spot = island ? placeIsland(scale * (width / placement.image.width), ox, oy, box) : null;
+    const key = [box.width, box.height, spot?.x, spot?.y, spot?.width]
+      .map((v) => (v ?? 0).toFixed(1))
+      .join();
+    if (key === drawn) return;
+    drawn = key;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(box.width * dpr);
     canvas.height = Math.round(box.height * dpr);
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    // Cover, in CSS pixels; `scale` maps still pixels to CSS pixels.
-    const scale = Math.max(box.width / width, box.height / height);
-    const ox = (box.width - width * scale) * POSITION_X;
-    const oy = (box.height - height * scale) * POSITION_Y;
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(sea, ox * dpr, oy * dpr, width * scale * dpr, height * scale * dpr);
     if (island) {
-      const spot = placeIsland(scale * (width / placement.image.width), ox, oy, box);
       if (spot) {
         ctx.drawImage(island, spot.x * dpr, spot.y * dpr, spot.width * dpr, spot.height * dpr);
       }

@@ -102,12 +102,13 @@ test.describe('slow tier 2 downgrade', () => {
       const raf = window.requestAnimationFrame.bind(window);
       window.requestAnimationFrame = (cb) => raf(() => cb((fake += 40)));
     });
-    test.setTimeout(120_000);
-    await page.setViewportSize({ width: 900, height: 500 });
+    test.setTimeout(300_000);
+    // Wider than 860 px (narrower counts as a phone → tier 1), short to keep SwiftShader fast.
+    await page.setViewportSize({ width: 900, height: 420 });
     // ?gpu=software: CI has no GPU; let tier 2 run on SwiftShader so the downgrade can be measured.
     await page.goto('/?gpu=software');
     await page.waitForFunction(() => sessionStorage.getItem('sea:slow3d') === '1', null, {
-      timeout: 90_000,
+      timeout: 240_000,
     });
     // The downgrade lands on tier 1.
     await expect(page.locator('html')).not.toHaveAttribute('data-sea-tier', '2');

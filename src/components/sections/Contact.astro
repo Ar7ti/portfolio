@@ -100,7 +100,8 @@ const links = contact.contacts
 
 <style>
   .contact :global(.contact-title) {
-    max-width: 12ch;
+    /* 13ch: "something." in the wide display face measures just over 12ch on Linux (type.spec flake). */
+    max-width: 13ch;
     margin: 14px 0 24px;
   }
 
