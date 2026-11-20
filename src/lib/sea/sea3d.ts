@@ -116,8 +116,8 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     const soft = isSoftwareRenderer(renderer.getContext());
     const full = gridFor(aspect);
     // Software WebGL: a smaller grid (fewer instances); the camera sees the same framing.
-    const W = soft ? Math.round(full.width * 0.6) : full.width;
-    const D = soft ? Math.round(full.depth * 0.6) : full.depth;
+    const W = soft ? Math.round(full.width * 0.45) : full.width;
+    const D = soft ? Math.round(full.depth * 0.45) : full.depth;
     const { shift, island } = full;
     const N = W * D;
     // Grid cell (x, z) sits at world (x + X0, z + Z0).

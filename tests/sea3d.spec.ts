@@ -52,7 +52,8 @@ test.describe('tier 2 sea', () => {
       await page.waitForTimeout(ms);
       return page.evaluate(() => (window as unknown as { __draws: number }).__draws);
     };
-    await expect.poll(() => drawsIn(500), { timeout: 10_000 }).toBeGreaterThan(0);
+    // SwiftShader frames can take over half a second in CI: sample for longer.
+    await expect.poll(() => drawsIn(1500), { timeout: 40_000 }).toBeGreaterThan(0);
 
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await page.waitForTimeout(300);
@@ -60,7 +61,8 @@ test.describe('tier 2 sea', () => {
 
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(300);
-    await expect.poll(() => drawsIn(500), { timeout: 10_000 }).toBeGreaterThan(0);
+    // SwiftShader frames can take over half a second in CI: sample for longer.
+    await expect.poll(() => drawsIn(1500), { timeout: 40_000 }).toBeGreaterThan(0);
     expect(errors).toEqual([]);
   });
 });
