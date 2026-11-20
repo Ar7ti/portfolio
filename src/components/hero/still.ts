@@ -43,7 +43,38 @@ export function mountStill(): void {
   let island: Source | null = null;
 
   /** Island box in CSS pixels of the canvas, clear of the hero text when possible. */
-  function placeIsland(scale: number, ox: number, oy: number, box: DOMRect): DOMRect {
+  /**
+   * Phones: the text fills the width, so look for the nearest free spot below the horizon at
+   * 70–40 % of the size (further away), with less air. None free: no island (never over text).
+   */
+  function placePortrait(
+    home: DOMRect,
+    boxes: DOMRect[],
+    box: DOMRect,
+    horizon: number,
+  ): DOMRect | null {
+    const cx = home.x + home.width / 2;
+    const cy = home.y + home.height / 2;
+    let best: DOMRect | null = null;
+    let bestCost = Infinity;
+    for (let f = 0.7; f >= 0.4; f -= 0.05) {
+      const w = home.width * f;
+      const h = home.height * f;
+      for (let y0 = Math.max(horizon, 0); y0 + h <= box.height; y0 += 6) {
+        for (let x0 = 12; x0 + w <= box.width - 12; x0 += 6) {
+          const c = new DOMRect(x0, y0, w, h);
+          const cost = Math.hypot(x0 + w / 2 - cx, y0 + h / 2 - cy) + (0.7 - f) * 200;
+          if (cost < bestCost && isClear(c, boxes, 10)) {
+            best = c;
+            bestCost = cost;
+          }
+        }
+      }
+    }
+    return best;
+  }
+
+  function placeIsland(scale: number, ox: number, oy: number, box: DOMRect): DOMRect | null {
     const { x, y, width, height } = placement.island;
     const home = new DOMRect(ox + x * scale, oy + y * scale, width * scale, height * scale);
     // Text boxes are page pixels at scroll 0; the canvas starts at the hero's top.
@@ -51,8 +82,11 @@ export function mountStill(): void {
     const boxes = heroBoxes().map(
       (b) => new DOMRect(b.left - box.left, b.top - top, b.width, b.height),
     );
-    // Landscape only: phones keep the approved framing.
-    if (!boxes.length || box.width < box.height) return home;
+    if (!boxes.length) return home;
+    if (box.width < box.height) {
+      // The still's horizon sits about a third of the way down the image.
+      return placePortrait(home, boxes, box, oy + 0.36 * placement.image.height * scale);
+    }
     for (let k = 0; k <= 12; k++) {
       const f = 1 - 0.03 * k;
       const w = home.width * f;
@@ -84,10 +118,12 @@ export function mountStill(): void {
     ctx.drawImage(sea, ox * dpr, oy * dpr, width * scale * dpr, height * scale * dpr);
     if (island) {
       const spot = placeIsland(scale * (width / placement.image.width), ox, oy, box);
-      ctx.drawImage(island, spot.x * dpr, spot.y * dpr, spot.width * dpr, spot.height * dpr);
-      canvas.dataset['island'] = [spot.left, spot.top, spot.right, spot.bottom]
-        .map(Math.round)
-        .join(',');
+      if (spot) {
+        ctx.drawImage(island, spot.x * dpr, spot.y * dpr, spot.width * dpr, spot.height * dpr);
+      }
+      canvas.dataset['island'] = spot
+        ? [spot.left, spot.top, spot.right, spot.bottom].map(Math.round).join(',')
+        : 'none';
     }
     canvas.classList.add('is-ready');
   };

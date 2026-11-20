@@ -56,6 +56,7 @@ uniform vec3 uSkyA;
 uniform float uLight;
 
 uniform float uNight;
+uniform float uSink;      // 0 = afloat, 1 = under water (phones, once the page scrolls)
 uniform vec3 uSkyB;
 uniform vec4 uSticks[7]; // base x, top x, neon index, active
 uniform vec3 uNeon[3];
@@ -163,7 +164,7 @@ void main() {
 
   vec3 col;
   float dist;
-  float lift = swell(uIsland.xy, t) * 0.7;
+  float lift = swell(uIsland.xy, t) * 0.7 - uSink * 5.0;
 
   // --- island: ray-march the band just above the sea, only if the ray passes its bbox
   bool hitIsland = false;
@@ -479,6 +480,7 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       simRect: u('uSimRect'),
       island: u('uIsland'),
       night: u('uNight'),
+      sink: u('uSink'),
       skyB: u('uSkyB'),
       sticks: u('uSticks'),
       neon: u('uNeon'),
@@ -661,6 +663,7 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       gl.uniform1f(loc.night, p);
     };
 
+    let sink = 0;
     const t0 = performance.now();
     let prev = t0;
     let acc = 0;
@@ -682,6 +685,11 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
         liquid.step();
         acc -= STEP;
       }
+      // Phones: the text column runs over the island once you scroll, so it sinks (and comes
+      // back up at the top). A soft follow, so it settles like the rest of the water.
+      const sinkTarget = camera.aspect < 1 ? Math.min(1, scrollY / 220) : 0;
+      sink += (sinkTarget - sink) * Math.min(1, ms / 260);
+      gl.uniform1f(loc.sink, sink);
       upload();
       gl.uniform1f(loc.time, t);
       gl.drawArrays(gl.TRIANGLES, 0, 3);

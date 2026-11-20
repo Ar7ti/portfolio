@@ -21,6 +21,7 @@ async function overlaps(page: Page, canvasSelector: string): Promise<string[]> {
     const canvas = document.querySelector<HTMLCanvasElement>(sel);
     const raw = canvas?.dataset['island'];
     if (!canvas || !raw) return ['no island box on ' + sel];
+    if (raw === 'none') return []; // no free spot: no island drawn
     const c = canvas.getBoundingClientRect();
     const [l, t, r, b] = raw.split(',').map(Number) as [number, number, number, number];
     const island = { left: l + c.left, top: t + c.top, right: r + c.left, bottom: b + c.top };
