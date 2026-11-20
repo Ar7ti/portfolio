@@ -48,6 +48,7 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { DAY, mixPalette, NEON, skyAt, sunAt, type SeaPalette } from './palette';
 import { islandMask, Liquid } from './liquid';
+import { createIslandProps } from './island-props';
 import { isSoftwareRenderer } from './tiers';
 import type { SeaFactory, SeaOptions, SeaRenderer } from './types';
 import {
@@ -84,7 +85,7 @@ function gridFor(aspect: number): Grid {
   // full haze, so the sea runs to the horizon at any width.
   return aspect < 1
     ? { width: 64, depth: 80, shift: 0.5, island: { x: 10, z: 2, r: 5 } }
-    : { width: 160, depth: 170, shift: 0.3, island: { x: 31, z: 6, r: 7 } };
+    : { width: 160, depth: 170, shift: 0.3, island: { x: 31, z: 4, r: 9 } };
 }
 
 export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
@@ -177,17 +178,6 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     geometry.instanceCount = N;
 
     const mask = islandMask(W, D, island.x - X0, island.z - Z0, island.r);
-    /** Two cells of lighthouse on the island (mask 3), a little off centre. */
-    const addTower = () => {
-      const cx = Math.round(island.x - X0) + 1;
-      const cz = Math.round(island.z - Z0) - 1;
-      for (const [dx, dz] of [
-        [0, 0],
-        [1, 0],
-      ] as const)
-        mask[(cz + dz) * W + cx + dx] = 3;
-    };
-    addTower();
     // Rings spread further and settle over a few seconds (still thick, no ringing).
     const liquid = new Liquid({
       width: W,
@@ -330,6 +320,17 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       return { core, halo, bx };
     });
 
+    // --- island props: brick lighthouse, trees, rocks (glossy plastic, own lights)
+    const props = createIslandProps(
+      soft,
+      scene,
+      stickDefs.map(([x, , c]) => ({ x, z: STICK_Z, color: c })),
+    );
+    const islandSwell = (t: number) =>
+      (Math.sin(island.x * 0.055 + island.z * 0.04 - t * 0.5) * 0.55 +
+        Math.sin(-island.x * 0.03 + island.z * 0.07 - t * 0.36) * 0.35) *
+      0.25;
+
     // --- post: render → bloom (half res) → ACES + sRGB → far blur, vignette, grain
     // Multisampled HDR target: clean brick edges without a separate AA pass.
     const target = new WebGLRenderTarget(box.width * dpr, box.height * dpr, {
@@ -389,6 +390,9 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
 
     // --- keep the island clear of the hero text (same rule as before; see tests/hero-island)
     const home = { x: island.x, z: island.z };
+    const homeR = island.r;
+    /** Props are modelled for an island of radius 7. */
+    let propScale = homeR / 7;
     const probe = new PerspectiveCamera(35, aspect, 0.5, 600);
     const corner = new Vector3();
     function islandBox(cx: number, cz: number, w: number, h: number): DOMRect {
@@ -396,17 +400,26 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       let y0 = Infinity;
       let x1 = -Infinity;
       let y1 = -Infinity;
+      // The island's footprint up to its grass top, plus the lighthouse (a narrow column up to
+      // its cap): their union is what must stay clear of the text.
+      const pts: [number, number, number][] = [];
       for (const dx of [-1, 1])
-        for (const dz of [-1, 1])
-          for (const y of [BASE - 1, BASE + 3.8]) {
-            corner.set(cx + dx * island.r, y, cz + (dz * island.r) / 1.25).project(probe);
-            const sx = ((corner.x + 1) / 2) * w;
-            const sy = ((1 - corner.y) / 2) * h;
-            x0 = Math.min(x0, sx);
-            x1 = Math.max(x1, sx);
-            y0 = Math.min(y0, sy);
-            y1 = Math.max(y1, sy);
-          }
+        for (const dz of [-1, 1]) {
+          for (const y of [BASE - 1, BASE + 4.5])
+            pts.push([cx + dx * island.r, y, cz + (dz * island.r) / 1.25]);
+          const k = island.r / 7;
+          for (const y of [BASE + 4.5, BASE + 2.6 + 9 * k])
+            pts.push([cx + k + dx * 2.2 * k, y, cz - 0.5 * k + dz * 2.2 * k]);
+        }
+      for (const [px, py, pz] of pts) {
+        corner.set(px, py, pz).project(probe);
+        const sx = ((corner.x + 1) / 2) * w;
+        const sy = ((1 - corner.y) / 2) * h;
+        x0 = Math.min(x0, sx);
+        x1 = Math.max(x1, sx);
+        y0 = Math.min(y0, sy);
+        y1 = Math.max(y1, sy);
+      }
       return new DOMRect(x0, y0, x1 - x0, y1 - y0);
     }
     function placeIsland(): void {
@@ -425,32 +438,45 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
             b.bottom <= t.top - gap ||
             b.top >= t.bottom + gap,
         );
-      const maxX = X0 + W - island.r - 2;
-      const minZ = Math.max(Z0 + island.r + 2, home.z - 30);
+      // The biggest island that fits: full size first, then smaller (never over the text).
       let best = home;
-      let bestCost = Infinity;
-      for (let z = home.z; boxes.length && z >= minZ; z--) {
-        // Depth costs more than sideways: it changes the island's size.
-        for (let x = home.x; x <= maxX; x++) {
-          const cost = x - home.x + (home.z - z) * 1.5;
-          if (cost >= bestCost) break;
-          if (clear(islandBox(x, z, r.width, r.height))) {
-            best = { x, z };
-            bestCost = cost;
-            break;
+      let bestR = homeR;
+      for (const radius of [homeR, homeR * 0.85, homeR * 0.72, homeR * 0.6]) {
+        island.r = radius;
+        const maxX = X0 + W - radius - 2;
+        const minZ = Math.max(Z0 + radius + 2, home.z - 70);
+        let found: { x: number; z: number } | null = null;
+        let bestCost = Infinity;
+        for (let z = home.z; boxes.length && z >= minZ; z--) {
+          // Depth costs more than sideways: it changes the island's size.
+          for (let x = home.x; x <= maxX; x++) {
+            const cost = x - home.x + (home.z - z) * 1.5;
+            if (cost >= bestCost) break;
+            if (clear(islandBox(x, z, r.width, r.height))) {
+              found = { x, z };
+              bestCost = cost;
+              break;
+            }
           }
         }
+        if (found || !boxes.length) {
+          best = found ?? home;
+          bestR = radius;
+          break;
+        }
       }
+      island.r = bestR;
+      propScale = bestR / 7;
       // Exposed for the hero layout test (tests/hero-island.spec.ts).
       const b = islandBox(best.x, best.z, r.width, r.height);
       canvas.dataset['island'] = [b.left, b.top, b.right, b.bottom].map(Math.round).join(',');
-      if (best.x === island.x && best.z === island.z) return;
+      if (best.x === island.x && best.z === island.z && seaUniforms.uIsland.value.z === island.r)
+        return;
       island.x = best.x;
       island.z = best.z;
       seaUniforms.uIsland.value.set(island.x, island.z, island.r);
       seaUniforms.uIslandF.value.set(island.x, island.z, island.r);
       mask.set(islandMask(W, D, island.x - X0, island.z - Z0, island.r));
-      addTower();
       if (still === 'sea') mask.fill(0);
       syncMask();
     }
@@ -572,6 +598,12 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
         (st.core.material as ShaderMaterial).uniforms['uOpacity']!.value = flicker;
         (st.halo.material as ShaderMaterial).uniforms['uOpacity']!.value = flicker;
       }
+      props.place(
+        island.x + propScale,
+        BASE + 2.6 + islandSwell(t),
+        island.z - 0.5 * propScale,
+        propScale,
+      );
       // Software WebGL (tests/CI only): straight to the canvas, no post chain.
       if (soft) renderer.render(scene, camera);
       else composer.render();
@@ -617,6 +649,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       bloom.strength = 0.28 + night * 0.75;
       bloom.threshold = 0.9 - night * 0.05;
       bloom.radius = 0.42 + night * 0.25;
+      props.update(sun, skyUniforms.uSkyMid.value, night, performance.now() / 1000);
       for (const st of sticks) st.core.visible = st.halo.visible = night > 0.01;
       placeCamera();
     }
@@ -648,6 +681,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
         (st.halo.material as ShaderMaterial).dispose();
       }
       composer.dispose();
+      props.dispose();
     });
     resume = () => {
       prev = performance.now();
