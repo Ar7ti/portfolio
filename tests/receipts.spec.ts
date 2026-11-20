@@ -17,7 +17,7 @@ test('claims link to their receipts; the list starts closed', async ({ page }) =
   await expect(results.nth(0).locator('[data-receipt-mark]')).toContainText('verified');
   await expect(results.nth(1).locator('[data-receipt-mark]')).toContainText('source');
   await expect(page.locator(`${CASE} details.receipts`)).not.toHaveAttribute('open');
-  await expect(page.locator(`${CASE} .receipts li`)).toHaveCount(4);
+  await expect(page.locator(`${CASE} .receipts li`)).toHaveCount(5);
   await expect(page.locator(`${CASE} .receipts li .checked`).first()).toContainText(/checked/);
 });
 

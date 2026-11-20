@@ -41,7 +41,7 @@ async function overlaps(page: Page, canvasSelector: string): Promise<string[]> {
       for (const box of range.getClientRects()) check(el.className, box);
     }
     for (const el of document.querySelectorAll(
-      '.hero .chips > li, .hero .contact-row a, .hero .contact-row button, .sea-toggle',
+      '.hero .hero-stack, .hero .chips > li, .hero .contact-row a, .hero .contact-row button, .sea-toggle',
     ))
       check(el.textContent?.trim() ?? '', el.getBoundingClientRect());
     if (island.right > innerWidth) hits.push(`island cut by the right edge: ${raw}`);

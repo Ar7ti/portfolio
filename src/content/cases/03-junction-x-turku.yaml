@@ -55,7 +55,7 @@ subprojects:
         facts: [LS1],
       }
     blocks:
-      - lead: My part.
+      - lead: Built.
         text: Backend with OpenAI, frontend and Playwright tests. **Closed now**; the demo runs on example data.
         facts: [LS4, LS5]
     links:

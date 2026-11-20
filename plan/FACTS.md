@@ -55,7 +55,7 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 | SC3 | Stack: Google Gemini, NVIDIA Nemotron VL on a Verda box, Oxylabs Web API, Hostinger VPS, OpenAI Codex, Entire | V | team README |
 | SC4 | Nemotron vs Gemini on 60 real clusters: Nemotron 1.5 s mean vs Gemini 12.0 s; cascade caught 18 of 28 coordinated-and-taken-down clusters | V (team result, not Kirill's personally) | team README table, dated 2026-11-14 |
 | SC5 | Kirill's part: the "signals" coordination detector (v1 → v1.10: null model, organic guards, friend-group and automation guards, semantic duplicates, red-team fixes), the Bluesky Jetstream → Postgres ingest pipeline (failover, malformed-record handling), and external evaluation against real Bluesky takedowns; wrote METHODOLOGY.md | V | 18 commits by Ar7ti in team repo, 2026-11-13 20:22 → 2026-11-14 16:49 (GitHub API) |
-| SC6 | Kirill: "3-4x faster detection passes with identical output" | V (commit message) | commit 2026-11-14 01:01 in team repo |
+| SC6 | Kirill: "3-4x faster detection passes with identical output" | V (commit message) | commit 2026-11-14 01:01 in team repo: 5d56c15 (PR #34) |
 | SC7 | Commit counts: JustinasLa 90, akmet777 53, entire[bot] 29, Ar7ti 18, valtteripertila 13 | V | GitHub contributors API. Commit count ≠ contribution size; don't publish it |
 | SC8 | Wording: **"at Junction 2026, a 48-hour hackathon"** (true of the event; never claim the code took exactly 48 h). Built with AI agents (Codex, Entire per team README) | V | Kirill 2026-11-19; team README |
 | SC9 | Teammates agreed to be linked: https://github.com/JustinasLa · https://github.com/akmet777 (Temuulen) · https://github.com/valtteripertila | S | Kirill 2026-11-19 |
@@ -83,6 +83,7 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 | ST11 | Built with Rojo, Luau, React-lua; made to learn programming | V / S | showcase README (stack); brief (motivation) |
 | ST12 | Code showcase: https://github.com/Ar7ti/sky-island-td-showcase (WaveService, EnemyMovement, React-lua UI, tools); anti-cheat/economy parts deliberately left out | V | showcase README |
 | ST16 | `WaveService:Track` in the public showcase (`src/match/server/Services/WaveService/WaveService.luau`, lines 96–117, commit c067a81): a splitting enemy's children are counted before the parent is released, so a wave cannot end in between | V | showcase repo source, read 2026-11-20 |
+| ST17 | Showcase tools: Python scripts drive Roblox Studio — `playtest.py` plays through a wave and tries bad placements, `phone_preview.py` checks phone layouts, `perf_probe.py` measures frame times | V | sky-island-td-showcase README lines 87–91, read 2026-11-20 |
 
 ## Ocean Opportunity Radar
 

@@ -35,7 +35,7 @@ blocks:
     facts: [ST15]
   - lead: Proof it works.
     text: 'My **Python scripts drive Roblox Studio**: they play through a wave, try bad placements, check phone layouts and measure frame times.'
-    facts: [ST12]
+    facts: [ST12, ST17]
   - lead: Next time.
     text: Get **real players testing before launch**, not after.
     source: Kirill

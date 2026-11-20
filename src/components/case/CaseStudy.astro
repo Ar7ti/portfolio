@@ -49,7 +49,11 @@ const titleLines = study.title.split(/(?<=\.)\s+/);
       )}
     </Title>
     <Claim as="p" class="oneliner case-oneliner" claim={study.oneliner} />
-    <BigFigures class="case-results" items={results} />
+    {/* Case pages: the results are the first thing after the wipe, so they never count up. */}
+    <BigFigures
+      class={level === 1 ? 'case-results motion-static' : 'case-results'}
+      items={results}
+    />
 
     {(study.media.length > 0 || study.blocks.length > 0) && (
       <CaseBody

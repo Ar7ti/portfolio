@@ -293,7 +293,8 @@ const links = hero.contacts
   .sea-toggle {
     position: absolute;
     top: 16px;
-    right: var(--gutter);
+    /* Aligned with the content column, not the window edge. */
+    right: max(var(--gutter), calc((100% - var(--content-max)) / 2));
     z-index: 1;
     display: inline-flex;
     align-items: center;

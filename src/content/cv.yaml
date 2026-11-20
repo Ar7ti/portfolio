@@ -36,7 +36,7 @@ cv:
           meta: { text: Junction X Turku · solo, facts: [H8, OR5] }
           lines:
             - {
-                text: AI research tool for ocean investors. Every answer cites a source.,
+                text: AI research tool for ocean investors. Every claim comes with its quote and source.,
                 facts: [OR1],
               }
             - { text: '**Built solo** for Junction X Turku · 36 tests.', facts: [H8, OR4] }
