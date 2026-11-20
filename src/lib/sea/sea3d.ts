@@ -204,6 +204,11 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
 
     const mask = islandMask(W, D, island.x - X0, island.z - Z0, island.r);
     const liquid = new Liquid({ width: W, depth: D, solid: mask });
+    // Dev only (scripts/hero-still.mjs): '?still=sea' renders the frozen sea without the island,
+    // '?still=island' the same frame with the island (the sprite is their difference).
+    // Stripped from builds.
+    const still = import.meta.env.DEV ? new URLSearchParams(location.search).get('still') : null;
+    if (still === 'sea') mask.fill(0);
 
     const deep = new Color(DAY.deep);
     const mid = new Color(DAY.mid);
@@ -276,13 +281,17 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
     }
 
-    function placeCamera(): void {
-      const a = camera.aspect;
+    function pose(cam: PerspectiveCamera, n: number): void {
+      const a = cam.aspect;
       const dist = a < 1 ? 110 : 82;
       // At night the camera drops a little so the reflections stretch towards the viewer.
-      camera.position.set(-6, dist * (0.62 - 0.14 * night), dist * (0.78 + 0.06 * night));
-      camera.lookAt(a < 1 ? 0 : 10, (a < 1 ? 14 : 13) - 3 * night, -2);
-      camera.updateProjectionMatrix();
+      cam.position.set(-6, dist * (0.62 - 0.14 * n), dist * (0.78 + 0.06 * n));
+      cam.lookAt(a < 1 ? 0 : 10, (a < 1 ? 14 : 13) - 3 * n, -2);
+      cam.updateProjectionMatrix();
+    }
+
+    function placeCamera(): void {
+      pose(camera, night);
       // Fog reaches the sky colour right at the grid's back edge, so no edge is ever visible.
       const back = Math.hypot(camera.position.x, camera.position.y - BASE, camera.position.z - Z0);
       fog.far = back * 0.97;
@@ -293,6 +302,75 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       setSky();
     }
 
+    /**
+     * Keeps the island clear of the hero text. From its home spot it steps right and, when the
+     * right edge runs out, back towards the horizon (smaller there), until its on-screen box,
+     * projected with the daytime camera, misses every box from options.avoid. Only the island
+     * mask changes (the liquid shares it), so this is cheap enough for every resize.
+     */
+    const home = { x: island.x, z: island.z };
+    const probe = new PerspectiveCamera(32, aspect, 1, 300);
+    const corner = new Vector3();
+    function islandBox(cx: number, cz: number, w: number, h: number): DOMRect {
+      let x0 = Infinity;
+      let y0 = Infinity;
+      let x1 = -Infinity;
+      let y1 = -Infinity;
+      for (const dx of [-1, 1])
+        for (const dz of [-1, 1])
+          for (const y of [BASE - 1, BASE + 3.8]) {
+            corner.set(cx + dx * island.r, y, cz + (dz * island.r) / 1.25).project(probe);
+            const sx = ((corner.x + 1) / 2) * w;
+            const sy = ((1 - corner.y) / 2) * h;
+            x0 = Math.min(x0, sx);
+            x1 = Math.max(x1, sx);
+            y0 = Math.min(y0, sy);
+            y1 = Math.max(y1, sy);
+          }
+      return new DOMRect(x0, y0, x1 - x0, y1 - y0);
+    }
+    function placeIsland(): void {
+      const r = layer.getBoundingClientRect();
+      // Landscape only: the portrait (tablet) framing keeps its approved spot.
+      const boxes = still || r.width < r.height ? [] : (options.avoid?.() ?? []);
+      if (!r.width || !r.height) return;
+      probe.aspect = r.width / r.height;
+      pose(probe, 0);
+      const gap = 28;
+      const clear = (b: DOMRect) =>
+        b.right <= r.width - 16 &&
+        boxes.every(
+          (t) =>
+            b.right <= t.left - gap ||
+            b.left >= t.right + gap ||
+            b.bottom <= t.top - gap ||
+            b.top >= t.bottom + gap,
+        );
+      const maxX = X0 + W - island.r - 2;
+      const minZ = Math.max(Z0 + island.r + 2, home.z - 24);
+      let best = home;
+      let bestCost = Infinity;
+      for (let z = home.z; boxes.length && z >= minZ; z--) {
+        // Depth costs more than sideways: it changes the island's size.
+        for (let x = home.x; x <= maxX; x++) {
+          const cost = x - home.x + (home.z - z) * 1.5;
+          if (cost >= bestCost) break;
+          if (clear(islandBox(x, z, r.width, r.height))) {
+            best = { x, z };
+            bestCost = cost;
+            break;
+          }
+        }
+      }
+      // Exposed for the hero layout test (tests/hero-island.spec.ts).
+      const b = islandBox(best.x, best.z, r.width, r.height);
+      canvas.dataset['island'] = [b.left, b.top, b.right, b.bottom].map(Math.round).join(',');
+      if (best.x === island.x && best.z === island.z) return;
+      island.x = best.x;
+      island.z = best.z;
+      mask.set(islandMask(W, D, island.x - X0, island.z - Z0, island.r));
+    }
+
     function resize(): void {
       if (!renderer) return;
       const r = layer.getBoundingClientRect();
@@ -300,8 +378,12 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       renderer.setSize(r.width, r.height, false);
       camera.aspect = r.width / r.height;
       placeCamera();
+      placeIsland();
     }
     placeCamera();
+    placeIsland();
+    // Layout can still settle after mount (fonts): place it again once they are in.
+    void document.fonts?.ready.then(() => !destroyed && placeIsland());
 
     // --- stirring: pointer (mouse, pen, finger) pushes the surface down where it moves
     const ray = new Raycaster();
@@ -365,7 +447,8 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       const ms = now - prev;
       prev = now;
       if (!first) options.onFrame?.(ms);
-      const t = (now - t0) / 1000;
+      // A still is one frozen moment, after the opening wave.
+      const t = still ? 6 : (now - t0) / 1000;
       acc += Math.min(0.05, ms / 1000);
       // Opening wave: a crest rolls in from the left over ~2 s, then the sea settles.
       const sweep = (t - 0.2) / 1.9;

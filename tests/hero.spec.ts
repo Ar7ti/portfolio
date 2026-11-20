@@ -83,6 +83,6 @@ test.describe('hero without JS', () => {
     for (const chip of await page.locator('.chips li').all()) {
       await expect(chip).toHaveAttribute('data-facts', /\w/);
     }
-    await expect(page.locator('.hero-sea img')).toBeVisible();
+    await expect(page.locator('.hero-sea img.hero-sea-still')).toBeVisible();
   });
 });

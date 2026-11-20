@@ -14,6 +14,7 @@ import Claim from '../content/Claim.astro';
 import Label from '../type/Label.astro';
 import { data } from '../../lib/content';
 import seaDay from '../../assets/hero/sea-day.webp';
+import seaIsland from '../../assets/hero/sea-island.webp';
 
 const site = await data('site', 'site');
 const { hero } = site;
@@ -44,6 +45,15 @@ const links = hero.contacts
       decoding="async"
       fetchpriority="low"
       class="hero-sea-still"
+    />
+    <img
+      class="hero-sea-island"
+      src={seaIsland.src}
+      width={seaIsland.width}
+      height={seaIsland.height}
+      alt=""
+      decoding="async"
+      fetchpriority="low"
     />
     <canvas class="hero-sea-canvas" data-sea-still-canvas></canvas>
   </div>
@@ -166,7 +176,22 @@ const links = hero.contacts
     object-position: 64% 100%;
   }
 
-  /* JS on: the img only feeds the canvas (see still.ts). */
+  /* JS off: the island sprite sits right of the text column on its own (still.ts places it
+     and draws it into the canvas when JS is on). */
+  .hero-sea .hero-sea-island {
+    inset: 40% 4% auto auto;
+    width: clamp(180px, 17vw, 360px);
+    height: auto;
+    object-fit: contain;
+  }
+
+  @media (max-width: 860px) {
+    .hero-sea .hero-sea-island {
+      display: none;
+    }
+  }
+
+  /* JS on: the imgs only feed the canvas (see still.ts). */
   :global(.js) .hero-sea :global(img) {
     opacity: 0;
   }
