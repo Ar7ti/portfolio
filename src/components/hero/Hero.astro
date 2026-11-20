@@ -242,6 +242,18 @@ const links = hero.contacts
     opacity: 1;
   }
 
+  /* Sky over the fogged far water (sea3d.ts sets the gradient); fades in with the sea. */
+  .sea-backdrop :global(.hero-sea-sky) {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.6s ease-out;
+  }
+
+  .sea-backdrop :global(.hero-sea-live.is-ready + .hero-sea-sky) {
+    opacity: 1;
+  }
+
   .hero-inner {
     width: 100%;
     max-width: calc(var(--content-max) + 2 * var(--gutter));

@@ -67,7 +67,7 @@ test('case 01 on the home page links to its own page and credits the team', asyn
   await page.goto('/');
   const section = page.locator('#case-shill-or-chill');
   await expect(section.getByRole('heading', { level: 2 })).toHaveText('Shill or Chill');
-  await expect(section.getByRole('link', { name: 'Shill or Chill' })).toHaveAttribute(
+  await expect(section.getByRole('link', { name: 'Shill or Chill', exact: true })).toHaveAttribute(
     'href',
     '/work/shill-or-chill',
   );
@@ -116,4 +116,16 @@ test('case 02: gameplay video slot (poster until the loop lands), Short, play + 
     /youtube\.com\/watch/,
   );
   await expect(section.locator('.blocks .pill')).toHaveText(['Play on Roblox', 'Read the code']);
+});
+
+test('home cases end in a link to the full case; the email CTA is only on case pages', async ({
+  page,
+}) => {
+  await page.goto('/');
+  for (const slug of ['shill-or-chill', 'junction-x-turku', 'sky-island-tower-defense']) {
+    const cta = page.locator(`#case-${slug} .case-cta a`);
+    await expect(cta).toHaveAttribute('href', `/work/${slug}`);
+  }
+  await page.goto('/work/shill-or-chill');
+  await expect(page.locator('.case-cta a')).toHaveAttribute('href', /^mailto:/);
 });

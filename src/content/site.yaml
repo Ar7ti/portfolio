@@ -65,4 +65,6 @@ site:
   copyEmail: { button: Copy, done: Copied, status: Email address copied }
 
   cta: Want to build something together?
+  # Home page: each case ends in a link to its full page (the CTA is on that page and in Contact).
+  caseLink: Full case study
   receipts: { summary: Receipts, checked: checked, markLabel: 'Receipt:' }

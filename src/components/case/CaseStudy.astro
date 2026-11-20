@@ -77,12 +77,22 @@ const titleLines = study.title.split(/(?<=\.)\s+/);
       <Receipts slug={study.slug} receipts={study.receipts} />
     )}
 
-    <p class="case-cta">
-      <span class="lead">{site.cta}</span>
-      <a class="button" href={email.href} data-facts={email.facts.join(' ')}>
-        {email.display}
-      </a>
-    </p>
+    {level === 1 ? (
+      <p class="case-cta">
+        <span class="lead">{site.cta}</span>
+        <a class="button" href={email.href} data-facts={email.facts.join(' ')}>
+          {email.display}
+        </a>
+      </p>
+    ) : (
+      <p class="case-cta">
+        <a class="button" href={href}>
+          {site.caseLink}
+          <span class="visually-hidden">: {study.title}</span>
+          <span aria-hidden="true">→</span>
+        </a>
+      </p>
+    )}
   </div>
 </section>
 

@@ -105,13 +105,22 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     renderer.setSize(box.width, box.height, false);
     const canvas = renderer.domElement;
     canvas.className = 'hero-sea-live';
-    // The sky is a CSS gradient behind the transparent canvas: cheaper than a sky mesh.
-    // Sky: a CSS gradient behind the transparent canvas that reaches exactly the fog colour at
-    // the horizon line (set in placeCamera), so the fogged far water melts into the sky.
+    // Sky: CSS gradients, cheaper than a sky mesh. Behind the transparent canvas, one that
+    // reaches the fog colour at the horizon line. The camera looks down, so the horizon is often
+    // above the screen and the top of the view is fully fogged water (flat fog colour, a flat
+    // pink slab at dusk); a second gradient over the canvas runs the sky colours down to the
+    // line where the fog becomes solid and fades out there, so there is always a real sky.
     let horizonPct = 50;
+    let fogPct = 30;
     let palette = DAY;
+    const sky = document.createElement('div');
+    sky.className = 'hero-sea-sky';
     const setSky = () => {
       canvas.style.background = `linear-gradient(${hex(palette.skyA)}, ${hex(palette.skyB)} ${(horizonPct * 0.6).toFixed(1)}%, ${hex(palette.fog)} ${horizonPct.toFixed(1)}%, ${hex(palette.fog)})`;
+      const f = Math.max(fogPct, 12);
+      // Translucent, so the neon sticks standing in the far water still glow through it.
+      const a = (c: number, k: number) => `color-mix(in srgb, ${hex(c)} ${k}%, transparent)`;
+      sky.style.background = `linear-gradient(${a(palette.skyA, 78)}, ${a(palette.skyB, 66)} ${(f * 0.55).toFixed(1)}%, ${a(palette.fog, 45)} ${f.toFixed(1)}%, transparent ${(f + 10).toFixed(1)}%)`;
     };
 
     const scene = new Scene();
@@ -289,6 +298,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       cam.position.set(-6, dist * (0.62 - 0.14 * n), dist * (0.78 + 0.06 * n));
       cam.lookAt(a < 1 ? 0 : 10, (a < 1 ? 14 : 13) - 3 * n, -2);
       cam.updateProjectionMatrix();
+      cam.updateMatrixWorld();
     }
 
     function placeCamera(): void {
@@ -300,6 +310,11 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       // Where does the (infinitely far) sea meet the sky on screen? Put the gradient's fog stop there.
       const horizon = new Vector3(camera.position.x, BASE, camera.position.z - 1e5).project(camera);
       horizonPct = Math.min(100, Math.max(0, (1 - horizon.y) * 50));
+      // Where the water is fully fogged straight ahead (fog.far away): the sky overlay ends there.
+      const ahead = new Vector3(10, 0, -2).sub(camera.position).setY(0).normalize();
+      const run = Math.sqrt(Math.max(0, fog.far ** 2 - (camera.position.y - BASE) ** 2));
+      const solid = camera.position.clone().addScaledVector(ahead, run).setY(BASE).project(camera);
+      fogPct = Math.min(100, Math.max(0, (1 - solid.y) * 50));
       setSky();
     }
 
@@ -500,8 +515,11 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       }
     }
 
-    layer.append(canvas);
-    cleanups.push(() => canvas.remove());
+    layer.append(canvas, sky);
+    cleanups.push(
+      () => canvas.remove(),
+      () => sky.remove(),
+    );
     cleanups.push(() => {
       geometry.dispose();
       material.dispose();
