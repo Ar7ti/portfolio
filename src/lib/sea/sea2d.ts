@@ -354,7 +354,8 @@ function clearIsland(view: View, boxes: readonly DOMRect[], w: number, h: number
           b.bottom <= t.top - air ||
           b.top >= t.bottom + air,
       );
-    let best: Vec3 = view.island;
+    // No free spot: the island stays out of view (far behind the camera), never over text.
+    let best: Vec3 = [hx, 1e4, r];
     let bestCost = Infinity;
     for (let z = hz - 10; z <= hz + 70; z++) {
       for (let x = hx - 24; x <= hx + 24; x++) {
@@ -518,7 +519,8 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       camera = view.camera;
       island = clearIsland(view, options.avoid?.() ?? [], r.width, r.height);
       const ib = islandBox(camera, island[0], island[1], island[2], r.width, r.height);
-      canvas.dataset['island'] = [ib.left, ib.top, ib.right, ib.bottom].map(Math.round).join(',');
+      canvas.dataset['island'] =
+        island[1] > 1e3 ? 'none' : [ib.left, ib.top, ib.right, ib.bottom].map(Math.round).join(',');
       // Liquid grid in front of the camera, covering what the eye can stir.
       simRect =
         aspect < 1

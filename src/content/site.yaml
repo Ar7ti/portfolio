@@ -29,7 +29,7 @@ site:
     checkedOn: 2026-11-20
 
   hero:
-    label: { text: '**Kirill Jegosin** · 18 · Kanta-Häme, Finland', facts: [P1, P2] }
+    label: { text: '**Kirill Jegosin** · 18 · ICT student · Finland', facts: [P1, P2, P3] }
     h1: ['I build games,', web products, '& AI tools.']
     line:
       {
@@ -39,7 +39,12 @@ site:
     # What he writes, so a recruiter can match a role (OR3/LS4 TypeScript + React, SC11 Python, ST11 Luau).
     stack: { text: 'TypeScript · React · Python · Luau', facts: [OR3, LS4, SC11, ST11] }
     chips:
-      - { value: Won, label: Oxylabs challenge · Junction 2026, facts: [H3], highlight: true }
+      - {
+          value: Won,
+          label: 'Oxylabs challenge · Junction 2026 · AI meme tracker',
+          facts: [H3, SC1, SC3],
+          highlight: true,
+        }
       - { value: '223', label: commits · solo Roblox game, facts: [ST10, ST9], asOf: 2026-11-18 }
       - { value: 2.6M, label: views · Roblox Shorts, facts: [YT2], asOf: 2026-11-19 }
     contacts: [email, linkedin, github, cv]
