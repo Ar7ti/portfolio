@@ -88,7 +88,7 @@ export function mixPalette(p: number): SeaPalette {
  * Sky of the WebGL tiers (both): deeper than the CSS sky tokens, so tone mapping keeps colour.
  * Day → dusk at 0.5 → night.
  */
-const SKY_DAY = { top: 0x2f7fc6, mid: 0x86c0e4, haze: 0xcfe6f1 };
+const SKY_DAY = { top: 0x2a78c8, mid: 0x7fbde6, haze: 0xd6ebf4 };
 const SKY_DUSK = { top: 0x341a6b, mid: 0xc85a7c, haze: 0xf0956a };
 const SKY_NIGHT = { top: 0x05030c, mid: 0x1c0d30, haze: 0x4a1f55 };
 

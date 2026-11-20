@@ -32,8 +32,8 @@ uniform float uNight;
 
 vec3 skyBase(vec3 dir) {
   float y = dir.y;
-  vec3 col = mix(uHaze, uSkyMid, smoothstep(0.0, 0.045, y));
-  col = mix(col, uSkyTop, smoothstep(0.03, 0.2, y));
+  vec3 col = mix(uHaze, uSkyMid, smoothstep(0.0, 0.035, y));
+  col = mix(col, uSkyTop, smoothstep(0.02, 0.13, y));
   // Below the horizon (reflections of the far water): darker haze.
   col = mix(col, uHaze * 0.82, (1.0 - smoothstep(-0.12, 0.0, y)));
   return col;
@@ -157,7 +157,7 @@ void main() {
     vTower = m > 2.5 ? 1.0 : 0.0;
   } else {
     float k = clamp((hi + s * 0.6) * 0.45 + 0.45, 0.22, 1.0);
-    vAlbedo = mix(uDeep, uMid, min(1.0, k * 1.4)) * (0.9 + 0.2 * h1) * mix(vec3(1.0), vec3(0.97, 1.0, 1.04), fract(h1 * 7.13));
+    vAlbedo = mix(uDeep, uMid * mix(vec3(0.86, 1.08, 1.04), vec3(1.0), uNightV), min(1.0, k * 1.5)) * (0.9 + 0.2 * h1) * mix(vec3(1.0), vec3(0.97, 1.0, 1.04), fract(h1 * 7.13));
     // Crest foam (pushed water) and a breaking ring of foam around the island.
     float crest = clamp((hi - 1.2) * 0.5, 0.0, 0.6);
     float d = length(vec2(p.x - uIsland.x, (p.y - uIsland.y) * 1.25)) - uIsland.z;
@@ -187,6 +187,7 @@ uniform float uSunPower;
 uniform float uFogNear;
 uniform float uFogFar;
 uniform float uMistZ;
+uniform float uMistK;
 uniform vec3 uIslandF;
 uniform float uBase;
 uniform float uNightV;
@@ -257,7 +258,8 @@ void main() {
 
   vec3 albedo = mix(vAlbedo, vec3(0.95, 0.98, 1.0), clamp(vFoam, 0.0, 1.0) * vWater);
   // The island keeps its own (brighter) plastic colour at night, so the neon can light it.
-  if (vWater < 0.5) albedo *= 1.0 + 3.0 * uNightV;
+  // Dusk and night: the island stays readable in its own colours under a soft fill.
+  if (vWater < 0.5) albedo *= 1.0 - 0.15 * uNightV;
   // Lighthouse: a red band below the lamp; the lamp (top block) glows warm at night.
   vec3 lamp = vec3(0.0);
   if (vTower > 0.5) {
@@ -332,7 +334,7 @@ void main() {
   vec3 nightFloor = vec3(0.004, 0.008, 0.02) * uNight * (0.6 + 0.4 * N.y);
   vec3 rimN = vec3(0.12, 0.1, 0.32) * pow(1.0 - nv, 3.0) * uNight * (vWater > 0.5 ? 0.35 : 1.6);
   // The island keeps a soft cool fill after dusk, so it never turns into a black blob.
-  if (vWater < 0.5) rimN += albedo * vec3(0.22, 0.2, 0.36) * smoothstep(0.35, 0.8, uNight) * (0.6 + 0.4 * N.y);
+  if (vWater < 0.5) rimN += albedo * vec3(0.1, 0.09, 0.17) * smoothstep(0.35, 0.8, uNight) * (0.6 + 0.4 * N.y);
   // The pillars light the island's faces that look their way.
   if (vWater < 0.5 && uNightV > 0.01) {
     for (int i = 0; i < 7; i++) {
@@ -342,7 +344,7 @@ void main() {
       float dl = length(toL);
       int ni = int(st.z);
       vec3 neon = ni == 0 ? uNeon[0] : (ni == 1 ? uNeon[1] : uNeon[2]);
-      glow += albedo * neon * max(dot(N, toL / dl), 0.0) * 2600.0 / (dl * dl + 200.0) * uNightV;
+      glow += albedo * neon * max(dot(N, toL / dl), 0.0) * 1100.0 / (dl * dl + 200.0) * uNightV;
     }
   }
   vec3 col = diffuse + spec + refl + rim + albedo * caus + glow + vGlow + lamp + nightFloor + rimN;
@@ -357,7 +359,7 @@ void main() {
   // A bank of sea mist where the blocks end (and beyond): both surfaces meet in the same haze.
   // Thinner at dusk, so the sunset sky and the sun path stay visible.
   float duskK = 1.0 - abs(uNight - 0.5) * 2.0;
-  f = max(f, (0.8 - 0.35 * max(duskK, 0.0)) * (1.0 - smoothstep(uMistZ + 4.0, uMistZ + 70.0, vWorld.z)));
+  f = max(f, (uMistK - 0.3 * max(duskK, 0.0)) * (1.0 - smoothstep(uMistZ + 4.0, uMistZ + 70.0, vWorld.z)));
   col = mix(col, skyBase(normalize(vec3(-V.x, max(-V.y, 0.0) * 0.2, -V.z))), f);
 
   gl_FragColor = vec4(col, 1.0);
