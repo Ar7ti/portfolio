@@ -44,6 +44,16 @@ const { notFound } = site;
 </Base>
 
 <style>
+  /* The sea runs down to the footer: no pale strip of page background in between. */
+  :global(main:has(.not-found)) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .not-found {
+    flex: 1 0 auto;
+  }
+
   .not-found {
     position: relative;
     isolation: isolate;

@@ -83,7 +83,7 @@ const links = hero.contacts
         {hero.chips.map((chip) => (
           <li data-facts={chip.facts.join(' ')}>
             <span class:list={['chip-big', { 'chip-won': chip.highlight }]}>{chip.value}</span>
-            <span class="chip-label">{chip.label}</span>
+            <span class="chip-label">{chip.label.replaceAll(' · ', ' · ')}</span>
           </li>
         ))}
       </ul>

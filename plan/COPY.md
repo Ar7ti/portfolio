@@ -70,7 +70,7 @@ RECEIPTS (4)  verified · Oxylabs on LinkedIn: "Meet Shill or Chill, built by �
               source   · Hostinger 3rd: my LinkedIn post + a comment under the Oxylabs post   [H4]
               live     · noise-radar.srv2159172.hstgr.cloud            [SC2]
               code     · github.com/JustinasLa/gemini-4-braincells     [H2]
-CTA     Want to build something together?  [k.jegosin@gmail.com]   (case page; on home: "Full case study →")
+CTA     (review loop 2026-11-20: dropped; home ends each case in "Full case study →", case pages end in Contact)
 ```
 "3–4× faster" moved from the proof block to the big figures, so the block is shorter. ~105 words.
 
@@ -94,7 +94,7 @@ LEAD Next time.      Get **real players testing before launch**, not after.   [K
 LEAD Code.           Waves, enemy movement and the UI are **public**. Combat and economy stay private, so cheaters can't read them.   [ST12]
 
 LINKS   Play on Roblox · Read the code
-CTA     Want to build something together?  [k.jegosin@gmail.com]   (case page; on home: "Full case study →")
+CTA     (review loop 2026-11-20: dropped; home ends each case in "Full case study →", case pages end in Contact)
 ```
 149 words incl. title and figure labels (limit 150): no room for more.
 
@@ -121,7 +121,7 @@ ONE     An AI copilot for big life moves: a new city, a first car, a trip. It ma
 LEAD My part.        Backend with OpenAI, frontend and Playwright tests. **Closed now**; the demo runs on example data.   [LS4 LS5]
 LINKS   Demo · Video
 
-CTA     Want to build something together?  [k.jegosin@gmail.com]   (case page; on home: "Full case study →")
+CTA     (review loop 2026-11-20: dropped; home ends each case in "Full case study →", case pages end in Contact)
 ```
 ~125 words. (No "Next time" block here, Kirill's call.)
 

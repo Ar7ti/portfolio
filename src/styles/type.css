@@ -50,6 +50,9 @@
 
 .h1 {
   font-size: var(--size-h1);
+  /* A little more than the H2s: the H1 is several stacked lines, and at 0.9 the "p" of
+     "products" touched the "t" of "tools" (visual QA). */
+  line-height: 0.97;
 }
 
 .h2 {

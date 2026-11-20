@@ -54,11 +54,11 @@ for (const c of CASES) {
       }
     });
 
-    test('own page: H1 title, three results, CTA', async ({ page }) => {
+    test('own page: H1 title, three results, ends in Contact', async ({ page }) => {
       await page.goto(`/work/${c.slug}`);
       await expect(page.locator('h1')).toHaveText(c.title.replace(/\s+/g, ' '));
       await expect(page.locator('.case-results li')).toHaveCount(3);
-      await expect(page.locator('.case-cta a[href^="mailto:"]')).toBeVisible();
+      await expect(page.locator('#contact a[href^="mailto:"]').first()).toBeVisible();
     });
   });
 }
@@ -118,16 +118,15 @@ test('case 02: gameplay video slot (poster until the loop lands), Short, play + 
   await expect(section.locator('.blocks .pill')).toHaveText(['Play on Roblox', 'Read the code']);
 });
 
-test('home cases end in a link to the full case; the email CTA is only on case pages', async ({
-  page,
-}) => {
+test('home cases end in a link to the full case; case pages end in Contact', async ({ page }) => {
   await page.goto('/');
   for (const slug of ['shill-or-chill', 'junction-x-turku', 'sky-island-tower-defense']) {
     const cta = page.locator(`#case-${slug} .case-cta a`);
     await expect(cta).toHaveAttribute('href', `/work/${slug}`);
   }
   await page.goto('/work/shill-or-chill');
-  await expect(page.locator('.case-cta a')).toHaveAttribute('href', /^mailto:/);
+  await expect(page.locator('.case-cta')).toHaveCount(0);
+  await expect(page.locator('#contact a[href^="mailto:"]').first()).toBeVisible();
 });
 
 test('case pages explain how it works and show his own code at a pinned commit', async ({

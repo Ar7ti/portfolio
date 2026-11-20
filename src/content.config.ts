@@ -115,7 +115,6 @@ const site = defineCollection({
         button: z.strictObject({ label: z.string(), href: z.string() }),
       }),
       copyEmail: z.strictObject({ button: z.string(), done: z.string(), status: z.string() }),
-      cta: z.string(),
       caseLink: z.string(),
       /** Receipts list: summary text, "checked <date>" word, screen-reader prefix for claim marks. */
       receipts: z.strictObject({ summary: z.string(), checked: z.string(), markLabel: z.string() }),
