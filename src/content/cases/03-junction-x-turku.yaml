@@ -31,7 +31,7 @@ subprojects:
         facts: [OR1]
       - lead: Proof it works.
         text: If the AI quotes a pitch, **the quote must really be in the text**, or it's rejected.
-        facts: [OR1]
+        facts: [OR8]
     links:
       - {
           label: Live demo,
@@ -64,7 +64,7 @@ subprojects:
 deep:
   heading: How Ocean Radar decides
   flow:
-    - { text: 'A **pitch deck** comes in', facts: [OR1] }
+    - { text: 'A **pitch** is pasted in', facts: [OR1] }
     - { text: '**AI pulls out claims**, each with its exact quote', facts: [OR1] }
     - { text: '**It researches online**, every source linked', facts: [OR1] }
     - { text: '**A person confirms** the evidence', facts: [OR1] }

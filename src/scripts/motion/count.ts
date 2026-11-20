@@ -20,7 +20,13 @@ interface Figure {
 function prepare(el: HTMLElement): Figure {
   const text = el.textContent?.trim() ?? '';
   const match = NUMBER.exec(text);
-  if (!match?.[1]) {
+  // Only plain counts count up ("223", "2.6M", "36"). Ordinals ("3rd"), ranges ("3–4×") and
+  // version numbers ("1.1") would pass through nonsense ("1rd", "1–4×") on the way.
+  const countable =
+    match?.[1] !== undefined &&
+    /^[KM%+]?$/.test(match[2] ?? '') &&
+    !(match[1].includes('.') && !match[2]);
+  if (!match?.[1] || !countable) {
     el.classList.add('count-word');
     return {
       el,

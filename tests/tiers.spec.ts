@@ -62,14 +62,14 @@ test.describe('tiers in the browser', () => {
     });
   });
 
-  test('Calm the water forces tier 0 and is remembered', async ({ page }) => {
+  test('Pause animation forces tier 0 and is remembered', async ({ page }) => {
     await page.goto('/');
     const toggle = page.locator('[data-sea-toggle]');
-    await expect(toggle).toHaveText('Calm the water');
+    await expect(toggle).toHaveText('Pause animation');
     await expect(toggle).toHaveAttribute('aria-pressed', 'false');
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-pressed', 'true');
-    await expect(toggle).toHaveText('Bring the water back');
+    await expect(toggle).toHaveText('Play animation');
     expect(await tierOf(page)).toBe('0');
 
     await page.reload();
@@ -77,7 +77,7 @@ test.describe('tiers in the browser', () => {
     expect(await tierOf(page)).toBe('0');
 
     await page.locator('[data-sea-toggle]').click();
-    await expect(page.locator('[data-sea-toggle]')).toHaveText('Calm the water');
+    await expect(page.locator('[data-sea-toggle]')).toHaveText('Pause animation');
   });
 
   test.describe('JS off', () => {

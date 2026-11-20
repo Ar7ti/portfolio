@@ -91,6 +91,7 @@ const site = defineCollection({
         label: claim,
         h1: z.array(z.string()).min(1),
         line: claim,
+        stack: claim,
         chips: z.array(figure).length(3),
         contacts: z.array(contactId),
       }),
