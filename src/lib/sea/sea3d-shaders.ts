@@ -273,7 +273,8 @@ void main() {
   float rough = mix(mix(0.32, 0.16, uNight), 0.45, vFoam) + (vVar - 0.5) * 0.08 + duskR * 0.16;
   float F = 0.04 + 0.96 * pow(1.0 - nv, 5.0);
   // Highlights roll off at grazing angles (no milky hot spot towards the frame edge).
-  vec3 spec = uSunColor * uSunPower * min(ggx(nh, rough), 12.0) * F * nl * 0.55 * smoothstep(0.03, 0.25, nv);
+  vec3 spec = uSunColor * uSunPower * min(ggx(nh, rough), 8.0) * F * nl * 0.55 * smoothstep(0.03, 0.25, nv);
+  spec = min(spec, vec3(3.0));
   vec3 refl = skyBase(reflect(-V, N)) * min(F, 0.6) * 0.42 * ao * (topFace || vWater > 1.5 ? 1.0 : 0.12);
   float near = 1.0 - smoothstep(25.0, 80.0, length(vWorld - uCam));
   vec3 rim = uSunColor * uSunPower * bevel * (0.05 + 0.3 * pow(nh, 8.0)) * (1.0 - uNight * 0.7) * near;
@@ -308,6 +309,14 @@ void main() {
       glow += neon * inten * (topFace ? 1.0 : 0.45) * smoothstep(0.5, 2.5, length(vec2(vWorld.x - uIslandF.x, (vWorld.z - uIslandF.y) * 1.25)) - uIslandF.z);
     }
   }
+  // The lighthouse beam sweeps round: a bright wedge on the water around the island.
+  if (uNightV > 0.01 && vWater > 0.5) {
+    vec2 rel = vWorld.xz - uIslandF.xy;
+    float ang = atan(rel.y, rel.x) - uTimeF * 0.6;
+    float wedge = pow(max(cos(ang), 0.0), 40.0);
+    float reach = exp(-length(rel) / 28.0);
+    glow += vec3(1.0, 0.72, 0.4) * wedge * reach * 1.4 * uNightV;
+  }
   // At dusk the streaks run warm (sunset light), turning neon as night falls.
   glow *= mix(vec3(0.95, 0.62, 0.42), vec3(1.0), smoothstep(0.45, 0.9, uNight));
   // Night: deep navy instead of a black void, and a cool rim so shapes (the island) still read.
@@ -328,6 +337,9 @@ void main() {
     }
   }
   vec3 col = diffuse + spec + refl + rim + albedo * caus + glow + vGlow + lamp + nightFloor + rimN;
+  // Never let a degenerate normal (NaN) or an extreme value through to the bloom.
+  if (any(isnan(col)) || any(isinf(col))) col = albedo * uAmbient;
+  col = min(col, vec3(24.0));
 
   // Atmospheric haze: distance fog into the sky colour along the view ray.
   float dist = length(vWorld - uCam);
@@ -412,9 +424,11 @@ void main() {
   vec3 col = skyColor(dir);
   // A few faint stars at night, high in the sky.
   if (uNight > 0.3 && dir.y > 0.08) {
-    vec2 g = floor(dir.xz / max(dir.y, 0.1) * 120.0);
-    float h = fract(sin(dot(g, vec2(12.9898, 78.233))) * 43758.5453);
-    col += vec3(step(0.997, h)) * (uNight - 0.3) * 1.2;
+    vec3 q = dir * 90.0;
+    vec3 cell = floor(q);
+    float h = fract(sin(dot(cell, vec3(12.9898, 78.233, 37.719))) * 43758.5453);
+    float d = length(fract(q) - 0.5);
+    col += vec3(0.85, 0.85, 1.0) * step(0.985, h) * (1.0 - smoothstep(0.05, 0.16, d)) * (uNight - 0.3) * 1.6;
   }
   gl_FragColor = vec4(col, 1.0);
 }

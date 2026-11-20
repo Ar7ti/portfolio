@@ -68,7 +68,7 @@ const STEP = 1 / 60;
 
 /** World z of the grid's near edge (towards the camera); the grid runs back from here. */
 const NEAR_Z = 60;
-const STICK_Z = -40;
+const STICK_Z = -34;
 
 interface Grid {
   width: number;
@@ -84,7 +84,7 @@ function gridFor(aspect: number): Grid {
   // full haze, so the sea runs to the horizon at any width.
   return aspect < 1
     ? { width: 64, depth: 80, shift: 0.5, island: { x: 10, z: 2, r: 5 } }
-    : { width: 160, depth: 130, shift: 0.3, island: { x: 31, z: 6, r: 7 } };
+    : { width: 160, depth: 170, shift: 0.3, island: { x: 31, z: 6, r: 7 } };
 }
 
 export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
