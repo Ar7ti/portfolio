@@ -85,6 +85,7 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 | ST12 | Code showcase: https://github.com/Ar7ti/sky-island-td-showcase (WaveService, EnemyMovement, React-lua UI, tools); anti-cheat/economy parts deliberately left out | V | showcase README |
 | ST16 | `WaveService:Track` in the public showcase (`src/match/server/Services/WaveService/WaveService.luau`, lines 96–117, commit c067a81): a splitting enemy's children are counted before the parent is released, so a wave cannot end in between | V | showcase repo source, read 2026-11-20 |
 | ST17 | Showcase tools: Python scripts drive Roblox Studio — `playtest.py` plays through a wave and tries bad placements, `phone_preview.py` checks phone layouts, `perf_probe.py` measures frame times | V | sky-island-td-showcase README lines 87–91, read 2026-11-20 |
+| ST18 | Gameplay video on the Sky Island case: a Roblox Studio playtest (place EmberSandbox2), the game's real towers against a wave and the Colossus boss, no UI, 24 s, 1280×720, 30 fps, no sound; recorded 20 Nov 2026 | V | recorded for #40, files in public/media/projects/sky-island-gameplay.* |
 
 ## Ocean Opportunity Radar
 

@@ -12,12 +12,14 @@ results:
   - { value: '223', label: 'commits, all mine', facts: [ST10], asOf: 2026-11-18 }
   - { value: '1.1', label: 'Ember Update: new map, new season', facts: [ST7] }
 media:
-  # Gameplay loop slot: drop sky-island-gameplay.webm/.mp4 into public/media/projects/ and it
-  # replaces the poster in place (issue: record real gameplay in Roblox Studio).
+  # Real gameplay (#40): a Roblox Studio playtest, the game's own towers against a wave and the
+  # Colossus. Muted loop, plays only on screen, nothing loads before (preload=none).
   - kind: video
     src: /media/projects/sky-island-gameplay
-    poster: /media/projects/sky-island-map
-    alt: The Sky Island Tower Defense map, a floating island with a winding enemy path.
+    poster: /media/projects/sky-island-gameplay-poster
+    alt: Gameplay of Sky Island Tower Defense on a lava map, towers firing at a wave of enemies and the Colossus boss.
+    caption: { text: Gameplay · Roblox Studio playtest, facts: [ST18] }
+    facts: [ST18]
   - src: /media/projects/sky-island-all-clear
     alt: The ALL CLEAR screen after the last wave.
     caption: { text: ALL CLEAR }
