@@ -37,8 +37,8 @@ blocks:
     text: "The team's LLM cascade (Nemotron, then Gemini) caught **18 of 28** coordinated clusters that were later taken down."
     facts: [SC4]
   - lead: Built with AI.
-    text: We built it with **AI coding agents** (Codex, Entire). The detector lines on the case page are mine, linked at the commit.
-    facts: [SC8, SC12]
+    text: We built it **mostly with Claude** (Claude Code). The detector lines on the case page are mine, linked at the commit.
+    facts: [SC13, SC12]
   - lead: Next time.
     text: Start the **demo on day one**, not the last night.
     source: Kirill

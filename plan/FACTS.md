@@ -52,16 +52,17 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 |---|---|---|---|
 | SC1 | What: traces memes to their source and spots coordinated spread ("meme trace", "link lookup", "meme swarms") | V | team README |
 | SC2 | Live at https://noise-radar.srv2159172.hstgr.cloud (HTTP 200, page title "Trackdown · Shill or Chill") | V | fetched 2026-11-19 |
-| SC3 | Stack: Google Gemini, NVIDIA Nemotron VL on a Verda box, Oxylabs Web API, Hostinger VPS, OpenAI Codex, Entire | V | team README |
+| SC3 | Stack: Google Gemini, NVIDIA Nemotron VL on a Verda box, Oxylabs Web API, Hostinger VPS (the README also lists OpenAI Codex and Entire as tools; see SC13) | V | team README |
 | SC4 | Nemotron vs Gemini on 60 real clusters: Nemotron 1.5 s mean vs Gemini 12.0 s; cascade caught 18 of 28 coordinated-and-taken-down clusters | V (team result, not Kirill's personally) | team README table, dated 2026-11-14 |
 | SC5 | Kirill's part: the "signals" coordination detector (v1 → v1.10: null model, organic guards, friend-group and automation guards, semantic duplicates, red-team fixes), the Bluesky Jetstream → Postgres ingest pipeline (failover, malformed-record handling), and external evaluation against real Bluesky takedowns; wrote METHODOLOGY.md | V | 18 commits by Ar7ti in team repo, 2026-11-13 20:22 → 2026-11-14 16:49 (GitHub API) |
 | SC6 | Kirill: "3-4x faster detection passes with identical output" | V (commit message) | commit 2026-11-14 01:01 in team repo: 5d56c15 (PR #34) |
 | SC7 | Commit counts: JustinasLa 90, akmet777 53, entire[bot] 29, Ar7ti 18, valtteripertila 13 | V | GitHub contributors API. Commit count ≠ contribution size; don't publish it |
-| SC8 | Wording: **"at Junction 2026, a 48-hour hackathon"** (true of the event; never claim the code took exactly 48 h). Built with AI agents (Codex, Entire per team README) | V | Kirill 2026-11-19; team README |
+| SC8 | Wording: **"at Junction 2026, a 48-hour hackathon"** (true of the event; never claim the code took exactly 48 h). Built with AI agents: see SC13 | V | Kirill 2026-11-19; team README |
 | SC9 | Teammates agreed to be linked: https://github.com/JustinasLa · https://github.com/akmet777 (Temuulen) · https://github.com/valtteripertila | S | Kirill 2026-11-19 |
 | SC10 | Junction 2026 had ~2,000 builders | S (Hostinger post wording "2000 builders") | Hostinger post |
 | SC11 | Kirill's code in the team repo is Python: `ingest/consumer.py`, `normalize.py`, `writer.py`, `signals/score.py`, `config.py` + tests (repo languages: Python, TypeScript, …) | V | GitHub API, his commits' files, read 2026-11-19 |
 | SC12 | Detector design in `signals/score.py` (team repo, commit 76b9f02): four signal families (content, timing, network, identity), a null-model p-value, organic guards; the verdict (coordinated / likely_organic / insufficient) is a deterministic rule, "not by an LLM" (module docstring). The verdict block, lines 987–1026, is by Ar7ti (git blame); score.py: 8 of 10 commits by Ar7ti | V | GitHub GraphQL blame + commits API, read 2026-11-20 |
+| SC13 | **Built mostly with Claude (Claude Code)**; Codex was barely used. Overrides the tool list in the team README. Never write "Codex" as the build tool | S | per Kirill, 2026-11-20 |
 
 ## Sky Island Tower Defense (Roblox)
 
