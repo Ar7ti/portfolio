@@ -59,3 +59,52 @@ receipts:
     href: 'https://github.com/JustinasLa/gemini-4-braincells'
     facts: [H2]
 links: []
+deep:
+  heading: How the detector works
+  flow:
+    - { text: '**Bluesky firehose** (Jetstream), live', facts: [SC5] }
+    - {
+        text: '**Ingest → Postgres**, with failover; broken records skipped',
+        mine: true,
+        facts: [SC5],
+      }
+    - {
+        text: '**Four signal families**: content, timing, network, identity, against a null model',
+        mine: true,
+        facts: [SC12],
+      }
+    - {
+        text: '**Organic guards**: friend groups, openly automated accounts',
+        mine: true,
+        facts: [SC5],
+      }
+    - {
+        text: '**Verdict by rule**, not by an LLM: coordinated, likely organic or unsure',
+        mine: true,
+        facts: [SC12],
+      }
+  code:
+    caption:
+      {
+        text: 'The verdict is a rule: **enough families fire, the p-value is low and no strong organic guard**, or it abstains.',
+        facts: [SC12],
+      }
+    file: signals/score.py · lines 998–1012
+    href: 'https://github.com/JustinasLa/gemini-4-braincells/blob/76b9f027e61bd3e08ca1e279ffded68c09e43459/signals/score.py#L998-L1012'
+    facts: [SC12, SC11]
+    body: |
+      if (
+          len(fired) >= cfg.min_families_coordinated
+          and p_value is not None
+          and p_value <= cfg.max_p_coordinated
+          and score >= cfg.min_score_coordinated
+          and guard < cfg.organic_guard_strong
+      ):
+          status = "coordinated"
+          confidence = min(score, 1 - p_value) * (1 - guard / 2)
+      elif guard >= cfg.organic_guard_strong and len(fired) <= 1:
+          status = "likely_organic"
+          confidence = guard * (1 - score / 2)
+      else:
+          status = "insufficient"
+          confidence = 0.0

@@ -21,7 +21,7 @@ site:
   footer:
     code:
       {
-        text: "This site's code is public →",
+        text: 'Built with AI coding agents I direct and review. Code, prompts and decisions are public →',
         label: github.com/Ar7ti/portfolio,
         href: 'https://github.com/Ar7ti/portfolio',
       }
@@ -29,7 +29,7 @@ site:
     checkedOn: 2026-11-19
 
   hero:
-    label: { text: 'Kirill Jegosin · 18 · Kanta-Häme, Finland', facts: [P1, P2] }
+    label: { text: '**Kirill Jegosin** · 18 · Kanta-Häme, Finland', facts: [P1, P2] }
     h1: ['I build games,', web products, '& AI tools.']
     line: { text: 'Open to **internships, summer jobs & junior roles**.', facts: [P11] }
     chips:
@@ -64,5 +64,6 @@ site:
   # Copy-to-clipboard next to the email button (contact section).
   copyEmail: { button: Copy, done: Copied, status: Email address copied }
 
-  cta: Want to build something together?
+  # Home page: each case ends in a link to its full page (case pages end in the Contact section).
+  caseLink: Full case study
   receipts: { summary: Receipts, checked: checked, markLabel: 'Receipt:' }

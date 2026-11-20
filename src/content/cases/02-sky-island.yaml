@@ -1,8 +1,8 @@
-# Case 02. Source: plan/COPY.md §3 (hardest call approved by Kirill).
+# Case 03 on the page (shown third). Source: plan/COPY.md §3 (hardest call approved by Kirill).
 order: 2
 slug: sky-island-tower-defense
 theme: day
-label: { text: Case 02 · Roblox · Solo · May–Nov 2026, facts: [ST10] }
+label: { text: Case 03 · Roblox · Solo · May–Nov 2026, facts: [ST10] }
 title: Sky Island Tower Defense
 oneliner:
   text: A co-op tower defense on Roblox. **Up to 4 players** hold a floating island against **15 waves** and a boss.
@@ -23,7 +23,7 @@ media:
     caption: { text: ALL CLEAR }
     size: small
   - kind: short
-    href: 'https://www.youtube.com/watch?v=U_WcrNfcY4A'
+    href: 'https://www.youtube.com/watch?v=A1qP2T8bpHE'
     label: ALL TOWERS VS COLOSSUS
     facts: [ST13]
 blocks:
@@ -49,3 +49,42 @@ links:
       facts: [ST1],
     }
   - { label: Read the code, href: 'https://github.com/Ar7ti/sky-island-td-showcase', facts: [ST12] }
+deep:
+  heading: How a match runs
+  flow:
+    - { text: '**React-lua UI** on PC and phone', facts: [ST14, ST8] }
+    - { text: '**The server decides**: tower placement, waves, rewards', facts: [ST9] }
+    - { text: '**One live save store** for every place', facts: [ST15] }
+    - { text: '**Python scripts** play test matches in Studio', facts: [ST12] }
+  code:
+    caption:
+      {
+        text: "A splitting enemy's children are **counted before the parent is let go**, so a wave can't end in between.",
+        facts: [ST16],
+      }
+    file: WaveService.luau · lines 96–117
+    href: 'https://github.com/Ar7ti/sky-island-td-showcase/blob/c067a81aa953d5439b7edc2448cc4a1be065ee8b/src/match/server/Services/WaveService/WaveService.luau#L96-L117'
+    facts: [ST16, ST12]
+    body: |
+      function WaveService:Track(model)
+        self.Alive += 1
+        local connections = {}
+        local function resolve()
+          if not self.Active[model] then return end
+          -- A Bloater killed by the towers (not one that reached the base) bursts into Minis; they are
+          -- counted before this one is let go, so the wave can't end in between.
+          local humanoid = if typeof(model) == "Instance" then model:FindFirstChildOfClass("Humanoid") else nil
+          if self.Running and humanoid and humanoid.Health <= 0 and model:GetAttribute("SplitInto") then
+            local ok, message = pcall(self.SpawnSplit, self, model)
+            if not ok then warn(message) end
+          end
+          self.Active[model] = nil
+          self.Alive -= 1
+          for _, connection in ipairs(connections) do connection:Disconnect() end
+          if self.Running then self:Publish(self.State:GetAttribute("Phase")) end
+        end
+        self.Active[model] = resolve
+        table.insert(connections, model.Humanoid.Died:Connect(resolve))
+        table.insert(connections, model.Destroying:Connect(resolve))
+        self:Publish("Spawning")
+      end

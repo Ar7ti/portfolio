@@ -48,7 +48,7 @@
     .motion-on .motion-mask .wi {
       display: inline-block;
       transition: translate var(--dur-spring) var(--ease-spring);
-      transition-delay: calc(var(--i, 0) * 55ms);
+      transition-delay: min(calc(var(--i, 0) * 55ms), 220ms);
     }
 
     .motion-on .motion-mask:not(.motion-in) .wi {

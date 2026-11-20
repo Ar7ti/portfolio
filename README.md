@@ -6,6 +6,12 @@ Source of the portfolio site of Kirill Jegosin: games, web products and AI tools
 
 Built with [Astro](https://astro.build) (static output, TypeScript strict). Heavy visuals (the WebGL sea) load later as islands, so the page is plain HTML first and readable with JS off.
 
+## How this site was built
+
+The code is written by AI coding agents (Claude, in Claude Code) working from my brief, issue by issue, each through a PR with CI. My part: the brief and the concept choice (the voxel "Stud Tide" sea and the day → night scroll, picked from prototypes in `concepts/`), every fact and number (answered and sourced in `plan/FACTS.md`), and a review of each milestone with change requests (for example "no animations, looks cheap" led to the motion v2 pass; "hard transitions" led to the seamless day → dusk → night bands). Everything is in the open: the plan and jury model in `plan/PLAN.md`, the prompts in `plan/prompts/`, every decision with its reason in `plan/DECISIONS.log`.
+
+The projects the site shows (Sky Island Tower Defense, Shill or Chill, Ocean Opportunity Radar, Life Simulator) are my own work as described on each case page; where a team built something, the case says which part was mine.
+
 ## Run it
 
 Needs Node 22+.

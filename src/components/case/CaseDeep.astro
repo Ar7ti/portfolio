@@ -1,0 +1,154 @@
+---
+/**
+ * Case page only: "how it works" as a numbered flow (his own steps marked "my part" on team
+ * projects) and one excerpt of his own code, linked to the exact lines at a fixed commit.
+ * Plain HTML: no syntax-highlighting JS, readable with JS off.
+ */
+import type { CollectionEntry } from 'astro:content';
+import Claim from '../content/Claim.astro';
+import { rich } from '../../lib/rich';
+
+interface Props {
+  deep: NonNullable<CollectionEntry<'cases'>['data']['deep']>;
+  slug: string;
+}
+
+const { deep, slug } = Astro.props;
+const headingId = `case-${slug}-deep`;
+const team = deep.flow.some((step) => step.mine);
+---
+
+<section class="deep" aria-labelledby={headingId}>
+  <h2 id={headingId} class="h3 deep-title">
+    {deep.heading}
+  </h2>
+  <ol class="flow">
+    {deep.flow.map((step) => (
+      <li class:list={['step', { mine: step.mine }]} data-facts={step.facts.join(' ')}>
+        <span set:html={rich(step.text)} />
+        {team && step.mine && <span class="label mine-label">my part</span>}
+      </li>
+    ))}
+  </ol>
+  {deep.code && (
+    <figure class="code" data-facts={deep.code.facts.join(' ')}>
+      <figcaption>
+        <Claim as="span" class="code-caption" claim={deep.code.caption} />
+        <a class="label code-link" href={deep.code.href}>
+          {deep.code.file} <span aria-hidden="true">↗</span>
+        </a>
+      </figcaption>
+      <pre tabindex="0"><code>{deep.code.body.trimEnd()}</code></pre>
+    </figure>
+  )}
+</section>
+
+<style>
+  .deep {
+    margin-block: clamp(40px, 6vw, 72px) 0;
+  }
+
+  .deep-title {
+    margin: 0 0 20px;
+    color: var(--fg-strong);
+  }
+
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+
+  .step {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 16px 18px;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-m);
+    color: var(--fg-body);
+    font-size: 16px;
+    line-height: 1.4;
+    counter-increment: step;
+  }
+
+  .step::before {
+    content: counter(step, decimal-leading-zero);
+    font-family: var(--font-label);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--label);
+  }
+
+  /* Arrow to the next step (wide screens, where the steps sit in one row). */
+  @media (min-width: 900px) {
+    .step:not(:last-child)::after {
+      content: '→';
+      position: absolute;
+      top: 50%;
+      right: -11px;
+      z-index: 1;
+      translate: 0 -50%;
+      color: var(--label);
+      font-size: 14px;
+    }
+  }
+
+  .step :global(b) {
+    color: var(--fg-strong);
+    font-weight: 800;
+  }
+
+  .step.mine {
+    border-color: color-mix(in srgb, var(--hl-mark) 70%, transparent);
+  }
+
+  .mine-label {
+    margin-top: auto;
+    color: var(--fg-strong);
+  }
+
+  .code {
+    margin: 28px 0 0;
+  }
+
+  .code figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 20px;
+    margin-bottom: 12px;
+    color: var(--fg-body);
+  }
+
+  .code-caption {
+    max-width: 60ch;
+  }
+
+  .code-caption :global(b) {
+    color: var(--fg-strong);
+  }
+
+  .code-link {
+    color: var(--fg-strong);
+  }
+
+  .code pre {
+    margin: 0;
+    padding: 18px 20px;
+    overflow-x: auto;
+    border-radius: var(--radius-m);
+    background: #0b1620;
+    color: #d8e6ee;
+    font-family: var(--font-label);
+    font-size: 13px;
+    line-height: 1.6;
+    tab-size: 2;
+  }
+</style>

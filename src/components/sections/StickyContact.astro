@@ -2,7 +2,9 @@
 /**
  * A small sticky "Contact" link (the nav label) that jumps to #contact on the same page,
  * so contact is one click away from anywhere in a case. Hidden while the contact section
- * itself is on screen (JS); without JS it simply stays.
+ * itself is on screen. Starts hidden (no flash on load); without JS it is not shown at all
+ * (the nav has the same link). On phones it also steps aside while you scroll down, so it
+ * never sits on the text you are reading, and comes back when you scroll up.
  */
 import { data } from '../../lib/content';
 
@@ -11,7 +13,7 @@ const item = site.nav.find((n) => n.href.endsWith('#contact'));
 if (!item) throw new Error('site.yaml nav: no item that links to #contact');
 ---
 
-<a class="sticky-contact" href="#contact" data-sticky-contact>
+<a class="sticky-contact is-hidden" href="#contact" data-sticky-contact>
   {item.label}
 </a>
 
@@ -29,6 +31,19 @@ if (!item) throw new Error('site.yaml nav: no item that links to #contact');
       link.classList.toggle('is-hidden', visible.size > 0);
     });
     for (const t of targets) observer.observe(t);
+
+    const narrow = matchMedia('(max-width: 860px)');
+    let lastY = scrollY;
+    addEventListener(
+      'scroll',
+      () => {
+        const y = scrollY;
+        if (Math.abs(y - lastY) < 6) return;
+        link.classList.toggle('is-away', narrow.matches && y > lastY);
+        lastY = y;
+      },
+      { passive: true },
+    );
   }
 </script>
 
@@ -47,13 +62,21 @@ if (!item) throw new Error('site.yaml nav: no item that links to #contact');
     color: var(--c-foam);
     font-weight: 700;
     text-decoration: none;
-    box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
+    /* Light rim: stays visible over the near-black night sections too. */
+    box-shadow:
+      0 0 0 2px rgb(255 255 255 / 0.55),
+      0 6px 20px rgb(0 0 0 / 0.25);
     transition:
       opacity 0.25s,
       translate 0.25s;
   }
 
-  .sticky-contact.is-hidden {
+  :global(html:not(.js)) .sticky-contact {
+    display: none;
+  }
+
+  .sticky-contact.is-hidden,
+  .sticky-contact.is-away {
     opacity: 0;
     translate: 0 12px;
     pointer-events: none;

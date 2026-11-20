@@ -50,7 +50,7 @@ for (const path of [
     await sticky.click();
     await expect(page.locator('#contact')).toBeInViewport();
     await expect(sticky).toHaveClass(/is-hidden/);
-    await expect(page.locator('.case-cta a[href^="mailto:"]')).toHaveCount(1);
+    await expect(page.locator('.case-cta')).toHaveCount(0);
   });
 }
 
@@ -73,4 +73,23 @@ test('404: the island sank, a way back, footer at the bottom', async ({ page }) 
   const footer = await page.locator('footer').boundingBox();
   if (!footer) throw new Error('no footer');
   expect(footer.y + footer.height).toBeGreaterThanOrEqual(843);
+});
+
+test('phones: sticky Contact steps aside while scrolling down, returns on scroll up; never without JS', async ({
+  page,
+  browser,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/work/shill-or-chill');
+  const sticky = page.locator('[data-sticky-contact]');
+  await page.mouse.wheel(0, 500);
+  await expect(sticky).toHaveClass(/is-away/);
+  await page.mouse.wheel(0, -200);
+  await expect(sticky).not.toHaveClass(/is-away/);
+
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const nojs = await context.newPage();
+  await nojs.goto(page.url());
+  await expect(nojs.locator('[data-sticky-contact]')).toBeHidden();
+  await context.close();
 });

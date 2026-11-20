@@ -36,10 +36,4 @@
         text: learning Rojo and React-lua,
         facts: [X6],
       }
-    - {
-        name: Old portfolio,
-        year: '2026',
-        text: the site this one replaced,
-        link: { label: Visit, href: 'https://home.kirills-portfolio.workers.dev/' },
-        facts: [X7],
-      }
+    - { name: Old portfolio, year: '2026', text: the site this one replaced, facts: [X7] }

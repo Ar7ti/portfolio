@@ -28,7 +28,7 @@ OG desc         I build games, web products & AI tools. Won the Oxylabs challeng
 NAV             Work · Hackathons · Timeline · Contact
 SKIP LINK       Skip to the point          (jumps to the static summary + contacts)
 MOTION TOGGLE   Calm the water / Bring the water back
-FOOTER          This site's code is public → github.com/Ar7ti/portfolio · Numbers checked 19 Nov 2026
+FOOTER          Built with AI coding agents I direct and review. Code, prompts and decisions are public → github.com/Ar7ti/portfolio · Numbers checked 19 Nov 2026   [P22]
 ```
 
 ---
@@ -70,7 +70,7 @@ RECEIPTS (4)  verified · Oxylabs on LinkedIn: "Meet Shill or Chill, built by �
               source   · Hostinger 3rd: my LinkedIn post + a comment under the Oxylabs post   [H4]
               live     · noise-radar.srv2159172.hstgr.cloud            [SC2]
               code     · github.com/JustinasLa/gemini-4-braincells     [H2]
-CTA     Want to build something together?  [k.jegosin@gmail.com]
+CTA     (review loop 2026-11-20: dropped; home ends each case in "Full case study →", case pages end in Contact)
 ```
 "3–4× faster" moved from the proof block to the big figures, so the block is shorter. ~105 words.
 
@@ -79,7 +79,7 @@ CTA     Want to build something together?  [k.jegosin@gmail.com]
 ## 3. Case 02 · Sky Island Tower Defense
 
 ```
-LABEL   Case 02 · Roblox · Solo · May–Nov 2026                          [ST10]
+LABEL   Case 03 · Roblox · Solo · May–Nov 2026                          [ST10]
 H2      Sky Island Tower Defense
 ONE     A co-op tower defense on Roblox. **Up to 4 players** hold a floating island against **15 waves** and a boss.   [ST5 ST6]
 RESULTS BIG "Live"  published on Roblox, 25 Oct 2026                      [ST1 ST2]
@@ -94,7 +94,7 @@ LEAD Next time.      Get **real players testing before launch**, not after.   [K
 LEAD Code.           Waves, enemy movement and the UI are **public**. Combat and economy stay private, so cheaters can't read them.   [ST12]
 
 LINKS   Play on Roblox · Read the code
-CTA     Want to build something together?  [k.jegosin@gmail.com]
+CTA     (review loop 2026-11-20: dropped; home ends each case in "Full case study →", case pages end in Contact)
 ```
 149 words incl. title and figure labels (limit 150): no room for more.
 
@@ -103,10 +103,10 @@ CTA     Want to build something together?  [k.jegosin@gmail.com]
 ## 4. Case 03 · Junction X Turku: two solo projects
 
 ```
-LABEL   Case 03 · Junction X Turku · Solo · Oct 2026                    [H8]
+LABEL   Case 02 · Junction X Turku · Solo · Oct 2026                    [H8]
 H2      Two solo projects. One hackathon.
 ONE     At Junction X Turku I built **two products alone**: one for ocean investors, one for big life decisions.   [H8]
-RESULTS BIG "2"     solo projects, one weekend                            [H8]
+RESULTS BIG "2"     solo projects, one hackathon                            [H8]
         BIG "2"     partner challenges: A'Pelago / Redstone and If        [H8 H9 LS2]
         BIG "36"    tests in Ocean Radar                                  [OR4]
 
@@ -121,7 +121,7 @@ ONE     An AI copilot for big life moves: a new city, a first car, a trip. It ma
 LEAD My part.        Backend with OpenAI, frontend and Playwright tests. **Closed now**; the demo runs on example data.   [LS4 LS5]
 LINKS   Demo · Video
 
-CTA     Want to build something together?  [k.jegosin@gmail.com]
+CTA     (review loop 2026-11-20: dropped; home ends each case in "Full case study →", case pages end in Contact)
 ```
 ~125 words. (No "Next time" block here, Kirill's call.)
 
@@ -238,3 +238,26 @@ BUTTON  Back to the surface   ·   k.jegosin@gmail.com
 - Big figures in a row become a column on phones (figure + label side by side).
 - "2.6M views" stays on one line (`white-space: nowrap`).
 - Every heading and big figure checked at 360 and 390 px (automated: no element wider than its box, no page h-scroll).
+
+---
+
+## Case pages only: "How it works" (added in the review loop, 2026-11-20)
+
+```
+01 Shill or Chill   H3 "How the detector works"
+  FLOW  Bluesky firehose (Jetstream), live                                   [SC5]
+        Ingest → Postgres, with failover; broken records skipped   my part   [SC5]
+        Four signal families: content, timing, network, identity,
+        against a null model                                       my part   [SC12]
+        Organic guards: friend groups, openly automated accounts   my part   [SC5]
+        Verdict by rule, not by an LLM: coordinated, likely organic
+        or unsure                                                  my part   [SC12]
+  CODE  signals/score.py lines 998–1012 (verdict rule), pinned to 76b9f02     [SC12 SC11]
+02 Junction X Turku H3 "How Ocean Radar decides": deck in → AI pulls claims with exact
+        quotes → researches online, sources linked → a person confirms → only then the
+        score changes                                                       [OR1]
+03 Sky Island       H3 "How a match runs": React-lua UI on PC and phone → the server
+        decides placement, waves, rewards → one live save store → Python scripts play
+        test matches in Studio                                     [ST14 ST8 ST9 ST15 ST12]
+  CODE  WaveService.luau lines 96–117 (WaveService:Track), pinned to c067a81   [ST16 ST12]
+```

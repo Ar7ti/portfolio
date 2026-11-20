@@ -1,14 +1,14 @@
-# Case 03. Source: plan/COPY.md §4. No "Next time" block (Kirill's call).
+# Case 02 on the page (shown second). Source: plan/COPY.md §4. No "Next time" block (Kirill's call).
 order: 3
 slug: junction-x-turku
 theme: night
-label: { text: Case 03 · Junction X Turku · Solo · Oct 2026, facts: [H8] }
+label: { text: Case 02 · Junction X Turku · Solo · Oct 2026, facts: [H8] }
 title: Two solo projects. One hackathon.
 oneliner:
   text: 'At Junction X Turku I built **two products alone**: one for ocean investors, one for big life decisions.'
   facts: [H8]
 results:
-  - { value: '2', label: 'solo projects, one weekend', facts: [H8] }
+  - { value: '2', label: 'solo projects, one hackathon', facts: [H8] }
   - { value: '2', label: "partner challenges: A'Pelago / Redstone and If", facts: [H8, H9, LS2] }
   - { value: '36', label: tests in Ocean Radar, facts: [OR4] }
 media: []
@@ -61,3 +61,11 @@ subprojects:
     links:
       - { label: Demo, href: 'https://ar7ti.github.io/life-simulator-demo/', facts: [LS3] }
       - { label: Video, href: 'https://www.youtube.com/watch?v=1SZf0ZxGyEs', facts: [LS7] }
+deep:
+  heading: How Ocean Radar decides
+  flow:
+    - { text: 'A **pitch deck** comes in', facts: [OR1] }
+    - { text: '**AI pulls out claims**, each with its exact quote', facts: [OR1] }
+    - { text: '**It researches online**, every source linked', facts: [OR1] }
+    - { text: '**A person confirms** the evidence', facts: [OR1] }
+    - { text: 'Only then does the **score** change', facts: [OR1] }

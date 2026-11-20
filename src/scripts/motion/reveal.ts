@@ -52,7 +52,7 @@ export function initReveal(): () => void {
         io.unobserve(e.target);
       }
     },
-    { rootMargin: '0px 0px -10% 0px' },
+    { rootMargin: '0px 0px 8% 0px' },
   );
   for (const el of heads) io.observe(el);
   const showAll = () => heads.forEach((el) => el.classList.add('motion-in'));

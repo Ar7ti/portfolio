@@ -54,11 +54,11 @@ for (const c of CASES) {
       }
     });
 
-    test('own page: H1 title, three results, CTA', async ({ page }) => {
+    test('own page: H1 title, three results, ends in Contact', async ({ page }) => {
       await page.goto(`/work/${c.slug}`);
       await expect(page.locator('h1')).toHaveText(c.title.replace(/\s+/g, ' '));
       await expect(page.locator('.case-results li')).toHaveCount(3);
-      await expect(page.locator('.case-cta a[href^="mailto:"]')).toBeVisible();
+      await expect(page.locator('#contact a[href^="mailto:"]').first()).toBeVisible();
     });
   });
 }
@@ -67,7 +67,7 @@ test('case 01 on the home page links to its own page and credits the team', asyn
   await page.goto('/');
   const section = page.locator('#case-shill-or-chill');
   await expect(section.getByRole('heading', { level: 2 })).toHaveText('Shill or Chill');
-  await expect(section.getByRole('link', { name: 'Shill or Chill' })).toHaveAttribute(
+  await expect(section.getByRole('link', { name: 'Shill or Chill', exact: true })).toHaveAttribute(
     'href',
     '/work/shill-or-chill',
   );
@@ -116,4 +116,34 @@ test('case 02: gameplay video slot (poster until the loop lands), Short, play + 
     /youtube\.com\/watch/,
   );
   await expect(section.locator('.blocks .pill')).toHaveText(['Play on Roblox', 'Read the code']);
+});
+
+test('home cases end in a link to the full case; case pages end in Contact', async ({ page }) => {
+  await page.goto('/');
+  for (const slug of ['shill-or-chill', 'junction-x-turku', 'sky-island-tower-defense']) {
+    const cta = page.locator(`#case-${slug} .case-cta a`);
+    await expect(cta).toHaveAttribute('href', `/work/${slug}`);
+  }
+  await page.goto('/work/shill-or-chill');
+  await expect(page.locator('.case-cta')).toHaveCount(0);
+  await expect(page.locator('#contact a[href^="mailto:"]').first()).toBeVisible();
+});
+
+test('case pages explain how it works and show his own code at a pinned commit', async ({
+  page,
+}) => {
+  for (const slug of ['shill-or-chill', 'sky-island-tower-defense']) {
+    await page.goto(`/work/${slug}`);
+    const deep = page.locator('.deep');
+    await expect(deep.getByRole('heading', { level: 2 })).toBeVisible();
+    expect(await deep.locator('.flow > li').count()).toBeGreaterThanOrEqual(4);
+    await expect(deep.locator('.code-link')).toHaveAttribute(
+      'href',
+      /^https:\/\/github\.com\/.+\/blob\/[0-9a-f]{40}\/.+#L\d+-L\d+$/,
+    );
+    await expect(deep.locator('pre code')).not.toBeEmpty();
+  }
+  // Home keeps the short version.
+  await page.goto('/');
+  await expect(page.locator('.deep')).toHaveCount(0);
 });

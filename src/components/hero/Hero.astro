@@ -83,7 +83,7 @@ const links = hero.contacts
         {hero.chips.map((chip) => (
           <li data-facts={chip.facts.join(' ')}>
             <span class:list={['chip-big', { 'chip-won': chip.highlight }]}>{chip.value}</span>
-            <span class="chip-label">{chip.label}</span>
+            <span class="chip-label">{chip.label.replaceAll(' · ', ' · ')}</span>
           </li>
         ))}
       </ul>
@@ -242,6 +242,18 @@ const links = hero.contacts
     opacity: 1;
   }
 
+  /* Sky over the fogged far water (sea3d.ts sets the gradient); fades in with the sea. */
+  .sea-backdrop :global(.hero-sea-sky) {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.6s ease-out;
+  }
+
+  .sea-backdrop :global(.hero-sea-live.is-ready + .hero-sea-sky) {
+    opacity: 1;
+  }
+
   .hero-inner {
     width: 100%;
     max-width: calc(var(--content-max) + 2 * var(--gutter));
@@ -343,6 +355,12 @@ const links = hero.contacts
       min-height: 3em;
       margin: 0;
     }
+  }
+
+  /* The name is the one thing in the label a recruiter looks for first. */
+  :global(.hero-label b) {
+    color: var(--fg-strong);
+    font-weight: 800;
   }
 
   .hero-title {

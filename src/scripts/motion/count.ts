@@ -7,6 +7,8 @@
  */
 import { loop, Spring } from './spring';
 
+/** Share of the value the count starts from; it settles in ~0.5 s. */
+const FROM = 0.4;
 const NUMBER = /^(\d+(?:\.\d+)?)(.*)$/;
 
 interface Figure {
@@ -32,7 +34,8 @@ function prepare(el: HTMLElement): Figure {
   const overlay = document.createElement('span');
   overlay.className = 'count-overlay';
   overlay.setAttribute('aria-hidden', 'true');
-  overlay.textContent = `${(0).toFixed(decimals)}${suffix}`;
+  // Starts at 40 %: the figure is never caught at a meaningless "0.0M".
+  overlay.textContent = `${(target * FROM).toFixed(decimals)}${suffix}`;
   el.style.setProperty('--count-color', getComputedStyle(el).color);
   el.classList.add('count-run');
   el.append(overlay);
@@ -47,7 +50,7 @@ function prepare(el: HTMLElement): Figure {
     el,
     reset,
     run: () => {
-      const spring = new Spring(0, { stiffness: 55, damping: 13 });
+      const spring = new Spring(FROM, { stiffness: 110, damping: 19 });
       spring.target = 1;
       stop = loop((dt) => {
         const moving = spring.step(dt);
@@ -73,7 +76,7 @@ export function initCount(): () => void {
         byEl.get(e.target)?.run();
       }
     },
-    { rootMargin: '0px 0px -12% 0px' },
+    { rootMargin: '0px 0px 8% 0px' },
   );
   for (const f of figures) io.observe(f.el);
   const showAll = () => figures.forEach((f) => f.reset());

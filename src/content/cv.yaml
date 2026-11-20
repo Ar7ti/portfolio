@@ -3,7 +3,7 @@
 # Every number carries FACTS.md ids. No age, no phone, no references, no Telegram.
 cv:
   name: Kirill Jegosin
-  headline: Software Development Student | Web & Game Development
+  headline: ICT student · Web & game development
   photo: { src: /media/cv/avatar.jpg, alt: Kirill Jegosin, facts: [P19] }
   location: { text: 'Kanta-Häme, Finland', facts: [P2] }
   contacts: [email, linkedin, github]
@@ -39,7 +39,7 @@ cv:
                 text: AI research tool for ocean investors. Every answer cites a source.,
                 facts: [OR1],
               }
-            - { text: '**Built solo in one weekend** · 36 tests.', facts: [H8, OR4] }
+            - { text: '**Built solo** for Junction X Turku · 36 tests.', facts: [H8, OR4] }
           stack: React · TypeScript · OpenAI API
     - id: experience
       title: Experience

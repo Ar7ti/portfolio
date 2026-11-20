@@ -143,12 +143,31 @@ const {
     list-style: none;
   }
 
-  /* On phones the nav may take one or two lines depending on which font has loaded;
-     reserving two keeps everything below from shifting. */
+  /* Phones: one line, spread across the width, so the hero's contacts stay on the first
+     screen. Sized from the viewport so it fits at 320 px in either font (no wrap, no shift). */
   @media (max-width: 480px) {
-    .site-header ul {
-      min-height: calc(2lh + 8px);
+    .site-header {
+      padding-block: 12px;
     }
+
+    .site-header ul {
+      flex-wrap: nowrap;
+      justify-content: space-between;
+      gap: 0 8px;
+      font-size: min(17px, 4.3vw);
+    }
+
+    .site-header a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+  }
+
+  /* Deep-blue bars: the default deep focus ring would vanish here. */
+  .site-header,
+  .site-footer {
+    --focus: var(--c-signal);
   }
 
   .site-header a,

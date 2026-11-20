@@ -115,7 +115,7 @@ const site = defineCollection({
         button: z.strictObject({ label: z.string(), href: z.string() }),
       }),
       copyEmail: z.strictObject({ button: z.string(), done: z.string(), status: z.string() }),
-      cta: z.string(),
+      caseLink: z.string(),
       /** Receipts list: summary text, "checked <date>" word, screen-reader prefix for claim marks. */
       receipts: z.strictObject({ summary: z.string(), checked: z.string(), markLabel: z.string() }),
     }),
@@ -172,6 +172,30 @@ const cases = defineCollection({
       ...caseBody,
       subprojects: z
         .array(z.strictObject({ title: z.string(), oneliner: claim, ...caseBody }))
+        .optional(),
+      /** Case page only: how it works (a flow) and one excerpt of his own code. */
+      deep: z
+        .strictObject({
+          heading: z.string(),
+          flow: z
+            .array(
+              z.strictObject({
+                text: z.string(),
+                mine: z.boolean().optional(),
+                facts: facts.min(1),
+              }),
+            )
+            .min(2),
+          code: z
+            .strictObject({
+              caption: claim,
+              file: z.string(),
+              href: z.url(),
+              body: z.string(),
+              facts: facts.min(1),
+            })
+            .optional(),
+        })
         .optional(),
       receipts: z
         .array(

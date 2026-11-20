@@ -337,7 +337,36 @@ function islandBox(
  */
 function clearIsland(view: View, boxes: readonly DOMRect[], w: number, h: number): Vec3 {
   const [hx, hz, r] = view.island;
-  if (!boxes.length || view.camera.aspect < 1) return view.island;
+  if (!boxes.length) return view.island;
+  if (view.camera.aspect < 1) {
+    // Portrait (phones): the text fills the width, so look all around the home spot (mostly
+    // nearer, where the short lines leave room) for the closest clear spot, with less air.
+    const air = 10;
+    const free = (b: DOMRect) =>
+      b.left >= 12 &&
+      b.right <= w - 12 &&
+      b.top >= 0 &&
+      boxes.every(
+        (t) =>
+          b.right <= t.left - air ||
+          b.left >= t.right + air ||
+          b.bottom <= t.top - air ||
+          b.top >= t.bottom + air,
+      );
+    let best: Vec3 = view.island;
+    let bestCost = Infinity;
+    for (let z = hz - 10; z <= hz + 70; z++) {
+      for (let x = hx - 24; x <= hx + 24; x++) {
+        const cost = Math.abs(x - hx) + Math.abs(z - hz) * 0.5;
+        if (cost >= bestCost) continue;
+        if (free(islandBox(view.camera, x, z, r, w, h))) {
+          best = [x, z, r];
+          bestCost = cost;
+        }
+      }
+    }
+    return best;
+  }
   const gap = 28;
   const clear = (b: DOMRect) =>
     b.right <= w - 16 &&

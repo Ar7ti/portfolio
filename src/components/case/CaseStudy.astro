@@ -10,6 +10,7 @@ import { matchReceipt } from '../../lib/receipts';
 import Claim from '../content/Claim.astro';
 import BigFigures from '../type/BigFigures.astro';
 import CaseBody from './CaseBody.astro';
+import CaseDeep from './CaseDeep.astro';
 import Receipts from './Receipts.astro';
 
 interface Props {
@@ -20,7 +21,6 @@ interface Props {
 
 const { study, level } = Astro.props;
 const site = await data('site', 'site');
-const email = await data('contacts', 'email');
 const Title = `h${level}` as const;
 const SubTitle = level === 1 ? 'h2' : 'h3';
 const titleId = `case-${study.slug}-title`;
@@ -73,16 +73,22 @@ const titleLines = study.title.split(/(?<=\.)\s+/);
       </div>
     )}
 
+    {level === 1 && study.deep && <CaseDeep deep={study.deep} slug={study.slug} />}
+
     {study.receipts && study.receipts.length > 0 && (
       <Receipts slug={study.slug} receipts={study.receipts} />
     )}
 
-    <p class="case-cta">
-      <span class="lead">{site.cta}</span>
-      <a class="button" href={email.href} data-facts={email.facts.join(' ')}>
-        {email.display}
-      </a>
-    </p>
+    {/* Case pages end in the Contact section; home links each case to its full page. */}
+    {level === 2 && (
+      <p class="case-cta">
+        <a class="button" href={href}>
+          {site.caseLink}
+          <span class="visually-hidden">: {study.title}</span>
+          <span aria-hidden="true">→</span>
+        </a>
+      </p>
+    )}
   </div>
 </section>
 
