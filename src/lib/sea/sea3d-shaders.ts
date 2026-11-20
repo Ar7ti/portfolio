@@ -96,11 +96,10 @@ float cellH(ivec2 c, float t) {
   c = clamp(c, ivec2(0), ivec2(int(uGrid.z) - 1, int(uGrid.w) - 1));
   vec2 p = vec2(c) + uGrid.xy;
   float m = texelFetch(uMask, c, 0).r;
-  if (m > 0.5) {
-    float lift = swell(uIsland.xy, t) * 0.25;
-    return uBase + (m > 2.5 ? 6.2 : (m > 1.5 ? 2.6 : 1.4)) + lift + (swell(p, t) - swell(uIsland.xy, t)) * 0.08;
-  }
-  return uBase + clamp(texelFetch(uHeight, c, 0).r, -1.1, 1.4) + swell(p, t);
+  float island = uBase + (m > 1.5 ? 2.6 : 1.4) + swell(uIsland.xy, t) * 0.25
+    + (swell(p, t) - swell(uIsland.xy, t)) * 0.08;
+  float water = uBase + clamp(texelFetch(uHeight, c, 0).r, -1.1, 1.4) + swell(p, t);
+  return m > 0.5 ? island : water;
 }
 
 void main() {
@@ -142,7 +141,7 @@ void main() {
   // Ambient occlusion: a column sitting lower than its neighbours is in their shadow; sides
   // darken towards the gaps below the surface.
   float nmax = max(max(hl, hr), max(hu, hd));
-  float ao = 1.0 - clamp((nmax - top) * 0.28, 0.0, 0.38);
+  float ao = 1.0 - clamp((nmax - top) * 0.18, 0.0, 0.22);
   if (normal.y < 0.5 && position.y < 0.0) ao *= mix(0.2, 0.7, smoothstep(-2.2, 0.0, position.y));
   vAO = mix(ao, 1.0, smoothstep(30.0, 70.0, length(vec3(p.x, top, p.y) - cameraPosition)));
 
@@ -156,7 +155,7 @@ void main() {
     vAlbedo = m > 2.5 ? vec3(0.92, 0.9, 0.86) : (m > 1.5 ? uGrass : uSand);
     vTower = m > 2.5 ? 1.0 : 0.0;
   } else {
-    float k = clamp((hi + s * 0.6) * 0.45 + 0.45, 0.22, 1.0);
+    float k = clamp((max(hi, -0.3) + s * 0.6) * 0.45 + 0.45, 0.32, 1.0);
     vAlbedo = mix(uDeep, uMid * mix(vec3(0.86, 1.08, 1.04), vec3(1.0), uNightV), min(1.0, k * 1.5)) * (0.9 + 0.2 * h1) * mix(vec3(1.0), vec3(0.97, 1.0, 1.04), fract(h1 * 7.13));
     // Crest foam (pushed water) and a breaking ring of foam around the island.
     float crest = clamp((hi - 1.2) * 0.5, 0.0, 0.6);
@@ -324,9 +323,9 @@ void main() {
   if (uNightV > 0.01 && vWater > 0.5) {
     vec2 rel = vWorld.xz - uIslandF.xy;
     float ang = atan(rel.y, rel.x) - uTimeF * 0.6;
-    float wedge = pow(max(cos(ang), 0.0), 40.0);
+    float wedge = pow(max(cos(ang), 0.0), 90.0);
     float reach = exp(-length(rel) / 28.0);
-    glow += vec3(1.0, 0.72, 0.4) * wedge * reach * 1.4 * uNightV;
+    glow += vec3(1.0, 0.72, 0.4) * wedge * reach * 0.5 * uNightV;
   }
   // At dusk the streaks run warm (sunset light), turning neon as night falls.
   glow *= mix(vec3(0.95, 0.62, 0.42), vec3(1.0), smoothstep(0.45, 0.9, uNight));
@@ -344,7 +343,7 @@ void main() {
       float dl = length(toL);
       int ni = int(st.z);
       vec3 neon = ni == 0 ? uNeon[0] : (ni == 1 ? uNeon[1] : uNeon[2]);
-      glow += albedo * neon * max(dot(N, toL / dl), 0.0) * 1100.0 / (dl * dl + 200.0) * uNightV;
+      glow += albedo * neon * max(dot(N, toL / dl), 0.0) * 420.0 / (dl * dl + 200.0) * uNightV;
     }
   }
   vec3 col = diffuse + spec + refl + rim + albedo * caus + glow + vGlow + lamp + nightFloor + rimN;
