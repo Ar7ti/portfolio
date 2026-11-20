@@ -1,39 +1,65 @@
 /**
- * Tier 2: the "Stud Tide" sea in three.js (port of concepts/d-day-to-night.html, day only;
- * #11 adds dusk/night). Loaded with a dynamic import after first paint, never in the
- * initial bundle.
+ * Tier 2: the "Stud Tide" sea in three.js. Loaded with a dynamic import after first paint,
+ * never in the initial bundle.
  *
- * One InstancedMesh: every cell is a fixed-height column with a stud on top, so a frame only
- * moves instances up and down (translation) and recolours them. The liquid runs on the CPU
- * (≈4.4K cells) at a fixed 60 Hz step.
+ * One instanced draw: every cell is a block with a stud on top. The CPU runs the thick liquid
+ * (fixed 60 Hz step) and uploads its height field as a float texture; the vertex shader places
+ * and colours every block (swell, island, foam, neon streaks) and the fragment shader lights it
+ * as glossy toy plastic under a real sky (sea3d-shaders.ts). The frame then goes through a
+ * small post chain: bloom (neon, sun glints), ACES tone mapping, a soft far blur at the
+ * horizon, vignette and grain.
  */
 import {
   AdditiveBlending,
+  BackSide,
+  DoubleSide,
+  FrontSide,
   BoxGeometry,
   Color,
   CylinderGeometry,
-  Fog,
-  HemisphereLight,
-  DirectionalLight,
-  InstancedMesh,
-  Matrix4,
+  DataTexture,
+  FloatType,
+  InstancedBufferAttribute,
+  InstancedBufferGeometry,
   Mesh,
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-  PlaneGeometry,
+  NearestFilter,
   PerspectiveCamera,
   Plane,
+  PlaneGeometry,
+  RingGeometry,
   Raycaster,
+  RedFormat,
   Scene,
+  ShaderMaterial,
+  SphereGeometry,
   Vector2,
   Vector3,
+  Vector4,
   WebGLRenderer,
+  WebGLRenderTarget,
+  HalfFloatType,
+  ACESFilmicToneMapping,
 } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { DAY, hex, mixPalette, NEON } from './palette';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { mixPalette, NEON, skyAt, sunAt, type SeaPalette } from './palette';
 import { islandMask, Liquid } from './liquid';
 import { isSoftwareRenderer } from './tiers';
 import type { SeaFactory, SeaOptions, SeaRenderer } from './types';
+import {
+  FAR_VERTEX,
+  FINISH_FRAGMENT,
+  SEA_FRAGMENT,
+  SEA_VERTEX,
+  SKY_FRAGMENT,
+  SKY_VERTEX,
+  BEAM_VERTEX,
+  BEAM_FRAGMENT,
+} from './sea3d-shaders';
 
 /** Sea surface rest height (world units) and column depth below the surface. */
 const BASE = 3;
@@ -41,7 +67,8 @@ const COLUMN = 8;
 const STEP = 1 / 60;
 
 /** World z of the grid's near edge (towards the camera); the grid runs back from here. */
-const NEAR_Z = 30;
+const NEAR_Z = 60;
+const STICK_Z = -34;
 
 interface Grid {
   width: number;
@@ -53,24 +80,11 @@ interface Grid {
 }
 
 function gridFor(aspect: number): Grid {
-  // The grid is wide and deep enough that its side and back edges are always outside the
-  // view or inside full fog, so the sea runs to the horizon at any width (no "table" edge).
-  // Portrait boxes see less width; fewer columns keep it fast on tablets that get tier 2.
+  // Wide and deep enough that the side and back edges are always outside the view or inside
+  // full haze, so the sea runs to the horizon at any width.
   return aspect < 1
-    ? { width: 64, depth: 74, shift: 0.5, island: { x: 10, z: -4, r: 5 } }
-    : { width: 144, depth: 84, shift: 0.37, island: { x: 31, z: -9, r: 7 } };
-}
-
-/**
- * Calm, constant swell: long slow waves from two directions, no short chop, so the idle sea
- * reads as heavy water (honey-slow) and never twitches. World units, seconds.
- */
-function swell(px: number, pz: number, t: number): number {
-  return (
-    Math.sin(px * 0.055 + pz * 0.04 - t * 0.5) * 0.55 +
-    Math.sin(-px * 0.03 + pz * 0.07 - t * 0.36) * 0.35 +
-    Math.sin(px * 0.12 + pz * 0.02 - t * 0.7) * 0.08
-  );
+    ? { width: 64, depth: 80, shift: 0.5, island: { x: 10, z: 2, r: 5 } }
+    : { width: 160, depth: 170, shift: 0.3, island: { x: 31, z: 6, r: 7 } };
 }
 
 export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
@@ -86,79 +100,120 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
   async function mount(layer: HTMLElement): Promise<void> {
     const box = layer.getBoundingClientRect();
     const aspect = box.width / Math.max(1, box.height);
-    const { width: W, depth: D, shift, island } = gridFor(aspect);
-    const N = W * D;
-    // Grid cell (x, z) sits at world (x + X0, z + Z0).
-    const X0 = -W * shift;
-    const Z0 = NEAR_Z - D;
 
     renderer = new WebGLRenderer({
-      antialias: true,
-      alpha: true,
+      antialias: false,
+      alpha: false,
       powerPreference: 'high-performance',
       failIfMajorPerformanceCaveat: !options.allowSoftware,
     });
     if (!options.allowSoftware && isSoftwareRenderer(renderer.getContext())) {
       throw new Error('No hardware WebGL (software renderer)');
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+    // Software WebGL (only reachable with ?tier= / ?gpu=software, i.e. tests and CI): a light
+    // version of the same scene, so a CPU renderer can draw it in reasonable time.
+    const soft = isSoftwareRenderer(renderer.getContext());
+    const full = gridFor(aspect);
+    // Software WebGL: a smaller grid (fewer instances); the camera sees the same framing.
+    const W = soft ? Math.round(full.width * 0.6) : full.width;
+    const D = soft ? Math.round(full.depth * 0.6) : full.depth;
+    const { shift, island } = full;
+    const N = W * D;
+    // Grid cell (x, z) sits at world (x + X0, z + Z0).
+    const X0 = Math.round(-W * shift);
+    const Z0 = NEAR_Z - D;
+    const dpr = soft ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
+    renderer.setPixelRatio(dpr);
     renderer.setSize(box.width, box.height, false);
+    renderer.toneMapping = ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.9;
     const canvas = renderer.domElement;
     canvas.className = 'hero-sea-live';
-    // Sky: CSS gradients, cheaper than a sky mesh. Behind the transparent canvas, one that
-    // reaches the fog colour at the horizon line. The camera looks down, so the horizon is often
-    // above the screen and the top of the view is fully fogged water (flat fog colour, a flat
-    // pink slab at dusk); a second gradient over the canvas runs the sky colours down to the
-    // line where the fog becomes solid and fades out there, so there is always a real sky.
-    let horizonPct = 50;
-    let fogPct = 30;
-    let palette = DAY;
-    const sky = document.createElement('div');
-    sky.className = 'hero-sea-sky';
-    const setSky = () => {
-      canvas.style.background = `linear-gradient(${hex(palette.skyA)}, ${hex(palette.skyB)} ${(horizonPct * 0.6).toFixed(1)}%, ${hex(palette.fog)} ${horizonPct.toFixed(1)}%, ${hex(palette.fog)})`;
-      const f = Math.max(fogPct, 12);
-      // Translucent, so the neon sticks standing in the far water still glow through it.
-      const a = (c: number, k: number) => `color-mix(in srgb, ${hex(c)} ${k}%, transparent)`;
-      sky.style.background = `linear-gradient(${a(palette.skyA, 78)}, ${a(palette.skyB, 66)} ${(f * 0.55).toFixed(1)}%, ${a(palette.fog, 45)} ${f.toFixed(1)}%, transparent ${(f + 10).toFixed(1)}%)`;
-    };
 
     const scene = new Scene();
-    const fog = new Fog(DAY.fog, 60, 140);
-    scene.fog = fog;
-    const camera = new PerspectiveCamera(32, aspect, 1, 300);
-    const hemi = new HemisphereLight(0xffffff, 0x2a6d8c, DAY.hemi);
-    const sun = new DirectionalLight(0xffffff, DAY.sun);
-    sun.position.set(-30, 60, 40);
-    scene.add(hemi, sun);
+    const camera = new PerspectiveCamera(35, aspect, 0.5, 3000);
 
-    // Column + stud merged into one geometry, top of the stud base at y = 0.
+    // --- sky dome (drawn first, at the far plane)
+    const skyUniforms = {
+      uSkyTop: { value: new Color() },
+      uSkyMid: { value: new Color() },
+      uHaze: { value: new Color() },
+      uSunDir: { value: new Vector3() },
+      uSunColor: { value: new Color() },
+      uSunGlow: { value: 1 },
+      uNight: { value: 0 },
+    };
+    const skyGeometry = new SphereGeometry(100, 32, 16);
+    const skyMaterial = new ShaderMaterial({
+      uniforms: skyUniforms,
+      vertexShader: SKY_VERTEX,
+      fragmentShader: SKY_FRAGMENT,
+      side: BackSide,
+      depthWrite: false,
+    });
+    const skyMesh = new Mesh(skyGeometry, skyMaterial);
+    skyMesh.frustumCulled = false;
+    skyMesh.renderOrder = -1;
+    scene.add(skyMesh);
+
+    // --- the blocks: column + stud merged, one instance per cell
     const column = new BoxGeometry(0.96, COLUMN, 0.96).translate(0, -COLUMN / 2, 0);
-    const stud = new CylinderGeometry(0.28, 0.28, 0.18, 8).translate(0, 0.09, 0);
-    const geometry = mergeGeometries([column, stud]);
+    const stud = new CylinderGeometry(0.28, 0.3, 0.2, soft ? 6 : 12).translate(0, 0.1, 0);
+    const merged = mergeGeometries([column, stud]);
     column.dispose();
     stud.dispose();
-    if (!geometry) throw new Error('could not build the stud geometry');
-    const material = new MeshStandardMaterial({ roughness: 0.42 });
-    const mesh = new InstancedMesh(geometry, material, N);
-    mesh.frustumCulled = false;
-    scene.add(mesh);
+    if (!merged) throw new Error('could not build the stud geometry');
+    const geometry = new InstancedBufferGeometry();
+    geometry.index = merged.index;
+    geometry.setAttribute('position', merged.getAttribute('position'));
+    geometry.setAttribute('normal', merged.getAttribute('normal'));
+    const cells = new Float32Array(N * 2);
+    for (let z = 0; z < D; z++)
+      for (let x = 0; x < W; x++) {
+        cells[(z * W + x) * 2] = x;
+        cells[(z * W + x) * 2 + 1] = z;
+      }
+    geometry.setAttribute('aCell', new InstancedBufferAttribute(cells, 2));
+    geometry.instanceCount = N;
 
-    // Far water: a flat plane under and around the stud grid, in the sea's average colour.
-    // Wherever the grid ends, this continues to the horizon and dissolves into the fog.
-    const farGeometry = new PlaneGeometry(4000, 4000).rotateX(-Math.PI / 2);
-    const farMaterial = new MeshStandardMaterial({
-      color: new Color(DAY.deep).lerp(new Color(DAY.mid), 0.55),
-      roughness: 0.6,
+    const mask = islandMask(W, D, island.x - X0, island.z - Z0, island.r);
+    /** Two cells of lighthouse on the island (mask 3), a little off centre. */
+    const addTower = () => {
+      const cx = Math.round(island.x - X0) + 1;
+      const cz = Math.round(island.z - Z0) - 1;
+      for (const [dx, dz] of [
+        [0, 0],
+        [1, 0],
+      ] as const)
+        mask[(cz + dz) * W + cx + dx] = 3;
+    };
+    addTower();
+    // Rings spread further and settle over a few seconds (still thick, no ringing).
+    const liquid = new Liquid({
+      width: W,
+      depth: D,
+      solid: mask,
+      spring: 0.32,
+      damping: 0.986,
+      viscosity: 0.05,
     });
-    const far = new Mesh(farGeometry, farMaterial);
-    // Below the deepest swell trough (≈ −1), so it never pokes through the studs.
-    far.position.y = BASE - 1.6;
-    scene.add(far);
+    // Dev only (scripts/hero-still.mjs): '?still=sea' renders the frozen sea without the island,
+    // '?still=island' the same frame with the island (the sprite is their difference).
+    const still = import.meta.env.DEV ? new URLSearchParams(location.search).get('still') : null;
+    if (still === 'sea') mask.fill(0);
 
-    // --- neon light sticks (Junction 2026 photos): crossing pairs standing in the far water,
-    // invisible by day, glowing at night; their streaks are added to the water colours below.
-    const STICK_Z = -40;
+    const heightTex = new DataTexture(liquid.height, W, D, RedFormat, FloatType);
+    heightTex.minFilter = heightTex.magFilter = NearestFilter;
+    heightTex.needsUpdate = true;
+    const maskData = new Float32Array(N);
+    const maskTex = new DataTexture(maskData, W, D, RedFormat, FloatType);
+    maskTex.minFilter = maskTex.magFilter = NearestFilter;
+    const syncMask = () => {
+      for (let i = 0; i < N; i++) maskData[i] = mask[i]!;
+      maskTex.needsUpdate = true;
+    };
+    syncMask();
+
     const stickDefs: [number, number, number][] =
       aspect < 1
         ? [
@@ -168,164 +223,174 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
             [14, -8, 0],
           ]
         : [
-            [6, 10, 0],
-            [13, -10, 1],
-            [20, 11, 2],
-            [27, -9, 0],
-            [34, 10, 1],
-            [41, -11, 2],
-            [47, 8, 0],
+            // Three upright light pillars far out (the Junction 2026 neon), framing the island.
+            [4, 0, 0],
+            [22, 0, 2],
+            [44, 0, 1],
           ];
-    const stickGeometry = new CylinderGeometry(0.22, 0.22, 30, 8).translate(0, 15, 0);
-    const haloGeometry = new CylinderGeometry(1.1, 1.1, 30, 8).translate(0, 15, 0);
+    const stickUniform = Array.from({ length: 7 }, (_, i) => {
+      const d = stickDefs[i];
+      return d ? new Vector4(d[0], d[0] + d[1], d[2], 1) : new Vector4(0, 0, 0, 0);
+    });
+
+    const seaUniforms = {
+      ...skyUniforms,
+      uHeight: { value: heightTex },
+      uMask: { value: maskTex },
+      uGrid: { value: new Vector4(X0, Z0, W, D) },
+      uTime: { value: 0 },
+      uTimeF: { value: 0 },
+      uBase: { value: BASE },
+      uIsland: { value: new Vector3(island.x, island.z, island.r) },
+      uDeep: { value: new Color() },
+      uMid: { value: new Color() },
+      uFoam: { value: new Color() },
+      uSand: { value: new Color() },
+      uGrass: { value: new Color() },
+      uNightV: { value: 0 },
+      uSticks: { value: stickUniform },
+      uNeon: { value: NEON.map((c) => new Color(c).multiplyScalar(1.6)) },
+      uStickZ: { value: STICK_Z },
+      uNearZ: { value: NEAR_Z },
+      uCam: { value: new Vector3() },
+      uAmbient: { value: new Color() },
+      uSunPower: { value: 1 },
+      uFogNear: { value: 60 },
+      uFogFar: { value: 140 },
+      uMistZ: { value: Z0 },
+      uIslandF: { value: new Vector3(island.x, island.z, island.r) },
+      uSunDirV: { value: new Vector3(0.4, 0.5, -1).normalize() },
+    };
+    const material = new ShaderMaterial({
+      uniforms: seaUniforms,
+      vertexShader: SEA_VERTEX,
+      fragmentShader: SEA_FRAGMENT,
+    });
+    const mesh = new Mesh(geometry, material);
+    mesh.frustumCulled = false;
+    scene.add(mesh);
+
+    // Far water to the horizon, just under the lowest block tops (hidden beneath the grid).
+    // Dense near (it follows the swell), then a huge flat ring out to the horizon.
+    const cx = X0 + W / 2;
+    const cz = Z0 + D / 2;
+    const farGeometry = new PlaneGeometry(900, 900, soft ? 60 : 300, soft ? 60 : 300)
+      .rotateX(-Math.PI / 2)
+      .translate(cx, 0, cz);
+    // A ring with a hole under the grid: pushed-down blocks must never reveal a flat plane.
+    const horizonGeometry = new RingGeometry(430, 9000, 96, 1)
+      .rotateX(-Math.PI / 2)
+      .translate(cx, 0, cz);
+    const farMaterial = new ShaderMaterial({
+      uniforms: seaUniforms,
+      vertexShader: FAR_VERTEX,
+      fragmentShader: SEA_FRAGMENT,
+    });
+    const far = new Mesh(farGeometry, farMaterial);
+    far.frustumCulled = false;
+    // The horizon plane sits a hair lower, so where both exist the dense one wins.
+    const horizon = new Mesh(horizonGeometry, farMaterial);
+    horizon.position.y = -0.6;
+    horizon.frustumCulled = false;
+    scene.add(far, horizon);
+
+    // --- neon light sticks (Junction 2026 photos): crossing pairs standing in the far water,
+    // invisible by day, glowing at night (HDR colours, so the bloom pass gives them a halo).
+    const stickGeometry = new CylinderGeometry(0.2, 0.2, 30, 8).translate(0, 15, 0);
+    const haloGeometry = new CylinderGeometry(1.6, 1.6, 30, 16, 1, true).translate(0, 15, 0);
+    const beamMaterial = (color: Color, halo: boolean) =>
+      new ShaderMaterial({
+        uniforms: {
+          uColor: { value: color },
+          uOpacity: { value: 0 },
+          uHalo: { value: halo ? 1 : 0 },
+        },
+        vertexShader: BEAM_VERTEX,
+        fragmentShader: BEAM_FRAGMENT,
+        transparent: true,
+        blending: AdditiveBlending,
+        depthWrite: false,
+        side: halo ? DoubleSide : FrontSide,
+      });
     const sticks = stickDefs.map(([bx, lean, c]) => {
       const neon = new Color(NEON[c]!);
+      // Core: bright (bloom picks it up); halo: a soft volume of light around it.
       const core = new Mesh(
         stickGeometry,
-        new MeshBasicMaterial({
-          color: neon.clone().lerp(new Color(0xffffff), 0.45),
-          transparent: true,
-          opacity: 0,
-          fog: false,
-        }),
+        beamMaterial(neon.clone().lerp(new Color(0xffffff), 0.15).multiplyScalar(5.5), false),
       );
-      const halo = new Mesh(
-        haloGeometry,
-        new MeshBasicMaterial({
-          color: neon,
-          transparent: true,
-          opacity: 0,
-          blending: AdditiveBlending,
-          depthWrite: false,
-          fog: false,
-        }),
-      );
-      const angle = Math.atan2(lean, 30);
+      const halo = new Mesh(haloGeometry, beamMaterial(neon.clone().multiplyScalar(0.9), true));
       for (const m of [core, halo]) {
         m.position.set(bx, BASE - 1, STICK_Z);
-        m.rotation.z = -angle;
+        m.rotation.z = -Math.atan2(lean, 30);
         m.visible = false;
         scene.add(m);
       }
-      return { core, halo, bx, tx: bx + lean, color: neon };
+      return { core, halo, bx };
     });
-    const streak = new Color();
-    const rowCentre = new Float32Array(stickDefs.length);
 
-    const mask = islandMask(W, D, island.x - X0, island.z - Z0, island.r);
-    const liquid = new Liquid({ width: W, depth: D, solid: mask });
-    // Dev only (scripts/hero-still.mjs): '?still=sea' renders the frozen sea without the island,
-    // '?still=island' the same frame with the island (the sprite is their difference).
-    // Stripped from builds.
-    const still = import.meta.env.DEV ? new URLSearchParams(location.search).get('still') : null;
-    if (still === 'sea') mask.fill(0);
+    // --- post: render → bloom (half res) → ACES + sRGB → far blur, vignette, grain
+    // Multisampled HDR target: clean brick edges without a separate AA pass.
+    const target = new WebGLRenderTarget(box.width * dpr, box.height * dpr, {
+      type: HalfFloatType,
+      samples: soft ? 0 : 4,
+    });
+    const composer = new EffectComposer(renderer, target);
+    composer.setPixelRatio(dpr);
+    composer.setSize(box.width, box.height);
+    composer.addPass(new RenderPass(scene, camera));
+    const bloom = new UnrealBloomPass(new Vector2(box.width / 2, box.height / 2), 0.3, 0.42, 0.9);
+    if (!soft) composer.addPass(bloom);
+    composer.addPass(new OutputPass());
+    const finish = new ShaderPass({
+      uniforms: {
+        tDiffuse: { value: null },
+        uRes: { value: new Vector2(box.width * dpr, box.height * dpr) },
+        uTime: { value: 0 },
+        uHorizon: { value: 0.8 },
+        uGrain: { value: 0.026 },
+      },
+      vertexShader: /* glsl */ `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: FINISH_FRAGMENT,
+    });
+    composer.addPass(finish);
 
-    const deep = new Color(DAY.deep);
-    const mid = new Color(DAY.mid);
-    const foam = new Color(DAY.foam);
-    const sand = new Color(DAY.sand);
-    const grass = new Color(DAY.grass);
-    const color = new Color();
-    const m4 = new Matrix4();
+    /** Scroll (0 at the top of the hero, 1 a screen down) and pointer parallax, both smoothed. */
+    let lift = 0;
+    let liftTarget = 0;
+    let parallax = 0;
+    let parallaxTarget = 0;
 
-    function write(t: number): void {
-      const h = liquid.height;
-      // The island rides the swell: it rises and falls with the water at its centre and tilts
-      // gently with the local slope.
-      const islandLift = swell(island.x, island.z, t) * 0.7;
-      const islandSwell = swell(island.x, island.z, t);
-      for (let z = 0; z < D; z++) {
-        const pz = z + Z0;
-        // Reflection terms that only depend on the row: computed once, not per cell.
-        const reflect = night > 0.01 && pz > STICK_Z;
-        const tt = reflect ? Math.min(1, (pz - STICK_Z) / (NEAR_Z - STICK_Z)) : 0;
-        const rowWobble = reflect ? Math.sin(pz * 0.9 + t * 2.2) * 0.35 : 0;
-        const width = 1.3 + tt * 3.2;
-        const reach = Math.sqrt(width) * 2.6 + 4; // beyond this exp() < 0.02 even with slope
-        const rowFade = (1 - tt * 0.55) * 1.6 * night;
-        if (reflect) {
-          for (let k = 0; k < sticks.length; k++) {
-            const st = sticks[k]!;
-            rowCentre[k] = st.bx + (st.tx - st.bx) * tt * 0.55 + rowWobble;
-          }
-        }
-        let prevS = swell(X0 - 1, pz, t);
-        for (let x = 0; x < W; x++) {
-          const i = z * W + x;
-          const px = x + X0;
-          const cell = mask[i];
-          const s = swell(px, pz, t);
-          let top: number;
-          if (cell) {
-            top = BASE + (cell === 2 ? 2.6 : 1.4) + islandLift + (s - islandSwell) * 0.35;
-            color.copy(cell === 2 ? grass : sand);
-          } else {
-            const hi = h[i]!;
-            top = BASE + hi + s;
-            // Crests a little lighter, troughs a little deeper: the swell reads even at rest.
-            const k = Math.min(1, Math.max(0, (hi + s * 0.6) * 0.45 + 0.45));
-            color.copy(deep).lerp(mid, Math.min(1, k * 1.4));
-            if (hi > 1.1) color.lerp(foam, Math.min(1, (hi - 1.1) * 0.7));
-            if (reflect) {
-              // Reflections: each stick throws a streak towards the viewer; the waves bend it
-              // (local slope shifts x) and the swell breaks it into bands.
-              const slope =
-                (x < W - 1 ? h[i + 1]! : hi) - (x > 0 ? h[i - 1]! : hi) + (s - prevS) * 2;
-              const crest = 0.55 + 0.45 * Math.max(0, Math.min(1, hi + s + 0.6));
-              for (let k = 0; k < sticks.length; k++) {
-                const dx = px - rowCentre[k]! - slope * 3.2;
-                if (dx > reach || dx < -reach) continue;
-                const intensity = Math.exp((-dx * dx) / width) * crest * rowFade;
-                if (intensity > 0.032)
-                  color.add(streak.copy(sticks[k]!.color).multiplyScalar(intensity));
-              }
-            }
-          }
-          m4.makeTranslation(px, top, pz);
-          mesh.setMatrixAt(i, m4);
-          mesh.setColorAt(i, color);
-          prevS = s;
-        }
-      }
-      mesh.instanceMatrix.needsUpdate = true;
-      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-    }
-
-    function pose(cam: PerspectiveCamera, n: number): void {
+    function pose(cam: PerspectiveCamera, n: number, k = 0, px = 0): void {
       const a = cam.aspect;
-      const dist = a < 1 ? 110 : 82;
-      // At night the camera drops a little so the reflections stretch towards the viewer.
-      cam.position.set(-6, dist * (0.62 - 0.14 * n), dist * (0.78 + 0.06 * n));
-      cam.lookAt(a < 1 ? 0 : 10, (a < 1 ? 14 : 13) - 3 * n, -2);
+      if (a < 1) {
+        cam.position.set(-2 + px, 60 * (1 - 0.15 * n) + k * 6, 100);
+        cam.lookAt(0, 8 - 3 * n - k * 4, -10);
+      } else {
+        // Low, cinematic: the horizon sits in the top quarter, the sun glints towards the viewer.
+        // Day → night pushes in and drifts right towards the island, lower and closer.
+        cam.position.set(-4 + px + 8 * n, 21 * (1 - 0.12 * n) + k * 7, 74 - 12 * n);
+        cam.lookAt(14 + px * 0.5 + 8 * n, 5.5 - 0.6 * n - k * 5, -20);
+      }
       cam.updateProjectionMatrix();
       cam.updateMatrixWorld();
     }
 
+    let palette: SeaPalette = mixPalette(0);
     function placeCamera(): void {
-      pose(camera, night);
-      // Fog reaches the sky colour right at the grid's back edge, so no edge is ever visible.
-      const back = Math.hypot(camera.position.x, camera.position.y - BASE, camera.position.z - Z0);
-      fog.far = back * 0.97;
-      fog.near = back * 0.66;
-      // Where does the (infinitely far) sea meet the sky on screen? Put the gradient's fog stop there.
-      const horizon = new Vector3(camera.position.x, BASE, camera.position.z - 1e5).project(camera);
-      horizonPct = Math.min(100, Math.max(0, (1 - horizon.y) * 50));
-      // Where the water is fully fogged straight ahead (fog.far away): the sky overlay ends there.
-      const ahead = new Vector3(10, 0, -2).sub(camera.position).setY(0).normalize();
-      const run = Math.sqrt(Math.max(0, fog.far ** 2 - (camera.position.y - BASE) ** 2));
-      const solid = camera.position.clone().addScaledVector(ahead, run).setY(BASE).project(camera);
-      fogPct = Math.min(100, Math.max(0, (1 - solid.y) * 50));
-      setSky();
+      pose(camera, night, lift, parallax);
+      seaUniforms.uCam.value.copy(camera.position);
+      // Haze reaches full strength before the grid's back edge, so no edge is ever visible.
+      // Light atmospheric haze: the sea itself now runs to the horizon (far water plane).
+      seaUniforms.uFogNear.value = 55; // haze starts here
+      seaUniforms.uFogFar.value = 230; // e-folding distance
+      const horizon = new Vector3(camera.position.x, BASE, camera.position.z - 1e4).project(camera);
+      finish.uniforms['uHorizon']!.value = Math.min(1.2, Math.max(-0.2, (horizon.y + 1) / 2));
     }
 
-    /**
-     * Keeps the island clear of the hero text. From its home spot it steps right and, when the
-     * right edge runs out, back towards the horizon (smaller there), until its on-screen box,
-     * projected with the daytime camera, misses every box from options.avoid. Only the island
-     * mask changes (the liquid shares it), so this is cheap enough for every resize.
-     */
+    // --- keep the island clear of the hero text (same rule as before; see tests/hero-island)
     const home = { x: island.x, z: island.z };
-    const probe = new PerspectiveCamera(32, aspect, 1, 300);
+    const probe = new PerspectiveCamera(35, aspect, 0.5, 600);
     const corner = new Vector3();
     function islandBox(cx: number, cz: number, w: number, h: number): DOMRect {
       let x0 = Infinity;
@@ -347,7 +412,6 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     }
     function placeIsland(): void {
       const r = layer.getBoundingClientRect();
-      // Landscape only: the portrait (tablet) framing keeps its approved spot.
       const boxes = still || r.width < r.height ? [] : (options.avoid?.() ?? []);
       if (!r.width || !r.height) return;
       probe.aspect = r.width / r.height;
@@ -363,7 +427,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
             b.top >= t.bottom + gap,
         );
       const maxX = X0 + W - island.r - 2;
-      const minZ = Math.max(Z0 + island.r + 2, home.z - 24);
+      const minZ = Math.max(Z0 + island.r + 2, home.z - 30);
       let best = home;
       let bestCost = Infinity;
       for (let z = home.z; boxes.length && z >= minZ; z--) {
@@ -384,7 +448,12 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       if (best.x === island.x && best.z === island.z) return;
       island.x = best.x;
       island.z = best.z;
+      seaUniforms.uIsland.value.set(island.x, island.z, island.r);
+      seaUniforms.uIslandF.value.set(island.x, island.z, island.r);
       mask.set(islandMask(W, D, island.x - X0, island.z - Z0, island.r));
+      addTower();
+      if (still === 'sea') mask.fill(0);
+      syncMask();
     }
 
     function resize(): void {
@@ -392,6 +461,9 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       const r = layer.getBoundingClientRect();
       if (!r.width || !r.height) return;
       renderer.setSize(r.width, r.height, false);
+      composer.setSize(r.width, r.height);
+      bloom.resolution.set(r.width / 2, r.height / 2);
+      finish.uniforms['uRes']!.value.set(r.width * dpr, r.height * dpr);
       camera.aspect = r.width / r.height;
       placeCamera();
       placeIsland();
@@ -401,7 +473,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     // Layout can still settle after mount (fonts): place it again once they are in.
     void document.fonts?.ready.then(() => !destroyed && placeIsland());
 
-    // --- stirring: pointer (mouse, pen, finger) pushes the surface down where it moves
+    // --- stirring: the pointer presses the thick surface where it moves; rings spread and settle
     const ray = new Raycaster();
     const ndc = new Vector2();
     const surface = new Plane(new Vector3(0, 1, 0), -BASE);
@@ -409,6 +481,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     let last: [number, number] | null = null;
     const onPointer = (event: PointerEvent) => {
       const r = canvas.getBoundingClientRect();
+      parallaxTarget = ((event.clientX - r.left) / Math.max(1, r.width) - 0.5) * 2.2;
       if (event.clientY < r.top || event.clientY > r.bottom) {
         last = null;
         return;
@@ -426,23 +499,27 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
         return;
       }
       const speed = last ? Math.min(3, Math.hypot(gx - last[0], gz - last[1])) : 0;
-      liquid.impulse(gx, gz, 3.2, -0.22 - speed * 0.25);
+      liquid.impulse(gx, gz, 3.2, -0.13 - speed * 0.14);
       last = [gx, gz];
       wake();
     };
     addEventListener('pointermove', onPointer, { passive: true });
     cleanups.push(() => removeEventListener('pointermove', onPointer));
 
-    // --- scroll sends a wave from the near edge, sized by how fast you scroll
+    // --- scroll: the camera rises a little through the hero; fast scrolls send a soft wave
     let lastScroll = scrollY;
     const onScroll = () => {
       const delta = scrollY - lastScroll;
       lastScroll = scrollY;
-      // Only while the hero is on screen: further down the sea is seen through narrow bands.
-      if (!delta || scrollY > innerHeight) return;
-      // Softer at night: the camera sits lower, and a tall near crest reads as a wall of bricks.
-      const k = 0.012 * (1 - 0.75 * night);
-      liquid.pushRow(D - 3, Math.max(-0.9, Math.min(0.9, delta * k)));
+      // Rises through the hero, settles back by the next screen (the horizon stays in frame).
+      const y = scrollY / Math.max(1, innerHeight);
+      const settle = Math.min(1, Math.max(0, (y - 0.85) / 0.3));
+      liftTarget = Math.max(0, Math.min(1, y)) * (1 - settle * settle * (3 - 2 * settle));
+      // Waves only while the hero is on screen: further down the sea is seen through bands.
+      if (delta && scrollY < innerHeight) {
+        const k = 0.01 * (1 - 0.75 * night);
+        liquid.pushRow(D - 3, Math.max(-0.7, Math.min(0.7, delta * k)));
+      }
       wake();
     };
     addEventListener('scroll', onScroll, { passive: true });
@@ -452,7 +529,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     observer.observe(layer);
     cleanups.push(() => observer.disconnect());
 
-    // --- loop: fixed-step sim, render every frame while anything moves
+    // --- loop: fixed-step sim, render every frame
     const t0 = performance.now();
     let prev = t0;
     let acc = 0;
@@ -472,13 +549,31 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       // Opening wave: a crest rolls in from the left over ~2 s, then the sea settles.
       const sweep = (t - 0.2) / 1.9;
       while (acc > STEP) {
-        if (sweep > 0 && sweep < 1) liquid.pushColumn(sweep * W * 0.62, 0.55 * (1 - sweep * 0.5));
+        if (sweep > 0 && sweep < 1) liquid.pushColumn(sweep * W * 0.62, 0.5 * (1 - sweep * 0.5));
         liquid.step();
         acc -= STEP;
       }
-      if (Math.abs(night - applied) > 1e-3) applyNight(t);
-      write(t);
-      renderer.render(scene, camera);
+      // Camera follows scroll and pointer on a soft spring-like ease.
+      const ease = Math.min(1, ms / 220);
+      const movedCam =
+        Math.abs(liftTarget - lift) > 1e-4 || Math.abs(parallaxTarget - parallax) > 1e-4;
+      lift += (liftTarget - lift) * ease;
+      parallax += (parallaxTarget - parallax) * ease * 0.6;
+      if (Math.abs(night - applied) > 1e-3) applyNight();
+      else if (movedCam && !still) placeCamera();
+
+      heightTex.needsUpdate = true;
+      seaUniforms.uTime.value = t;
+      seaUniforms.uTimeF.value = t;
+      finish.uniforms['uTime']!.value = still ? 0 : t;
+      for (const st of sticks) {
+        // The sticks light up as dusk turns to night, with a slow flicker.
+        const on = Math.min(1, Math.max(0, (night - 0.55) / 0.35));
+        const flicker = on * (0.85 + 0.15 * Math.sin(t * 3 + st.bx));
+        (st.core.material as ShaderMaterial).uniforms['uOpacity']!.value = flicker;
+        (st.halo.material as ShaderMaterial).uniforms['uOpacity']!.value = flicker;
+      }
+      composer.render();
       if (first) {
         first = false;
         canvas.classList.add('is-ready');
@@ -487,27 +582,35 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       if (!paused) frame = requestAnimationFrame(tick);
     }
 
-    /** Palette, fog, lights, sky, sticks and camera for the current hour. */
-    function applyNight(t: number): void {
+    /** Palette, sun, sky, bloom, sticks and camera for the current hour. */
+    function applyNight(): void {
       applied = night;
       palette = mixPalette(night);
-      deep.set(palette.deep);
-      mid.set(palette.mid);
-      foam.set(palette.foam);
-      sand.set(palette.sand);
-      grass.set(palette.grass);
-      fog.color.set(palette.fog);
-      farMaterial.color.set(palette.deep).lerp(new Color(palette.mid), 0.55);
-      hemi.intensity = palette.hemi;
-      sun.intensity = palette.sun;
-      for (const st of sticks) {
-        const on = night > 0.01;
-        st.core.visible = on;
-        st.halo.visible = on;
-        (st.core.material as MeshBasicMaterial).opacity = night;
-        (st.halo.material as MeshBasicMaterial).opacity =
-          0.22 * night * (0.85 + 0.15 * Math.sin(t * 3 + st.bx));
-      }
+      const sun = sunAt(night);
+      const sky = skyAt(night);
+      skyUniforms.uSkyTop.value.set(sky.top);
+      skyUniforms.uSkyMid.value.set(sky.mid);
+      skyUniforms.uHaze.value.set(sky.haze);
+      skyUniforms.uSunDir.value.set(...sun.dir);
+      seaUniforms.uSunDirV.value.set(...sun.dir);
+      skyUniforms.uSunColor.value.setRGB(...sun.color);
+      skyUniforms.uSunGlow.value = sun.glow;
+      skyUniforms.uNight.value = night;
+      seaUniforms.uDeep.value.set(palette.deep);
+      seaUniforms.uMid.value.set(palette.mid);
+      seaUniforms.uFoam.value.set(palette.foam);
+      seaUniforms.uSand.value.set(palette.sand);
+      seaUniforms.uGrass.value.set(palette.grass);
+      seaUniforms.uNightV.value = Math.min(1, Math.max(0, (night - 0.55) / 0.35));
+      seaUniforms.uSunPower.value = sun.power;
+      seaUniforms.uAmbient.value
+        .copy(skyUniforms.uSkyMid.value)
+        .multiplyScalar(0.3 + palette.hemi * 0.3)
+        .add(new Color(0.012, 0.01, 0.03).multiplyScalar(night));
+      bloom.strength = 0.28 + night * 0.75;
+      bloom.threshold = 0.9 - night * 0.05;
+      bloom.radius = 0.42 + night * 0.25;
+      for (const st of sticks) st.core.visible = st.halo.visible = night > 0.01;
       placeCamera();
     }
 
@@ -518,23 +621,26 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       }
     }
 
-    layer.append(canvas, sky);
-    cleanups.push(
-      () => canvas.remove(),
-      () => sky.remove(),
-    );
+    layer.append(canvas);
+    cleanups.push(() => canvas.remove());
     cleanups.push(() => {
+      merged.dispose();
       geometry.dispose();
       material.dispose();
+      skyGeometry.dispose();
       farGeometry.dispose();
+      horizonGeometry.dispose();
       farMaterial.dispose();
+      skyMaterial.dispose();
       stickGeometry.dispose();
+      heightTex.dispose();
+      maskTex.dispose();
       haloGeometry.dispose();
       for (const st of sticks) {
-        (st.core.material as MeshBasicMaterial).dispose();
-        (st.halo.material as MeshBasicMaterial).dispose();
+        (st.core.material as ShaderMaterial).dispose();
+        (st.halo.material as ShaderMaterial).dispose();
       }
-      mesh.dispose();
+      composer.dispose();
     });
     resume = () => {
       prev = performance.now();

@@ -8,6 +8,10 @@ export interface LiquidOptions {
   depth: number;
   /** Cells that never move (the island). */
   solid?: Uint8Array;
+  /** Feel overrides (defaults: the approved honey-thick prototype values below). */
+  spring?: number;
+  damping?: number;
+  viscosity?: number;
 }
 
 /** Tuned in the prototypes; Kirill approved this feel (MOODBOARD: Lusion, Igloo). */
@@ -23,8 +27,14 @@ export class Liquid {
   private readonly velocity: Float32Array;
   private readonly scratch: Float32Array;
   private readonly solid: Uint8Array;
+  private readonly k: { spring: number; damping: number; viscosity: number };
 
-  constructor({ width, depth, solid }: LiquidOptions) {
+  constructor({ width, depth, solid, spring, damping, viscosity }: LiquidOptions) {
+    this.k = {
+      spring: spring ?? SPRING,
+      damping: damping ?? DAMPING,
+      viscosity: viscosity ?? VISCOSITY,
+    };
     this.width = width;
     this.depth = depth;
     const n = width * depth;
@@ -81,8 +91,8 @@ export class Liquid {
         const r = x < W - 1 ? h[i + 1]! : hi;
         const u = z > 0 ? h[i - W]! : hi;
         const d = z < D - 1 ? h[i + W]! : hi;
-        let vi = v[i]! + ((l + r + u + d) * 0.25 - hi) * SPRING - hi * RESTORE;
-        vi *= DAMPING;
+        let vi = v[i]! + ((l + r + u + d) * 0.25 - hi) * this.k.spring - hi * RESTORE;
+        vi *= this.k.damping;
         v[i] = vi;
       }
     }
@@ -91,7 +101,8 @@ export class Liquid {
       for (let x = 1; x < W - 1; x++) {
         const i = z * W + x;
         tmp[i] =
-          h[i]! + VISCOSITY * ((h[i - 1]! + h[i + 1]! + h[i - W]! + h[i + W]!) * 0.25 - h[i]!);
+          h[i]! +
+          this.k.viscosity * ((h[i - 1]! + h[i + 1]! + h[i - W]! + h[i + W]!) * 0.25 - h[i]!);
       }
     }
     for (let z = 1; z < D - 1; z++) {
