@@ -15,6 +15,7 @@ import {
   type Tier,
 } from '../../lib/sea/tiers';
 import type { SeaFactory, SeaRenderer } from '../../lib/sea/types';
+import { heroBoxes } from './avoid';
 
 /** Renderers load only when their tier is chosen (never in the initial bundle). */
 const LOADERS: Record<1 | 2, () => Promise<SeaFactory | null>> = {
@@ -54,6 +55,7 @@ async function apply(tier: Tier, layer: HTMLElement): Promise<void> {
   const forced = signals.override !== null;
   const renderer = factory({
     allowSoftware: signals.allowSoftware,
+    avoid: heroBoxes,
     onFrame: (ms) => {
       // A forced ?tier= is for testing: never downgrade it.
       if (tier !== 2 || forced || frames.length >= WARMUP_FRAMES + SLOW_SAMPLE_FRAMES) return;

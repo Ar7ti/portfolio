@@ -16,6 +16,7 @@
     "test": "playwright test",
     "fonts": "node scripts/subset-fonts.mjs",
     "og": "node scripts/og-image.mjs",
+    "still": "node scripts/hero-still.mjs",
     "cv": "astro build && node scripts/cv-pdf.mjs"
   },
   "dependencies": {

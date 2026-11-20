@@ -8,6 +8,11 @@ export interface SeaOptions {
    * still stays. On only for ?tier= / ?gpu=software (tests, CI).
    */
   allowSoftware?: boolean;
+  /**
+   * Boxes the island must stay clear of (hero text, chips, buttons) in layer pixels, as they
+   * sit at scroll 0. Read on mount and on every resize.
+   */
+  avoid?: () => DOMRect[];
 }
 
 export interface SeaRenderer {

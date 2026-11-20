@@ -248,6 +248,7 @@ void main() {
 }`;
 
 type Vec3 = [number, number, number];
+const dot = (a: Vec3, b: Vec3): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const sub = (a: Vec3, b: Vec3): Vec3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const cross = (a: Vec3, b: Vec3): Vec3 => [
   a[1] * b[2] - a[2] * b[1],
@@ -300,6 +301,61 @@ function viewFor(aspect: number): View {
   return portrait
     ? { camera, island: [9, -61, 6], fogNear: 150, fogFar: 330 }
     : { camera, island: [31, -9, 7], fogNear: 85, fogFar: 125 };
+}
+
+/** On-screen box (CSS px) of an island at (cx, cz) with radius r, for a w × h layer. */
+function islandBox(
+  camera: Camera,
+  cx: number,
+  cz: number,
+  r: number,
+  w: number,
+  h: number,
+): DOMRect {
+  let x0 = Infinity;
+  let y0 = Infinity;
+  let x1 = -Infinity;
+  let y1 = -Infinity;
+  for (const dx of [-1, 1])
+    for (const dz of [-1, 1])
+      for (const y of [BASE - 1, BASE + 3.8]) {
+        const d = sub([cx + dx * r, y, cz + (dz * r) / 1.25], camera.pos);
+        const depth = dot(d, camera.fwd);
+        const nx = dot(d, camera.right) / (depth * camera.tanHalf * camera.aspect);
+        const ny = dot(d, camera.up) / (depth * camera.tanHalf);
+        x0 = Math.min(x0, ((nx + 1) / 2) * w);
+        x1 = Math.max(x1, ((nx + 1) / 2) * w);
+        y0 = Math.min(y0, ((1 - ny) / 2) * h);
+        y1 = Math.max(y1, ((1 - ny) / 2) * h);
+      }
+  return new DOMRect(x0, y0, x1 - x0, y1 - y0);
+}
+
+/**
+ * Landscape: moves the island from its home spot right (and, when the right edge runs out,
+ * back towards the horizon) until it is clear of the hero text boxes (same rule as tier 2).
+ */
+function clearIsland(view: View, boxes: readonly DOMRect[], w: number, h: number): Vec3 {
+  const [hx, hz, r] = view.island;
+  if (!boxes.length || view.camera.aspect < 1) return view.island;
+  const gap = 28;
+  const clear = (b: DOMRect) =>
+    b.right <= w - 16 &&
+    boxes.every(
+      (t) =>
+        b.right <= t.left - gap ||
+        b.left >= t.right + gap ||
+        b.bottom <= t.top - gap ||
+        b.top >= t.bottom + gap,
+    );
+  for (let z = hz; z >= hz - 24; z--) {
+    for (let x = hx; x <= hx + 50; x++) {
+      const b = islandBox(view.camera, x, z, r, w, h);
+      if (b.right > w - 16) break;
+      if (clear(b)) return [x, z, r];
+    }
+  }
+  return view.island;
 }
 
 export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
@@ -429,7 +485,9 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       const aspect = r.width / r.height;
       const view = viewFor(aspect);
       camera = view.camera;
-      island = view.island;
+      island = clearIsland(view, options.avoid?.() ?? [], r.width, r.height);
+      const ib = islandBox(camera, island[0], island[1], island[2], r.width, r.height);
+      canvas.dataset['island'] = [ib.left, ib.top, ib.right, ib.bottom].map(Math.round).join(',');
       // Liquid grid in front of the camera, covering what the eye can stir.
       simRect =
         aspect < 1
@@ -562,6 +620,8 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     const observer = new ResizeObserver(layout);
     observer.observe(layer);
     cleanups.push(() => observer.disconnect());
+    // The hero text can still move once its fonts are in: place the island again.
+    void document.fonts?.ready.then(() => !destroyed && layout());
 
     setPalette(DAY);
     gl.uniform1f(loc.night, 0);
