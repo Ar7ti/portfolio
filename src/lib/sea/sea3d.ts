@@ -100,11 +100,6 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
   async function mount(layer: HTMLElement): Promise<void> {
     const box = layer.getBoundingClientRect();
     const aspect = box.width / Math.max(1, box.height);
-    const { width: W, depth: D, shift, island } = gridFor(aspect);
-    const N = W * D;
-    // Grid cell (x, z) sits at world (x + X0, z + Z0).
-    const X0 = Math.round(-W * shift);
-    const Z0 = NEAR_Z - D;
 
     renderer = new WebGLRenderer({
       antialias: false,
@@ -118,6 +113,15 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     // Software WebGL (only reachable with ?tier= / ?gpu=software, i.e. tests and CI): a light
     // version of the same scene, so a CPU renderer can draw it in reasonable time.
     const soft = isSoftwareRenderer(renderer.getContext());
+    const full = gridFor(aspect);
+    // Software WebGL: a smaller grid (fewer instances); the camera sees the same framing.
+    const W = soft ? Math.round(full.width * 0.6) : full.width;
+    const D = soft ? Math.round(full.depth * 0.6) : full.depth;
+    const { shift, island } = full;
+    const N = W * D;
+    // Grid cell (x, z) sits at world (x + X0, z + Z0).
+    const X0 = Math.round(-W * shift);
+    const Z0 = NEAR_Z - D;
     const dpr = soft ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
     renderer.setPixelRatio(dpr);
     renderer.setSize(box.width, box.height, false);
@@ -154,7 +158,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
 
     // --- the blocks: column + stud merged, one instance per cell
     const column = new BoxGeometry(0.96, COLUMN, 0.96).translate(0, -COLUMN / 2, 0);
-    const stud = new CylinderGeometry(0.28, 0.3, 0.2, 12).translate(0, 0.1, 0);
+    const stud = new CylinderGeometry(0.28, 0.3, 0.2, soft ? 6 : 12).translate(0, 0.1, 0);
     const merged = mergeGeometries([column, stud]);
     column.dispose();
     stud.dispose();
