@@ -173,6 +173,17 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     geometry.instanceCount = N;
 
     const mask = islandMask(W, D, island.x - X0, island.z - Z0, island.r);
+    /** Two cells of lighthouse on the island (mask 3), a little off centre. */
+    const addTower = () => {
+      const cx = Math.round(island.x - X0) + 1;
+      const cz = Math.round(island.z - Z0) - 1;
+      for (const [dx, dz] of [
+        [0, 0],
+        [1, 0],
+      ] as const)
+        mask[(cz + dz) * W + cx + dx] = 3;
+    };
+    addTower();
     // Rings spread further and settle over a few seconds (still thick, no ringing).
     const liquid = new Liquid({
       width: W,
@@ -302,7 +313,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       // Core: bright (bloom picks it up); halo: a soft volume of light around it.
       const core = new Mesh(
         stickGeometry,
-        beamMaterial(neon.clone().lerp(new Color(0xffffff), 0.15).multiplyScalar(2.4), false),
+        beamMaterial(neon.clone().lerp(new Color(0xffffff), 0.15).multiplyScalar(5.5), false),
       );
       const halo = new Mesh(haloGeometry, beamMaterial(neon.clone().multiplyScalar(0.9), true));
       for (const m of [core, halo]) {
@@ -436,6 +447,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       seaUniforms.uIsland.value.set(island.x, island.z, island.r);
       seaUniforms.uIslandF.value.set(island.x, island.z, island.r);
       mask.set(islandMask(W, D, island.x - X0, island.z - Z0, island.r));
+      addTower();
       if (still === 'sea') mask.fill(0);
       syncMask();
     }
@@ -495,7 +507,9 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     const onScroll = () => {
       const delta = scrollY - lastScroll;
       lastScroll = scrollY;
-      liftTarget = Math.min(1, Math.max(0, scrollY / Math.max(1, innerHeight)));
+      // Rises through the hero, settles back by the next screen (the horizon stays in frame).
+      const y = scrollY / Math.max(1, innerHeight);
+      liftTarget = Math.max(0, Math.min(1, y) - Math.max(0, y - 1) * 1.4);
       // Waves only while the hero is on screen: further down the sea is seen through bands.
       if (delta && scrollY < innerHeight) {
         const k = 0.01 * (1 - 0.75 * night);
@@ -588,8 +602,9 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
         .copy(skyUniforms.uSkyMid.value)
         .multiplyScalar(0.3 + palette.hemi * 0.3)
         .add(new Color(0.012, 0.01, 0.03).multiplyScalar(night));
-      bloom.strength = 0.28 + night * 0.42;
-      bloom.threshold = 0.9 - night * 0.12;
+      bloom.strength = 0.28 + night * 0.75;
+      bloom.threshold = 0.9 - night * 0.05;
+      bloom.radius = 0.42 + night * 0.25;
       for (const st of sticks) st.core.visible = st.halo.visible = night > 0.01;
       placeCamera();
     }

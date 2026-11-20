@@ -87,6 +87,7 @@ varying float vWater;
 varying float vSlope;
 varying float vCrest;
 varying float vVar;
+varying float vTower;
 
 ${SWELL}
 
@@ -96,7 +97,7 @@ float cellH(ivec2 c, float t) {
   float m = texelFetch(uMask, c, 0).r;
   if (m > 0.5) {
     float lift = swell(uIsland.xy, t) * 0.7;
-    return uBase + (m > 1.5 ? 2.6 : 1.4) + lift + (swell(p, t) - swell(uIsland.xy, t)) * 0.35;
+    return uBase + (m > 2.5 ? 6.2 : (m > 1.5 ? 2.6 : 1.4)) + lift + (swell(p, t) - swell(uIsland.xy, t)) * 0.35;
   }
   return uBase + clamp(texelFetch(uHeight, c, 0).r, -1.1, 1.4) + swell(p, t);
 }
@@ -112,7 +113,7 @@ void main() {
   // Edges of the grid sink gently under the far water, so the blocks never end in a line.
   // In the last rows the far water rises to meet them: the blocks settle just under it.
   float inside = min(min(p.x - uGrid.x, uGrid.x + uGrid.z - 1.0 - p.x), p.y - uGrid.y);
-  if (m < 0.5) top = mix(top, uBase + s - 0.45, (1.0 - smoothstep(1.0, 6.0, inside)));
+  if (m < 0.5) top = mix(top, uBase + s - 1.2, (1.0 - smoothstep(1.0, 6.0, inside)));
 
   // Far away the studs flatten (their detail would only alias into moire).
   vec3 local = position;
@@ -140,15 +141,17 @@ void main() {
   vAO = ao;
 
   vWater = m > 0.5 ? 0.0 : 1.0;
+  vTower = 0.0;
   vSlope = 0.0;
   vCrest = 0.7;
   vFoam = 0.0;
   vGlow = vec3(0.0);
   if (m > 0.5) {
-    vAlbedo = m > 1.5 ? uGrass : uSand;
+    vAlbedo = m > 2.5 ? vec3(0.92, 0.9, 0.86) : (m > 1.5 ? uGrass : uSand);
+    vTower = m > 2.5 ? 1.0 : 0.0;
   } else {
     float k = clamp((hi + s * 0.6) * 0.45 + 0.45, 0.22, 1.0);
-    vAlbedo = mix(uDeep, uMid, min(1.0, k * 1.4)) * (0.96 + 0.08 * h1);
+    vAlbedo = mix(uDeep, uMid, min(1.0, k * 1.4)) * (0.9 + 0.2 * h1) * mix(vec3(1.0), vec3(0.97, 1.0, 1.04), fract(h1 * 7.13));
     // Crest foam (pushed water) and a breaking ring of foam around the island.
     float crest = clamp((hi - 1.2) * 0.5, 0.0, 0.6);
     float d = length(vec2(p.x - uIsland.x, (p.y - uIsland.y) * 1.25)) - uIsland.z;
@@ -198,6 +201,7 @@ varying float vWater;
 varying float vSlope;
 varying float vCrest;
 varying float vVar;
+varying float vTower;
 
 ${SKY}
 ${SWELL}
@@ -247,6 +251,12 @@ void main() {
   vec3 albedo = mix(vAlbedo, vec3(0.95, 0.98, 1.0), clamp(vFoam, 0.0, 1.0) * vWater);
   // The island keeps its own (brighter) plastic colour at night, so the neon can light it.
   if (vWater < 0.5) albedo *= 1.0 + 5.0 * uNightV;
+  // Lighthouse: a red band below the lamp; the lamp (top block) glows warm at night.
+  vec3 lamp = vec3(0.0);
+  if (vTower > 0.5) {
+    if (vLocal.y < -1.0 && vLocal.y > -1.9) albedo = vec3(0.6, 0.06, 0.05) * (1.0 + 2.0 * uNightV);
+    if (vLocal.y > -0.8) lamp = vec3(1.0, 0.62, 0.3) * 3.0 * uNightV;
+  }
   bool topFace = vNormal.y > 0.45 && vLocal.y > -0.01;
 
   // Toy plastic: a lit bevel along the block's top edge (the light catches the rounded rim).
@@ -259,7 +269,8 @@ void main() {
   vec3 diffuse = albedo * (uAmbient * (0.55 + 0.45 * N.y) + uSunColor * uSunPower * nl) * ao;
 
   // Glossy clear-coat: GGX highlight and Fresnel reflection of the sky.
-  float rough = mix(mix(0.32, 0.16, uNight), 0.45, vFoam) + (vVar - 0.5) * 0.08;
+  float duskR = max(0.0, 1.0 - abs(uNight - 0.5) * 3.0);
+  float rough = mix(mix(0.32, 0.16, uNight), 0.45, vFoam) + (vVar - 0.5) * 0.08 + duskR * 0.16;
   float F = 0.04 + 0.96 * pow(1.0 - nv, 5.0);
   // Highlights roll off at grazing angles (no milky hot spot towards the frame edge).
   vec3 spec = uSunColor * uSunPower * min(ggx(nh, rough), 12.0) * F * nl * 0.55 * smoothstep(0.03, 0.25, nv);
@@ -289,7 +300,9 @@ void main() {
       if (st.w < 0.5) continue;
       float cx = st.x + (st.y - st.x) * tt * 0.55 + wob;
       float dx = vWorld.x - cx - bend * 3.2;
-      float inten = exp(-dx * dx / width) * vCrest * (1.0 - tt * 0.5) * 1.15 * uNightV;
+      float inten = exp(-dx * dx / width) * vCrest * mix(2.2, 0.35, sqrt(tt)) * uNightV;
+      float pool = exp(-(dx * dx + pow(vWorld.z - uStickZ, 2.0) * 0.08) / 6.0) * 3.5 * uNightV;
+      inten += pool;
       int ni = int(st.z);
       vec3 neon = ni == 0 ? uNeon[0] : (ni == 1 ? uNeon[1] : uNeon[2]);
       glow += neon * inten * (topFace ? 1.0 : 0.45) * smoothstep(0.5, 2.5, length(vec2(vWorld.x - uIslandF.x, (vWorld.z - uIslandF.y) * 1.25)) - uIslandF.z);
@@ -314,7 +327,7 @@ void main() {
       glow += albedo * neon * max(dot(N, toL / dl), 0.0) * 2600.0 / (dl * dl + 200.0) * uNightV;
     }
   }
-  vec3 col = diffuse + spec + refl + rim + albedo * caus + glow + nightFloor + rimN;
+  vec3 col = diffuse + spec + refl + rim + albedo * caus + glow + vGlow + lamp + nightFloor + rimN;
 
   // Atmospheric haze: distance fog into the sky colour along the view ray.
   float dist = length(vWorld - uCam);
@@ -353,6 +366,7 @@ varying float vWater;
 varying float vSlope;
 varying float vCrest;
 varying float vVar;
+varying float vTower;
 ${SWELL}
 void main() {
   vec3 w = (modelMatrix * vec4(position, 1.0)).xyz;
@@ -375,6 +389,7 @@ void main() {
   vSlope = 0.0;
   vCrest = 0.75;
   vVar = 0.5;
+  vTower = 0.0;
   gl_Position = projectionMatrix * viewMatrix * vec4(w, 1.0);
 }
 `;
