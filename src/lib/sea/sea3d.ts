@@ -509,7 +509,8 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       lastScroll = scrollY;
       // Rises through the hero, settles back by the next screen (the horizon stays in frame).
       const y = scrollY / Math.max(1, innerHeight);
-      liftTarget = Math.max(0, Math.min(1, y) - Math.max(0, y - 1) * 1.4);
+      const settle = Math.min(1, Math.max(0, (y - 0.85) / 0.3));
+      liftTarget = Math.max(0, Math.min(1, y)) * (1 - settle * settle * (3 - 2 * settle));
       // Waves only while the hero is on screen: further down the sea is seen through bands.
       if (delta && scrollY < innerHeight) {
         const k = 0.01 * (1 - 0.75 * night);

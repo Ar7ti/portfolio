@@ -88,6 +88,7 @@ varying float vSlope;
 varying float vCrest;
 varying float vVar;
 varying float vTower;
+varying float vFar;
 
 ${SWELL}
 
@@ -118,7 +119,12 @@ void main() {
   // Far away the studs flatten (their detail would only alias into moire).
   vec3 local = position;
   float camDist = length(vec3(p.x, top, p.y) - cameraPosition);
-  if (local.y > 0.001) local.y *= 1.0 - smoothstep(55.0, 110.0, camDist);
+  // Far away the bricks merge into one surface: the gaps close and the studs sink. Their detail
+  // would be smaller than a pixel there and only flicker (single-pixel "fireflies").
+  float farK = smoothstep(38.0, 85.0, camDist);
+  vFar = farK;
+  if (local.y > 0.001) local.y *= 1.0 - farK;
+  local.xz *= mix(1.0, 1.0 / 0.96, farK);
   vec3 world = vec3(p.x, top, p.y) + local;
   // Toy plastic is never perfectly uniform: a small per-brick tint and sheen variation.
   float h1 = fract(sin(dot(aCell, vec2(12.9898, 78.233))) * 43758.5453);
@@ -138,7 +144,7 @@ void main() {
   float nmax = max(max(hl, hr), max(hu, hd));
   float ao = 1.0 - clamp((nmax - top) * 0.28, 0.0, 0.38);
   if (normal.y < 0.5 && position.y < 0.0) ao *= mix(0.2, 0.7, smoothstep(-2.2, 0.0, position.y));
-  vAO = ao;
+  vAO = mix(ao, 1.0, smoothstep(30.0, 70.0, length(vec3(p.x, top, p.y) - cameraPosition)));
 
   vWater = m > 0.5 ? 0.0 : 1.0;
   vTower = 0.0;
@@ -202,6 +208,7 @@ varying float vSlope;
 varying float vCrest;
 varying float vVar;
 varying float vTower;
+varying float vFar;
 
 ${SKY}
 ${SWELL}
@@ -265,7 +272,8 @@ void main() {
   // Stud: a soft contact shadow ring where it meets the block.
   float studBase = vLocal.y > 0.0 && vLocal.y < 0.06 ? 0.82 : 1.0;
 
-  float ao = vAO * studBase * farShade;
+  float ao = vAO * mix(studBase, 1.0, vFar) * farShade;
+  bevel *= 1.0 - vFar;
   vec3 diffuse = albedo * (uAmbient * (0.55 + 0.45 * N.y) + uSunColor * uSunPower * nl) * ao;
 
   // Glossy clear-coat: GGX highlight and Fresnel reflection of the sky.
@@ -273,6 +281,7 @@ void main() {
   float rough = mix(mix(0.32, 0.16, uNight), 0.45, vFoam) + (vVar - 0.5) * 0.08 + duskR * 0.16;
   float F = 0.04 + 0.96 * pow(1.0 - nv, 5.0);
   // Highlights roll off at grazing angles (no milky hot spot towards the frame edge).
+  rough = mix(rough, max(rough, 0.45), vFar * step(vWater, 1.5));
   vec3 spec = uSunColor * uSunPower * min(ggx(nh, rough), 8.0) * F * nl * 0.55 * smoothstep(0.03, 0.25, nv);
   spec = min(spec, vec3(3.0));
   vec3 refl = skyBase(reflect(-V, N)) * min(F, 0.6) * 0.42 * ao * (topFace || vWater > 1.5 ? 1.0 : 0.12);
@@ -379,6 +388,7 @@ varying float vSlope;
 varying float vCrest;
 varying float vVar;
 varying float vTower;
+varying float vFar;
 ${SWELL}
 void main() {
   vec3 w = (modelMatrix * vec4(position, 1.0)).xyz;
@@ -402,6 +412,7 @@ void main() {
   vCrest = 0.75;
   vVar = 0.5;
   vTower = 0.0;
+  vFar = 1.0;
   gl_Position = projectionMatrix * viewMatrix * vec4(w, 1.0);
 }
 `;
@@ -428,7 +439,7 @@ void main() {
     vec3 cell = floor(q);
     float h = fract(sin(dot(cell, vec3(12.9898, 78.233, 37.719))) * 43758.5453);
     float d = length(fract(q) - 0.5);
-    col += vec3(0.85, 0.85, 1.0) * step(0.985, h) * (1.0 - smoothstep(0.05, 0.16, d)) * (uNight - 0.3) * 1.6;
+    col += vec3(0.85, 0.85, 1.0) * step(0.955, h) * (1.0 - smoothstep(0.05, 0.16, d)) * (uNight - 0.3) * 1.6;
   }
   gl_FragColor = vec4(col, 1.0);
 }
