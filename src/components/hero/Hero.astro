@@ -268,7 +268,7 @@ const links = hero.contacts
     width: 100%;
     max-width: calc(var(--content-max) + 2 * var(--gutter));
     margin: 0 auto;
-    padding: clamp(56px, 15vh, 170px) var(--gutter) clamp(40px, 8vh, 96px);
+    padding: clamp(40px, 10vh, 170px) var(--gutter) clamp(40px, 8vh, 96px);
   }
 
   .hero-text {
@@ -348,8 +348,15 @@ const links = hero.contacts
     margin: -14px 0 24px;
     padding: 4px 10px;
     border-radius: var(--radius-pill);
-    background: color-mix(in srgb, var(--c-foam) 82%, transparent);
+    background: color-mix(in srgb, var(--c-foam) 92%, transparent);
     color: var(--fg-strong);
+    font-weight: 700;
+  }
+
+  @media (min-width: 861px) {
+    :global(.hero-stack) {
+      font-size: 13px;
+    }
   }
 
   /* Reduced motion: the sea is already still, so there is nothing to pause. */
@@ -410,7 +417,7 @@ const links = hero.contacts
   @media (max-width: 860px) {
     .hero-inner {
       /* The pause icon (44 px) sits at the top right, beside the label. */
-      padding-top: 24px;
+      padding-top: 18px;
     }
 
     :global(.hero-label) {
@@ -422,7 +429,19 @@ const links = hero.contacts
     }
 
     :global(.hero-stack) {
-      margin: -4px 0 16px;
+      margin: -2px 0 12px;
+    }
+
+    .hero-line {
+      margin-bottom: 10px;
+    }
+
+    .chips {
+      gap: 8px;
+    }
+
+    .chips li {
+      padding-block: 6px;
     }
   }
 
@@ -430,6 +449,7 @@ const links = hero.contacts
      fallback). Reserving both lines keeps the hero from shifting when it does. */
   @media (max-width: 480px) {
     :global(.hero-label) {
+      /* Two lines on phones once Martian Mono is in. */
       min-height: 3em;
       margin: 0;
     }
@@ -543,6 +563,15 @@ const links = hero.contacts
     background: color-mix(in srgb, var(--c-foam) 88%, transparent);
     font-weight: 700;
     color: var(--c-deep);
+  }
+
+  /* Pills read as buttons already: no underline inside them, only on hover. */
+  .links a {
+    text-decoration: none;
+  }
+
+  .links a:hover {
+    text-decoration: underline;
   }
 
   @media (max-width: 560px) {

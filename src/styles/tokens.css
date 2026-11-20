@@ -62,7 +62,7 @@
   --font-label: 'Martian Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
 
   /* Type sizes. Mobile values keep the longest word of each heading inside 360 px. */
-  --size-h1: clamp(36px, 10.6vw, 116px);
+  --size-h1: clamp(34px, 10.6vw, 116px);
   --size-h2: clamp(34px, 10.4vw, 100px); /* case titles */
   --size-h2-long: clamp(34px, 10.4vw, 100px); /* longer case titles (Case 02, 03) */
   --size-h2-xl: clamp(38px, 11.6vw, 150px); /* contact, 404 */
@@ -144,7 +144,8 @@
 
 @media (min-width: 861px) {
   :root {
-    --size-h1: clamp(48px, 7.2vw, 116px);
+    /* Also capped by the height, so short laptop screens (1280×720) keep the contacts in view. */
+    --size-h1: clamp(48px, min(7.2vw, 11.5vh), 116px);
     --size-h2: clamp(42px, 8.4vw, 140px);
     --size-h2-long: clamp(42px, 6.2vw, 100px);
     --size-h2-xl: clamp(56px, 9vw, 150px);

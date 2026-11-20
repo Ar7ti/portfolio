@@ -85,7 +85,7 @@ const titleLines = study.title.split(/(?<=\.)\s+/);
         <a class="button" href={href}>
           {site.caseLink}
           <span class="visually-hidden">: {study.title}</span>
-          <span aria-hidden="true">→</span>
+          <span aria-hidden="true">&nbsp;→</span>
         </a>
       </p>
     )}
@@ -105,11 +105,10 @@ const titleLines = study.title.split(/(?<=\.)\s+/);
     text-decoration: none;
   }
 
-  .case-title a:hover,
-  .case-title a:focus-visible {
-    text-decoration: underline;
-    text-decoration-thickness: 0.06em;
-    text-underline-offset: 0.12em;
+  /* Each word sits in its own clip (mask reveal), so an underline would only show in the
+     gaps; hover dims the title instead, focus gets the ring below. */
+  .case-title a:hover {
+    opacity: 0.78;
   }
 
   /* One ring around the whole multi-line title, not a broken ring per line. */

@@ -217,6 +217,16 @@ const {
     font-weight: 700;
   }
 
+  /* Header nav: a clean bar, underline only on hover (focus has its own ring). */
+  .site-header a {
+    text-decoration: none;
+  }
+
+  .site-header nav a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
   /* Footer continues the deep-blue contact block. */
   .site-footer {
     padding: 28px var(--gutter) 36px;

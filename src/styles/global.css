@@ -71,6 +71,8 @@ h3 {
 
 .skip-link:focus {
   top: 16px;
+  /* The header behind it is deep blue: the default deep ring would vanish. */
+  outline-color: var(--c-signal);
 }
 
 :focus-visible {
