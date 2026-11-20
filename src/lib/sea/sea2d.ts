@@ -130,7 +130,7 @@ vec3 lin(vec3 c) { return c * c; }
 vec3 skyBase(vec3 dir) {
   vec3 col = mix(lin(uHaze), lin(uSkyMid), smoothstep(0.0, 0.07, dir.y));
   col = mix(col, lin(uSkyTop), smoothstep(0.05, 0.32, dir.y));
-  return mix(col, lin(uHaze) * 0.82, smoothstep(0.0, -0.12, dir.y));
+  return mix(col, lin(uHaze) * 0.82, (1.0 - smoothstep(-0.12, 0.0, dir.y)));
 }
 
 vec3 sky(vec3 dir) {
@@ -255,7 +255,7 @@ void main() {
     vec3 n = normalize(vec3(-hx / e, 1.0, -hz / e));
     // Foam: pushed crests and a breaking ring around the island.
     float dI = length(vec2(p.x - uIsland.x, (p.z - uIsland.y) * 1.25)) - uIsland.z;
-    float ring = smoothstep(2.8, 0.2, dI) * (0.55 + 0.45 * sin(t * 1.4 - dI * 2.6 + p.x * 0.7)) * (1.0 - uNight * 0.6) * (1.0 - uSink);
+    float ring = (1.0 - smoothstep(0.2, 2.8, dI)) * (0.55 + 0.45 * sin(t * 1.4 - dI * 2.6 + p.x * 0.7)) * (1.0 - uNight * 0.6) * (1.0 - uSink);
     water = mix(water, uFoam, ring * 0.85);
     // Glossy toy plastic: diffuse sun, GGX-ish highlight, Fresnel sky reflection.
     vec3 V = -dir;

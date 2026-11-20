@@ -35,12 +35,15 @@ vec3 skyBase(vec3 dir) {
   vec3 col = mix(uHaze, uSkyMid, smoothstep(0.0, 0.045, y));
   col = mix(col, uSkyTop, smoothstep(0.03, 0.2, y));
   // Below the horizon (reflections of the far water): darker haze.
-  col = mix(col, uHaze * 0.82, smoothstep(0.0, -0.12, y));
+  col = mix(col, uHaze * 0.82, (1.0 - smoothstep(-0.12, 0.0, y)));
   return col;
 }
 
 vec3 skyColor(vec3 dir) {
   vec3 col = skyBase(dir);
+  float duskS = 1.0 - abs(uNight - 0.5) * 2.0;
+  float toSun = max(dot(normalize(vec3(dir.x, 0.0, dir.z)), normalize(vec3(uSunDir.x, 0.0, uSunDir.z))), 0.0);
+  col *= mix(vec3(1.0), mix(vec3(0.78, 0.8, 1.08), vec3(1.12, 0.98, 0.86), toSun), max(duskS, 0.0));
   float sd = max(dot(dir, uSunDir), 0.0);
   // Wide warm glow, tighter halo, the disc itself (HDR, so bloom catches it).
   col += uSunColor * (pow(sd, 5.0) * 0.12 + pow(sd, 80.0) * 0.4) * uSunGlow;
@@ -95,7 +98,7 @@ float cellH(ivec2 c, float t) {
     float lift = swell(uIsland.xy, t) * 0.7;
     return uBase + (m > 1.5 ? 2.6 : 1.4) + lift + (swell(p, t) - swell(uIsland.xy, t)) * 0.35;
   }
-  return uBase + texelFetch(uHeight, c, 0).r + swell(p, t);
+  return uBase + clamp(texelFetch(uHeight, c, 0).r, -1.1, 1.4) + swell(p, t);
 }
 
 void main() {
@@ -103,13 +106,13 @@ void main() {
   vec2 p = aCell + uGrid.xy;
   float t = uTime;
   float m = texelFetch(uMask, c, 0).r;
-  float hi = texelFetch(uHeight, c, 0).r;
+  float hi = clamp(texelFetch(uHeight, c, 0).r, -1.1, 1.4);
   float s = swell(p, t);
   float top = cellH(c, t);
   // Edges of the grid sink gently under the far water, so the blocks never end in a line.
   // In the last rows the far water rises to meet them: the blocks settle just under it.
   float inside = min(min(p.x - uGrid.x, uGrid.x + uGrid.z - 1.0 - p.x), p.y - uGrid.y);
-  if (m < 0.5) top = mix(top, uBase + s - 0.45, smoothstep(6.0, 1.0, inside));
+  if (m < 0.5) top = mix(top, uBase + s - 0.45, (1.0 - smoothstep(1.0, 6.0, inside)));
 
   // Far away the studs flatten (their detail would only alias into moire).
   vec3 local = position;
@@ -132,7 +135,7 @@ void main() {
   // Ambient occlusion: a column sitting lower than its neighbours is in their shadow; sides
   // darken towards the gaps below the surface.
   float nmax = max(max(hl, hr), max(hu, hd));
-  float ao = 1.0 - clamp((nmax - top) * 0.32, 0.0, 0.55);
+  float ao = 1.0 - clamp((nmax - top) * 0.28, 0.0, 0.38);
   if (normal.y < 0.5 && position.y < 0.0) ao *= mix(0.2, 0.7, smoothstep(-2.2, 0.0, position.y));
   vAO = ao;
 
@@ -144,17 +147,17 @@ void main() {
   if (m > 0.5) {
     vAlbedo = m > 1.5 ? uGrass : uSand;
   } else {
-    float k = clamp((hi + s * 0.6) * 0.45 + 0.45, 0.0, 1.0);
+    float k = clamp((hi + s * 0.6) * 0.45 + 0.45, 0.22, 1.0);
     vAlbedo = mix(uDeep, uMid, min(1.0, k * 1.4)) * (0.96 + 0.08 * h1);
     // Crest foam (pushed water) and a breaking ring of foam around the island.
     float crest = clamp((hi - 1.2) * 0.5, 0.0, 0.6);
     float d = length(vec2(p.x - uIsland.x, (p.y - uIsland.y) * 1.25)) - uIsland.z;
-    float ring = smoothstep(2.8, 0.2, d) * (0.55 + 0.45 * sin(t * 1.4 - d * 2.6 + p.x * 0.7));
+    float ring = (1.0 - smoothstep(0.2, 2.8, d)) * (0.55 + 0.45 * sin(t * 1.4 - d * 2.6 + p.x * 0.7));
     vFoam = max(crest, ring * (1.0 - uNightV * 0.6));
     // The island casts a soft shadow away from the sun, and darkens the water where it sits.
     vec2 away = -normalize(uSunDirV.xz + vec2(1e-4)) * clamp(2.4 / max(uSunDirV.y, 0.18), 0.0, 9.0);
     float ds = length(vec2(p.x - uIsland.x - away.x, (p.y - uIsland.y - away.y) * 1.25)) - uIsland.z * 0.92;
-    float shade = smoothstep(1.6, -1.2, ds) * 0.42 * (1.0 - uNightV) + smoothstep(1.4, 0.0, d) * 0.3;
+    float shade = (1.0 - smoothstep(-1.2, 1.6, ds)) * 0.42 * (1.0 - uNightV) + (1.0 - smoothstep(0.0, 1.4, d)) * 0.3;
     vAO *= 1.0 - shade;
 
     vSlope = (hr - hl) * 1.6;
@@ -175,6 +178,8 @@ uniform float uSunPower;
 uniform float uFogNear;
 uniform float uFogFar;
 uniform float uMistZ;
+uniform vec3 uIslandF;
+uniform float uBase;
 uniform float uNightV;
 uniform vec4 uSticks[7];
 uniform vec3 uNeon[3];
@@ -240,6 +245,8 @@ void main() {
   float nh = max(dot(N, H), 0.0);
 
   vec3 albedo = mix(vAlbedo, vec3(0.95, 0.98, 1.0), clamp(vFoam, 0.0, 1.0) * vWater);
+  // The island keeps its own (brighter) plastic colour at night, so the neon can light it.
+  if (vWater < 0.5) albedo *= 1.0 + 5.0 * uNightV;
   bool topFace = vNormal.y > 0.45 && vLocal.y > -0.01;
 
   // Toy plastic: a lit bevel along the block's top edge (the light catches the rounded rim).
@@ -285,7 +292,7 @@ void main() {
       float inten = exp(-dx * dx / width) * vCrest * (1.0 - tt * 0.5) * 1.15 * uNightV;
       int ni = int(st.z);
       vec3 neon = ni == 0 ? uNeon[0] : (ni == 1 ? uNeon[1] : uNeon[2]);
-      glow += neon * inten * (topFace ? 1.0 : 0.45);
+      glow += neon * inten * (topFace ? 1.0 : 0.45) * smoothstep(0.5, 2.5, length(vec2(vWorld.x - uIslandF.x, (vWorld.z - uIslandF.y) * 1.25)) - uIslandF.z);
     }
   }
   // At dusk the streaks run warm (sunset light), turning neon as night falls.
@@ -294,7 +301,19 @@ void main() {
   vec3 nightFloor = vec3(0.004, 0.008, 0.02) * uNight * (0.6 + 0.4 * N.y);
   vec3 rimN = vec3(0.12, 0.1, 0.32) * pow(1.0 - nv, 3.0) * uNight * (vWater > 0.5 ? 0.35 : 1.6);
   // The island keeps a soft cool fill after dusk, so it never turns into a black blob.
-  if (vWater < 0.5) rimN += albedo * vec3(0.12, 0.11, 0.2) * smoothstep(0.35, 0.8, uNight) * (0.6 + 0.4 * N.y);
+  if (vWater < 0.5) rimN += albedo * vec3(0.22, 0.2, 0.36) * smoothstep(0.35, 0.8, uNight) * (0.6 + 0.4 * N.y);
+  // The pillars light the island's faces that look their way.
+  if (vWater < 0.5 && uNightV > 0.01) {
+    for (int i = 0; i < 7; i++) {
+      vec4 st = uSticks[i];
+      if (st.w < 0.5) continue;
+      vec3 toL = vec3(st.x, uBase + 6.0, uStickZ) - vWorld;
+      float dl = length(toL);
+      int ni = int(st.z);
+      vec3 neon = ni == 0 ? uNeon[0] : (ni == 1 ? uNeon[1] : uNeon[2]);
+      glow += albedo * neon * max(dot(N, toL / dl), 0.0) * 2600.0 / (dl * dl + 200.0) * uNightV;
+    }
+  }
   vec3 col = diffuse + spec + refl + rim + albedo * caus + glow + nightFloor + rimN;
 
   // Atmospheric haze: distance fog into the sky colour along the view ray.
@@ -304,7 +323,7 @@ void main() {
   // A bank of sea mist where the blocks end (and beyond): both surfaces meet in the same haze.
   // Thinner at dusk, so the sunset sky and the sun path stay visible.
   float duskK = 1.0 - abs(uNight - 0.5) * 2.0;
-  f = max(f, (0.8 - 0.35 * max(duskK, 0.0)) * smoothstep(uMistZ + 70.0, uMistZ + 4.0, vWorld.z));
+  f = max(f, (0.8 - 0.35 * max(duskK, 0.0)) * (1.0 - smoothstep(uMistZ + 4.0, uMistZ + 70.0, vWorld.z)));
   col = mix(col, skyBase(normalize(vec3(-V.x, max(-V.y, 0.0) * 0.2, -V.z))), f);
 
   gl_FragColor = vec4(col, 1.0);

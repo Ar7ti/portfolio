@@ -243,6 +243,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       uFogNear: { value: 60 },
       uFogFar: { value: 140 },
       uMistZ: { value: Z0 },
+      uIslandF: { value: new Vector3(island.x, island.z, island.r) },
       uSunDirV: { value: new Vector3(0.4, 0.5, -1).normalize() },
     };
     const material = new ShaderMaterial({
@@ -332,7 +333,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
         uRes: { value: new Vector2(box.width * dpr, box.height * dpr) },
         uTime: { value: 0 },
         uHorizon: { value: 0.8 },
-        uGrain: { value: 0.018 },
+        uGrain: { value: 0.026 },
       },
       vertexShader: /* glsl */ `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
       fragmentShader: FINISH_FRAGMENT,
@@ -353,8 +354,8 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       } else {
         // Low, cinematic: the horizon sits in the top quarter, the sun glints towards the viewer.
         // Day → night pushes in and drifts right towards the island, lower and closer.
-        cam.position.set(-4 + px + 9 * n, 21 * (1 - 0.25 * n) + k * 7, 74 - 12 * n);
-        cam.lookAt(14 + px * 0.5 + 10 * n, 5.5 - 2.5 * n - k * 5, -20);
+        cam.position.set(-4 + px + 8 * n, 21 * (1 - 0.12 * n) + k * 7, 74 - 12 * n);
+        cam.lookAt(14 + px * 0.5 + 8 * n, 5.5 - 0.6 * n - k * 5, -20);
       }
       cam.updateProjectionMatrix();
       cam.updateMatrixWorld();
@@ -433,6 +434,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       island.x = best.x;
       island.z = best.z;
       seaUniforms.uIsland.value.set(island.x, island.z, island.r);
+      seaUniforms.uIslandF.value.set(island.x, island.z, island.r);
       mask.set(islandMask(W, D, island.x - X0, island.z - Z0, island.r));
       if (still === 'sea') mask.fill(0);
       syncMask();

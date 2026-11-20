@@ -117,8 +117,8 @@ export function sunAt(p: number): Sun {
   const t = Math.min(1, Math.max(0, p));
   const dusk = Math.min(1, t * 2);
   const gone = Math.max(0, t * 2 - 1);
-  const elevation = 0.5 * (1 - dusk) + 0.03 * dusk - 0.2 * gone + 0.75 * gone;
-  const x = 0.75 - 1.6 * gone;
+  const elevation = 0.2 * (1 - dusk) + 0.03 * dusk - 0.2 * gone + 0.75 * gone;
+  const x = 0.5 - 1.35 * gone;
   const l = Math.hypot(x, elevation, 1);
   const mix3 = (a: number[], b: number[], k: number) => a.map((v, i) => v + (b[i]! - v) * k);
   const warm = mix3([1, 0.94, 0.84], [1, 0.5, 0.28], dusk);
