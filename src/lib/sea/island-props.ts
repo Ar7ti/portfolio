@@ -44,6 +44,7 @@ export interface IslandProps {
 }
 
 export function createIslandProps(
+  soft: boolean,
   scene: Scene,
   sticks: { x: number; z: number; color: number }[],
 ): IslandProps {
