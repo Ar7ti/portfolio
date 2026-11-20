@@ -24,6 +24,7 @@ import {
   Mesh,
   NearestFilter,
   PerspectiveCamera,
+  PMREMGenerator,
   Plane,
   PlaneGeometry,
   RingGeometry,
@@ -156,6 +157,24 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     skyMesh.frustumCulled = false;
     skyMesh.renderOrder = -1;
     scene.add(skyMesh);
+
+    // Environment map for the physical materials (island props): the same sky, prefiltered
+    // (PMREM), re-baked when the hour moves on, so the plastic reflects the sky it sits under.
+    const envScene = new Scene();
+    const envSky = new Mesh(skyGeometry, skyMaterial);
+    envSky.frustumCulled = false;
+    envScene.add(envSky);
+    const pmrem = soft ? null : new PMREMGenerator(renderer);
+    let envTarget: WebGLRenderTarget | null = null;
+    let envNight = -1;
+    const bakeEnv = () => {
+      if (!pmrem || Math.abs(night - envNight) < 0.04) return;
+      envNight = night;
+      const next = pmrem.fromScene(envScene, 0.02, 0.1, 200);
+      scene.environment = next.texture;
+      envTarget?.dispose();
+      envTarget = next;
+    };
 
     // --- the blocks: column + stud merged, one instance per cell
     const column = new BoxGeometry(0.96, COLUMN, 0.96).translate(0, -COLUMN / 2, 0);
@@ -650,6 +669,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       bloom.threshold = 0.9 - night * 0.05;
       bloom.radius = 0.42 + night * 0.25;
       props.update(sun, skyUniforms.uSkyMid.value, night, performance.now() / 1000);
+      bakeEnv();
       for (const st of sticks) st.core.visible = st.halo.visible = night > 0.01;
       placeCamera();
     }
@@ -681,6 +701,8 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
         (st.halo.material as ShaderMaterial).dispose();
       }
       composer.dispose();
+      envTarget?.dispose();
+      pmrem?.dispose();
       props.dispose();
     });
     resume = () => {
