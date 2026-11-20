@@ -115,7 +115,10 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     if (!options.allowSoftware && isSoftwareRenderer(renderer.getContext())) {
       throw new Error('No hardware WebGL (software renderer)');
     }
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    // Software WebGL (only reachable with ?tier= / ?gpu=software, i.e. tests and CI): a light
+    // version of the same scene, so a CPU renderer can draw it in reasonable time.
+    const soft = isSoftwareRenderer(renderer.getContext());
+    const dpr = soft ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
     renderer.setPixelRatio(dpr);
     renderer.setSize(box.width, box.height, false);
     renderer.toneMapping = ACESFilmicToneMapping;
@@ -175,9 +178,9 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       width: W,
       depth: D,
       solid: mask,
-      spring: 0.3,
-      damping: 0.982,
-      viscosity: 0.09,
+      spring: 0.32,
+      damping: 0.986,
+      viscosity: 0.05,
     });
     // Dev only (scripts/hero-still.mjs): '?still=sea' renders the frozen sea without the island,
     // '?still=island' the same frame with the island (the sprite is their difference).
@@ -205,13 +208,10 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
             [14, -8, 0],
           ]
         : [
-            [6, 10, 0],
-            [13, -10, 1],
-            [20, 11, 2],
-            [27, -9, 0],
-            [34, 10, 1],
-            [41, -11, 2],
-            [47, 8, 0],
+            // Three upright light pillars far out (the Junction 2026 neon), framing the island.
+            [4, 0, 0],
+            [22, 0, 2],
+            [44, 0, 1],
           ];
     const stickUniform = Array.from({ length: 7 }, (_, i) => {
       const d = stickDefs[i];
@@ -258,7 +258,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     // Dense near (it follows the swell), then a huge flat ring out to the horizon.
     const cx = X0 + W / 2;
     const cz = Z0 + D / 2;
-    const farGeometry = new PlaneGeometry(900, 900, 300, 300)
+    const farGeometry = new PlaneGeometry(900, 900, soft ? 60 : 300, soft ? 60 : 300)
       .rotateX(-Math.PI / 2)
       .translate(cx, 0, cz);
     // A ring with a hole under the grid: pushed-down blocks must never reveal a flat plane.
@@ -317,14 +317,14 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     // Multisampled HDR target: clean brick edges without a separate AA pass.
     const target = new WebGLRenderTarget(box.width * dpr, box.height * dpr, {
       type: HalfFloatType,
-      samples: 4,
+      samples: soft ? 0 : 4,
     });
     const composer = new EffectComposer(renderer, target);
     composer.setPixelRatio(dpr);
     composer.setSize(box.width, box.height);
     composer.addPass(new RenderPass(scene, camera));
     const bloom = new UnrealBloomPass(new Vector2(box.width / 2, box.height / 2), 0.3, 0.42, 0.9);
-    composer.addPass(bloom);
+    if (!soft) composer.addPass(bloom);
     composer.addPass(new OutputPass());
     const finish = new ShaderPass({
       uniforms: {
@@ -352,8 +352,9 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
         cam.lookAt(0, 8 - 3 * n - k * 4, -10);
       } else {
         // Low, cinematic: the horizon sits in the top quarter, the sun glints towards the viewer.
-        cam.position.set(-4 + px, 21 * (1 - 0.2 * n) + k * 7, 74);
-        cam.lookAt(14 + px * 0.5, 5.5 - 2 * n - k * 5, -20);
+        // Day → night pushes in and drifts right towards the island, lower and closer.
+        cam.position.set(-4 + px + 9 * n, 21 * (1 - 0.25 * n) + k * 7, 74 - 12 * n);
+        cam.lookAt(14 + px * 0.5 + 10 * n, 5.5 - 2.5 * n - k * 5, -20);
       }
       cam.updateProjectionMatrix();
       cam.updateMatrixWorld();
@@ -546,7 +547,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       finish.uniforms['uTime']!.value = still ? 0 : t;
       for (const st of sticks) {
         // The sticks light up as dusk turns to night, with a slow flicker.
-        const on = Math.min(1, Math.max(0, (night - 0.35) / 0.4));
+        const on = Math.min(1, Math.max(0, (night - 0.55) / 0.35));
         const flicker = on * (0.85 + 0.15 * Math.sin(t * 3 + st.bx));
         (st.core.material as ShaderMaterial).uniforms['uOpacity']!.value = flicker;
         (st.halo.material as ShaderMaterial).uniforms['uOpacity']!.value = flicker;
@@ -579,7 +580,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       seaUniforms.uFoam.value.set(palette.foam);
       seaUniforms.uSand.value.set(palette.sand);
       seaUniforms.uGrass.value.set(palette.grass);
-      seaUniforms.uNightV.value = Math.min(1, Math.max(0, (night - 0.3) / 0.5));
+      seaUniforms.uNightV.value = Math.min(1, Math.max(0, (night - 0.55) / 0.35));
       seaUniforms.uSunPower.value = sun.power;
       seaUniforms.uAmbient.value
         .copy(skyUniforms.uSkyMid.value)

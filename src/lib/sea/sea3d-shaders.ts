@@ -14,7 +14,9 @@ const SWELL = /* glsl */ `
 float swell(vec2 p, float t) {
   return sin(p.x * 0.055 + p.y * 0.04 - t * 0.5) * 0.55
        + sin(-p.x * 0.03 + p.y * 0.07 - t * 0.36) * 0.35
-       + sin(p.x * 0.12 + p.y * 0.02 - t * 0.7) * 0.08;
+       + sin(p.x * 0.12 + p.y * 0.02 - t * 0.7) * 0.08
+       + sin(p.x * 0.21 - p.y * 0.17 - t * 1.25) * 0.07
+       + sin(-p.x * 0.09 + p.y * 0.26 - t * 1.6) * 0.05;
 }
 `;
 
@@ -81,6 +83,7 @@ varying float vFoam;
 varying float vWater;
 varying float vSlope;
 varying float vCrest;
+varying float vVar;
 
 ${SWELL}
 
@@ -108,7 +111,14 @@ void main() {
   float inside = min(min(p.x - uGrid.x, uGrid.x + uGrid.z - 1.0 - p.x), p.y - uGrid.y);
   if (m < 0.5) top = mix(top, uBase + s - 0.45, smoothstep(6.0, 1.0, inside));
 
-  vec3 world = vec3(p.x, top, p.y) + position;
+  // Far away the studs flatten (their detail would only alias into moire).
+  vec3 local = position;
+  float camDist = length(vec3(p.x, top, p.y) - cameraPosition);
+  if (local.y > 0.001) local.y *= 1.0 - smoothstep(55.0, 110.0, camDist);
+  vec3 world = vec3(p.x, top, p.y) + local;
+  // Toy plastic is never perfectly uniform: a small per-brick tint and sheen variation.
+  float h1 = fract(sin(dot(aCell, vec2(12.9898, 78.233))) * 43758.5453);
+  vVar = h1;
   vWorld = world;
   vLocal = position;
 
@@ -135,7 +145,7 @@ void main() {
     vAlbedo = m > 1.5 ? uGrass : uSand;
   } else {
     float k = clamp((hi + s * 0.6) * 0.45 + 0.45, 0.0, 1.0);
-    vAlbedo = mix(uDeep, uMid, min(1.0, k * 1.4));
+    vAlbedo = mix(uDeep, uMid, min(1.0, k * 1.4)) * (0.96 + 0.08 * h1);
     // Crest foam (pushed water) and a breaking ring of foam around the island.
     float crest = clamp((hi - 1.2) * 0.5, 0.0, 0.6);
     float d = length(vec2(p.x - uIsland.x, (p.y - uIsland.y) * 1.25)) - uIsland.z;
@@ -182,6 +192,7 @@ varying float vFoam;
 varying float vWater;
 varying float vSlope;
 varying float vCrest;
+varying float vVar;
 
 ${SKY}
 ${SWELL}
@@ -241,9 +252,10 @@ void main() {
   vec3 diffuse = albedo * (uAmbient * (0.55 + 0.45 * N.y) + uSunColor * uSunPower * nl) * ao;
 
   // Glossy clear-coat: GGX highlight and Fresnel reflection of the sky.
-  float rough = mix(mix(0.34, 0.16, uNight), 0.45, vFoam);
+  float rough = mix(mix(0.32, 0.16, uNight), 0.45, vFoam) + (vVar - 0.5) * 0.08;
   float F = 0.04 + 0.96 * pow(1.0 - nv, 5.0);
-  vec3 spec = uSunColor * uSunPower * min(ggx(nh, rough), 12.0) * F * nl * 0.55;
+  // Highlights roll off at grazing angles (no milky hot spot towards the frame edge).
+  vec3 spec = uSunColor * uSunPower * min(ggx(nh, rough), 12.0) * F * nl * 0.55 * smoothstep(0.03, 0.25, nv);
   vec3 refl = skyBase(reflect(-V, N)) * min(F, 0.6) * 0.42 * ao * (topFace || vWater > 1.5 ? 1.0 : 0.12);
   float near = 1.0 - smoothstep(25.0, 80.0, length(vWorld - uCam));
   vec3 rim = uSunColor * uSunPower * bevel * (0.05 + 0.3 * pow(nh, 8.0)) * (1.0 - uNight * 0.7) * near;
@@ -280,13 +292,15 @@ void main() {
   glow *= mix(vec3(0.95, 0.62, 0.42), vec3(1.0), smoothstep(0.45, 0.9, uNight));
   // Night: deep navy instead of a black void, and a cool rim so shapes (the island) still read.
   vec3 nightFloor = vec3(0.004, 0.008, 0.02) * uNight * (0.6 + 0.4 * N.y);
-  vec3 rimN = vec3(0.12, 0.1, 0.32) * pow(1.0 - nv, 3.0) * uNight * (vWater > 0.5 ? 0.35 : 1.0);
+  vec3 rimN = vec3(0.12, 0.1, 0.32) * pow(1.0 - nv, 3.0) * uNight * (vWater > 0.5 ? 0.35 : 1.6);
+  // The island keeps a soft cool fill after dusk, so it never turns into a black blob.
+  if (vWater < 0.5) rimN += albedo * vec3(0.12, 0.11, 0.2) * smoothstep(0.35, 0.8, uNight) * (0.6 + 0.4 * N.y);
   vec3 col = diffuse + spec + refl + rim + albedo * caus + glow + nightFloor + rimN;
 
   // Atmospheric haze: distance fog into the sky colour along the view ray.
   float dist = length(vWorld - uCam);
   // Atmospheric perspective: exponential haze, so distance (and the end of the blocks) melts away.
-  float f = clamp(1.0 - exp(-max(dist - uFogNear, 0.0) / uFogFar), 0.0, 0.97);
+  float f = clamp(1.0 - exp(-max(dist - uFogNear, 0.0) / uFogFar), 0.0, 1.0);
   // A bank of sea mist where the blocks end (and beyond): both surfaces meet in the same haze.
   // Thinner at dusk, so the sunset sky and the sun path stay visible.
   float duskK = 1.0 - abs(uNight - 0.5) * 2.0;
@@ -319,6 +333,7 @@ varying float vFoam;
 varying float vWater;
 varying float vSlope;
 varying float vCrest;
+varying float vVar;
 ${SWELL}
 void main() {
   vec3 w = (modelMatrix * vec4(position, 1.0)).xyz;
@@ -340,6 +355,7 @@ void main() {
   vWater = 2.0;
   vSlope = 0.0;
   vCrest = 0.75;
+  vVar = 0.5;
   gl_Position = projectionMatrix * viewMatrix * vec4(w, 1.0);
 }
 `;
