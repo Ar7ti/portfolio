@@ -16,7 +16,7 @@ export function heroBoxes(): DOMRect[] {
     for (const r of range.getClientRects()) add(r);
   }
   for (const el of hero.querySelectorAll(
-    '.chips > li, .contact-row a, .contact-row button, .sea-toggle',
+    '.hero-stack, .chips > li, .contact-row a, .contact-row button, .sea-toggle',
   ))
     add(el.getBoundingClientRect());
   return boxes;

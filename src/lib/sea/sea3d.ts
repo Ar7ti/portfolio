@@ -438,7 +438,8 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     const onScroll = () => {
       const delta = scrollY - lastScroll;
       lastScroll = scrollY;
-      if (!delta) return;
+      // Only while the hero is on screen: further down the sea is seen through narrow bands.
+      if (!delta || scrollY > innerHeight) return;
       // Softer at night: the camera sits lower, and a tall near crest reads as a wall of bricks.
       const k = 0.012 * (1 - 0.75 * night);
       liquid.pushRow(D - 3, Math.max(-0.9, Math.min(0.9, delta * k)));

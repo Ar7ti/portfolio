@@ -396,6 +396,8 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
   let destroyed = false;
   let resume: () => void = () => {};
   let applyNight: (p: number) => void = () => {};
+  /** Day (0) → night (1), last value applied (scroll waves soften at night). */
+  let hour = 0;
   const cleanups: (() => void)[] = [];
 
   async function mount(layer: HTMLElement): Promise<void> {
@@ -645,7 +647,12 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     const onScroll = () => {
       const delta = scrollY - lastScroll;
       lastScroll = scrollY;
-      if (delta) liquid.pushRow(SIM_D - 3, Math.max(-0.9, Math.min(0.9, delta * 0.012)));
+      // Softer at night and capped low: the 8-bit height texture clips tall crests into folds,
+      // and the low night camera turns them into a wall.
+      const cap = 0.9 - 0.65 * hour;
+      // Only while the hero is on screen: further down the sea is seen through narrow bands.
+      if (delta && scrollY < innerHeight)
+        liquid.pushRow(SIM_D - 3, Math.max(-cap, Math.min(cap, delta * 0.012 * (1 - 0.75 * hour))));
     };
     addEventListener('scroll', onScroll, { passive: true });
     cleanups.push(() => removeEventListener('scroll', onScroll));
@@ -661,6 +668,7 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     layout();
     applyNight = (p: number) => {
       if (!gl) return;
+      hour = p;
       setPalette(mixPalette(p));
       gl.uniform1f(loc.night, p);
     };
