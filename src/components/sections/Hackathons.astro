@@ -140,6 +140,62 @@ const srcset = [
     margin: 28px 0 0;
   }
 
+  /* Live sea, wide screens: the night sea runs behind the whole section; the photo becomes a card
+     on the right with margins, so the neon sea is seen around it (not covered by it). */
+  @media (min-width: 861px) {
+    :global(html.sea-live) .strip {
+      background: transparent;
+      min-height: 100vh;
+      min-height: 100svh;
+    }
+
+    :global(html.sea-live) .strip-photo {
+      inset: 14vh var(--gutter) 14vh auto;
+      width: min(44vw, 720px);
+      height: auto;
+      border-radius: 22px;
+      box-shadow:
+        0 30px 80px rgb(0 0 0 / 0.55),
+        0 0 0 1px rgb(255 255 255 / 0.12);
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    :global(html.sea-live) .strip::before {
+      background: linear-gradient(
+        90deg,
+        rgb(9 7 9 / 0.78),
+        rgb(9 7 9 / 0.5) 40%,
+        rgb(9 7 9 / 0) 58%
+      );
+    }
+
+    /* The text column ends before the card. */
+    :global(html.sea-live) .strip .inner {
+      padding-right: calc(min(44vw, 720px) + 48px);
+    }
+
+    :global(html.sea-live) .strip :global(.strip-title) {
+      font-size: clamp(38px, 4.1vw, 76px);
+    }
+
+    /* The sea fades into the next (night) section instead of ending in a line. */
+    :global(html.sea-live) .strip::after {
+      content: '';
+      position: absolute;
+      inset: auto 0 0;
+      z-index: -1;
+      height: 22vh;
+      background: linear-gradient(transparent, var(--c-night));
+      pointer-events: none;
+    }
+
+    :global(html.sea-live) .strip .events {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 14px;
+    }
+  }
+
   @media (max-width: 860px) {
     .strip {
       min-height: 0;

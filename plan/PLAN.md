@@ -25,7 +25,7 @@ From the review loop (#26, 2026-11-20: four rounds of fresh recruiter, tech-lead
 - **Honest wording**: "won the Oxylabs challenge" (never 1st place / won Junction), team results labelled as the team's, "My part" vs team with teammates named and linked, "Built with AI" in the README, footer and Shill or Chill case.
 - **Code receipts**: excerpts of his own lines linked at a pinned commit (score.py 998–1012, WaveService.luau 96–117).
 - **Sea tiers**: tier 2 three.js on capable desktops (an NVIDIA desktop gets it: tested in real Chrome), tier 1 2D shader on phones, tier 0 still under reduced motion; Pause control; the island never covers text (tests/hero-island.spec.ts, 1280–1920 × 3 tiers).
-- **Day → dusk → night → sunrise** scroll system with no hard seams, and the tsunami page wipe into case studies.
+- **Day → dusk → night → sunrise** scroll system with no hard seams, and the tsunami page wipe into case studies. On wide screens with the live sea, the hackathons photo is a card with margins so the night sea (neon pillars, lighthouse) is seen around it (Kirill, 2026-11-20); phones and the still keep the full-bleed photo.
 - **Contact**: email + Copy on the first screen (also 390×844), sticky Contact that never covers text, one-page CV + PDF from cv.yaml (regenerate with npm run cv after any CV change).
 - **CI**: checks, Playwright (360/390/768/1440, JS off, reduced motion, axe), lychee links, Lighthouse budgets; PR previews; prod deploy on main.
 - **404** returns a real 404 ("This island sank.").
