@@ -8,6 +8,7 @@
  * (≈4.4K cells) at a fixed 60 Hz step.
  */
 import {
+  AdditiveBlending,
   BoxGeometry,
   Color,
   CylinderGeometry,
@@ -17,6 +18,7 @@ import {
   InstancedMesh,
   Matrix4,
   Mesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
   PlaneGeometry,
   PerspectiveCamera,
@@ -28,7 +30,6 @@ import {
   WebGLRenderer,
 } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { AdditiveBlending, MeshBasicMaterial } from 'three';
 import { DAY, hex, mixPalette, NEON } from './palette';
 import { islandMask, Liquid } from './liquid';
 import { isSoftwareRenderer } from './tiers';

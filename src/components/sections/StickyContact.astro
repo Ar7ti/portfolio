@@ -47,7 +47,10 @@ if (!item) throw new Error('site.yaml nav: no item that links to #contact');
     color: var(--c-foam);
     font-weight: 700;
     text-decoration: none;
-    box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
+    /* Light rim: stays visible over the near-black night sections too. */
+    box-shadow:
+      0 0 0 2px rgb(255 255 255 / 0.55),
+      0 6px 20px rgb(0 0 0 / 0.25);
     transition:
       opacity 0.25s,
       translate 0.25s;

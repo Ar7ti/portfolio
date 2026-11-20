@@ -10,20 +10,20 @@ body:
   - { text: My top Short has **1.19M views**. Same audience my games are for., facts: [YT3] }
 media:
   - {
-      src: /media/projects/short-nYNWmpUQma0,
-      href: 'https://www.youtube.com/watch?v=nYNWmpUQma0',
+      src: /media/projects/short-fWptJ84zdyo,
+      href: 'https://www.youtube.com/watch?v=fWptJ84zdyo',
       alt: Cover of the Short "All Tsunamis VS All Dinosaurs IN Escape Waves For Brainrots!",
       caption: { text: 1.19M, facts: [YT3] },
     }
   - {
-      src: /media/projects/short-qhQ8C8tMOUk,
-      href: 'https://www.youtube.com/watch?v=qhQ8C8tMOUk',
+      src: /media/projects/short-VuMZR76NmgA,
+      href: 'https://www.youtube.com/watch?v=VuMZR76NmgA',
       alt: Cover of the Short "ULTIMATE FIGHT All Dinosaurs VS All Tsunamis IN Escape Waves For Brainrots!",
       caption: { text: 412K, facts: [YT4] },
     }
   - {
-      src: /media/projects/short-kK4hmX_hrv0,
-      href: 'https://www.youtube.com/watch?v=kK4hmX_hrv0',
+      src: /media/projects/short-ocP8EAH_DQg,
+      href: 'https://www.youtube.com/watch?v=ocP8EAH_DQg',
       alt: Cover of the Short "Rainbow Ladder In The Sky VS All Waves In Escape Waves For Brainrots!",
       caption: { text: 172K, facts: [YT5] },
     }

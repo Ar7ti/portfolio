@@ -21,7 +21,7 @@ site:
   footer:
     code:
       {
-        text: "This site's code is public →",
+        text: 'Built with AI coding agents I direct and review. Code, prompts and decisions are public →',
         label: github.com/Ar7ti/portfolio,
         href: 'https://github.com/Ar7ti/portfolio',
       }

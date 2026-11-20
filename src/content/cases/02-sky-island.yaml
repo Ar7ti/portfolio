@@ -1,8 +1,8 @@
-# Case 02. Source: plan/COPY.md §3 (hardest call approved by Kirill).
+# Case 03 on the page (shown third). Source: plan/COPY.md §3 (hardest call approved by Kirill).
 order: 2
 slug: sky-island-tower-defense
 theme: day
-label: { text: Case 02 · Roblox · Solo · May–Nov 2026, facts: [ST10] }
+label: { text: Case 03 · Roblox · Solo · May–Nov 2026, facts: [ST10] }
 title: Sky Island Tower Defense
 oneliner:
   text: A co-op tower defense on Roblox. **Up to 4 players** hold a floating island against **15 waves** and a boss.
@@ -23,7 +23,7 @@ media:
     caption: { text: ALL CLEAR }
     size: small
   - kind: short
-    href: 'https://www.youtube.com/watch?v=U_WcrNfcY4A'
+    href: 'https://www.youtube.com/watch?v=A1qP2T8bpHE'
     label: ALL TOWERS VS COLOSSUS
     facts: [ST13]
 blocks:

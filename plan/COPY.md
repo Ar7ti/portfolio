@@ -28,7 +28,7 @@ OG desc         I build games, web products & AI tools. Won the Oxylabs challeng
 NAV             Work · Hackathons · Timeline · Contact
 SKIP LINK       Skip to the point          (jumps to the static summary + contacts)
 MOTION TOGGLE   Calm the water / Bring the water back
-FOOTER          This site's code is public → github.com/Ar7ti/portfolio · Numbers checked 19 Nov 2026
+FOOTER          Built with AI coding agents I direct and review. Code, prompts and decisions are public → github.com/Ar7ti/portfolio · Numbers checked 19 Nov 2026   [P22]
 ```
 
 ---
@@ -79,7 +79,7 @@ CTA     Want to build something together?  [k.jegosin@gmail.com]
 ## 3. Case 02 · Sky Island Tower Defense
 
 ```
-LABEL   Case 02 · Roblox · Solo · May–Nov 2026                          [ST10]
+LABEL   Case 03 · Roblox · Solo · May–Nov 2026                          [ST10]
 H2      Sky Island Tower Defense
 ONE     A co-op tower defense on Roblox. **Up to 4 players** hold a floating island against **15 waves** and a boss.   [ST5 ST6]
 RESULTS BIG "Live"  published on Roblox, 25 Oct 2026                      [ST1 ST2]
@@ -103,10 +103,10 @@ CTA     Want to build something together?  [k.jegosin@gmail.com]
 ## 4. Case 03 · Junction X Turku: two solo projects
 
 ```
-LABEL   Case 03 · Junction X Turku · Solo · Oct 2026                    [H8]
+LABEL   Case 02 · Junction X Turku · Solo · Oct 2026                    [H8]
 H2      Two solo projects. One hackathon.
 ONE     At Junction X Turku I built **two products alone**: one for ocean investors, one for big life decisions.   [H8]
-RESULTS BIG "2"     solo projects, one weekend                            [H8]
+RESULTS BIG "2"     solo projects, one hackathon                            [H8]
         BIG "2"     partner challenges: A'Pelago / Redstone and If        [H8 H9 LS2]
         BIG "36"    tests in Ocean Radar                                  [OR4]
 

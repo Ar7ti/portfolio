@@ -164,6 +164,12 @@ const {
     }
   }
 
+  /* Deep-blue bars: the default deep focus ring would vanish here. */
+  .site-header,
+  .site-footer {
+    --focus: var(--c-signal);
+  }
+
   .site-header a,
   .site-footer a {
     color: inherit;

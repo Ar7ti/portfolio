@@ -28,6 +28,7 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 | P18 | Uses Git (all his repos on GitHub); Python level "basic" (his own wording) | S | per Kirill, 2026-11-19 (#22) |
 | P19 | CV photo: his GitHub avatar (https://github.com/Ar7ti.png), approved for the CV | S | per Kirill, 2026-11-19 (#22) |
 | P20 | Hobby: video editing; his Roblox Shorts have 2.6M total views (see YT2) | S | per Kirill, 2026-11-19 (#22) |
+| P22 | This site is built with AI coding agents (Claude) from Kirill's brief: Kirill chose the concept (Stud Tide sea, day → night), answered every fact question, reviewed each milestone and asked for changes; plans, prompts and decisions are public in `plan/` | V | `plan/PLAN.md`, `plan/DECISIONS.log`, `plan/prompts/` (2026-11-20) |
 | P21 | Kirill will buy his own domain for the portfolio; until then the site URL is a placeholder from astro.config (`site`) | S | per Kirill, 2026-11-19 (#22) |
 
 ## Hackathons
@@ -69,7 +70,7 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 | ST2 | Experience created 2026-10-25, last updated 2026-11-18 | V | games.roblox.com API, universeId 10772907075 |
 | ST3 | Creator account **lollipop_hak** (user 824298538) is Kirill's | V | Roblox API; Kirill 2026-11-19 |
 | ST4 | 2026-11-19: 66 visits, 2 favorites, 2 likes / 0 dislikes. **Not shown on the site** (agreed). Framing: "published game, 223 commits, built solo" | V | Roblox API; Kirill |
-| ST13 | Gameplay Short on his channel: "ALL TOWERS VS COLOSSUS In Sky Island Tower Defense!" (2026-11-17) https://www.youtube.com/watch?v=U_WcrNfcY4A | V | channel RSS |
+| ST13 | Gameplay Short on his channel: "ALL TOWERS VS COLOSSUS In Sky Island Tower Defense!" (2026-11-17) https://www.youtube.com/watch?v=A1qP2T8bpHE | V | channel RSS |
 | ST14 | React-lua UI is the largest system in the game: 23,053 of 42,050 lines in `src/` (55%), 98 files, touched in 96 of 223 commits; first commit 2026-05-23, GUI work starts 2026-07-04, first React commit 2026-07-21 (~2 months in) | V | `git log` + `wc -l` on Ar7ti/Tower-Defence-Game, 2026-11-19 |
 | ST15 | Save data moved to one live store for every place ("Pin every place to the live Release2 profile store", #48); match rewards from the old Release/Default stores credited into Release2 once (#60), both 2026-11-18 | V | Tower-Defence-Game commit history, read 2026-11-19 |
 | ST5 | Co-op up to 4 players (party pads → teleport into a match); API maxPlayers = 25 (server size, not party size) | V | game description; showcase README; API |
@@ -135,11 +136,13 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 |---|---|---|---|
 | YT1 | 9.95K subscribers, 33 videos (Shorts) | V | channel page header, read 2026-11-19 |
 | YT2 | 2,600,836 total views | S+ | Kirill, channel About, 2026-11-19 |
-| YT3 | "All Tsunamis VS All Dinosaurs IN Escape Waves For Brainrots!" 1,188,618 views (2026-04-05) https://www.youtube.com/watch?v=nYNWmpUQma0 | V | channel RSS 2026-11-19 |
-| YT4 | "ULTIMATE FIGHT All Dinosaurs VS All Tsunamis IN Escape Waves For Brainrots!" 412,166 views (2026-04-17) https://www.youtube.com/watch?v=qhQ8C8tMOUk | V | RSS |
-| YT5 | "Rainbow Ladder In The Sky VS All Waves In Escape Waves For Brainrots!" 171,895 views (2026-04-12) https://www.youtube.com/watch?v=kK4hmX_hrv0 | V | RSS |
+| YT3 | "All Tsunamis VS All Dinosaurs IN Escape Waves For Brainrots!" 1,188,618 views (2026-04-05) https://www.youtube.com/watch?v=fWptJ84zdyo | V | channel RSS 2026-11-19 |
+| YT4 | "ULTIMATE FIGHT All Dinosaurs VS All Tsunamis IN Escape Waves For Brainrots!" 412,166 views (2026-04-17) https://www.youtube.com/watch?v=VuMZR76NmgA | V | RSS |
+| YT5 | "Rainbow Ladder In The Sky VS All Waves In Escape Waves For Brainrots!" 171,895 views (2026-04-12) https://www.youtube.com/watch?v=ocP8EAH_DQg | V | RSS |
 | YT6 | Channel description: "Hello! I make Roblox videos😱" | V | channel About |
 | YT7 | A video is titled "How I got 10 million views": **never quote that number**, no source | — | RSS |
+
+Video ids of ST13 and YT3–YT5 corrected 2026-11-20 (fact-check: the first read paired each title with the next entry's id in the RSS feed); checked with YouTube oEmbed.
 
 Numbers on the site carry an "as of <date>" stamp.
 
