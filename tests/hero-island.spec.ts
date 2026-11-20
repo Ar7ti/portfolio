@@ -56,7 +56,13 @@ test.describe('hero island stays clear of the text', () => {
   for (const tier of [0, 1, 2] as const) {
     test(`tier ${tier}, 1280–1920 px`, async ({ page }) => {
       const selector = tier === 0 ? '[data-sea-still-canvas]' : '.hero-sea-live';
-      for (const [width, height] of SIZES) {
+      // CI renders tier 2 on the CPU (SwiftShader, ~40 s a page): three representative sizes
+      // there; all eight run on a real GPU locally.
+      const sizes =
+        tier === 2 && process.env['CI']
+          ? SIZES.filter((_, i) => i === 0 || i === 3 || i === 6)
+          : SIZES;
+      for (const [width, height] of sizes) {
         await page.setViewportSize({ width, height });
         await page.goto(`/?tier=${tier}`);
         await page.locator(selector).and(page.locator('.is-ready')).waitFor({ timeout: 60_000 });

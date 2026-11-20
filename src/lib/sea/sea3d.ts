@@ -46,7 +46,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { mixPalette, NEON, skyAt, sunAt, type SeaPalette } from './palette';
+import { DAY, mixPalette, NEON, skyAt, sunAt, type SeaPalette } from './palette';
 import { islandMask, Liquid } from './liquid';
 import { isSoftwareRenderer } from './tiers';
 import type { SeaFactory, SeaOptions, SeaRenderer } from './types';
@@ -258,6 +258,7 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       uFogNear: { value: 60 },
       uFogFar: { value: 140 },
       uMistZ: { value: Z0 },
+      uMistK: { value: 0.35 },
       uIslandF: { value: new Vector3(island.x, island.z, island.r) },
       uSunDirV: { value: new Vector3(0.4, 0.5, -1).normalize() },
     };
@@ -382,8 +383,6 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       seaUniforms.uCam.value.copy(camera.position);
       // Haze reaches full strength before the grid's back edge, so no edge is ever visible.
       // Light atmospheric haze: the sea itself now runs to the horizon (far water plane).
-      seaUniforms.uFogNear.value = 55; // haze starts here
-      seaUniforms.uFogFar.value = 230; // e-folding distance
       const horizon = new Vector3(camera.position.x, BASE, camera.position.z - 1e4).project(camera);
       finish.uniforms['uHorizon']!.value = Math.min(1.2, Math.max(-0.2, (horizon.y + 1) / 2));
     }
@@ -573,7 +572,9 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
         (st.core.material as ShaderMaterial).uniforms['uOpacity']!.value = flicker;
         (st.halo.material as ShaderMaterial).uniforms['uOpacity']!.value = flicker;
       }
-      composer.render();
+      // Software WebGL (tests/CI only): straight to the canvas, no post chain.
+      if (soft) renderer.render(scene, camera);
+      else composer.render();
       if (first) {
         first = false;
         canvas.classList.add('is-ready');
@@ -599,8 +600,14 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       seaUniforms.uDeep.value.set(palette.deep);
       seaUniforms.uMid.value.set(palette.mid);
       seaUniforms.uFoam.value.set(palette.foam);
-      seaUniforms.uSand.value.set(palette.sand);
-      seaUniforms.uGrass.value.set(palette.grass);
+      // The island keeps its own plastic colours at every hour: the light sets the mood.
+      seaUniforms.uSand.value.set(DAY.sand);
+      seaUniforms.uGrass.value.set(DAY.grass);
+      // Haze: by day only right at the horizon (clear air, saturated water); denser at dusk/night.
+      const hazy = Math.min(1, night * 2);
+      seaUniforms.uFogNear.value = 140 - 85 * hazy;
+      seaUniforms.uFogFar.value = 520 - 290 * hazy;
+      seaUniforms.uMistK.value = 0.35 + 0.45 * hazy;
       seaUniforms.uNightV.value = Math.min(1, Math.max(0, (night - 0.55) / 0.35));
       seaUniforms.uSunPower.value = sun.power;
       seaUniforms.uAmbient.value

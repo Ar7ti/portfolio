@@ -456,6 +456,11 @@ const links = hero.contacts
     }
   }
 
+  /* Over the live sea (a bluer sky now) the muted label colour drops below AA: use the ink. */
+  :global(.hero-label) {
+    color: var(--fg-strong);
+  }
+
   .label-part {
     white-space: nowrap;
   }
@@ -474,7 +479,11 @@ const links = hero.contacts
     margin: 0 0 28px;
     font-size: clamp(18px, 1.6vw, 22px);
     font-weight: 500;
-    color: var(--fg);
+    color: var(--fg-strong);
+    /* A soft light halo keeps the line readable where a dark trough or foam passes behind it. */
+    text-shadow:
+      0 0 2px rgb(231 241 246 / 0.9),
+      0 0 14px rgb(231 241 246 / 0.85);
   }
 
   .hero-line :global(b) {
