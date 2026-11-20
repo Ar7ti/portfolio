@@ -77,6 +77,15 @@ const {
       crossorigin
     />
     <link rel="preload" href="/fonts/martian-mono.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Case pages prerender on hover / pointer-down, so the tsunami wipe starts at once.
+         (Not home: its WebGL sea is too heavy to build in the background.) Chromium only. -->
+    <script
+      type="speculationrules"
+      is:inline
+      set:html={JSON.stringify({
+        prerender: [{ where: { href_matches: '/work/*' }, eagerness: 'moderate' }],
+      })}
+    />
   </head>
   <body>
     <a class="skip-link" href="#point">

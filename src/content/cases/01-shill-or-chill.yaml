@@ -12,14 +12,16 @@ results:
   - { value: 3rd, label: Hostinger challenge, facts: [H4] }
   - { value: 3–4×, label: 'faster detection, same output', facts: [SC6] }
 media:
+  - src: /media/projects/shill-or-chill-app
+    alt: The Shill or Chill start page, a search box saying "Drop a meme or paste a link" over a dark classical painting, with "Spreading now" memes below.
+    facts: [SC1, SC2]
+    caption:
+      { text: 'The live app (team product) · noise-radar.srv2159172.hstgr.cloud', facts: [SC2] }
+    size: large
   - src: /media/junction-2026/01-team-gemini-4-brain-cells
     alt: The four members of Team Gemini 4 Brain Cells standing in front of the Junction 2026 stage.
     facts: [H1, H2, M1, M2]
     caption: { text: Team Gemini 4 Brain Cells · Junction 2026, facts: [M1, M2] }
-    size: large
-  - src: /media/junction-2026/02-team-building-at-tables
-    alt: The team working on laptops at a table under red and violet event lights.
-    caption: { text: 'Building, night one · Photo: Junction', facts: [M3, M4] }
     size: small
 blocks:
   - lead: My part.
@@ -29,8 +31,11 @@ blocks:
     text: Friend groups and bots that say they're bots look coordinated too. I added **guards for both**, so real communities don't get flagged.
     facts: [SC5]
   - lead: Proof it works.
-    text: Tested against **real Bluesky takedowns**, not our own examples.
-    facts: [SC5]
+    text: Tested against **real Bluesky takedowns**, not our own examples. The team's cascade caught **18 of 28** coordinated clusters that were later taken down.
+    facts: [SC5, SC4]
+  - lead: Built with AI.
+    text: We built it with **AI coding agents** (Codex, Entire). The detector lines on the case page are mine, linked at the commit.
+    facts: [SC8, SC12]
   - lead: Next time.
     text: Start the **demo on day one**, not the last night.
     source: Kirill
@@ -86,7 +91,7 @@ deep:
   code:
     caption:
       {
-        text: 'The verdict is a rule: **enough families fire, the p-value is low and no strong organic guard**, or it abstains.',
+        text: 'The verdict is a rule: **enough families fire, the p-value is low and no strong organic guard**; otherwise it says likely organic, or unsure.',
         facts: [SC12],
       }
     file: signals/score.py · lines 998–1012

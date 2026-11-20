@@ -26,7 +26,7 @@ site:
         href: 'https://github.com/Ar7ti/portfolio',
       }
     checked: { text: Numbers checked, nofacts: date of the last fact check (plan/FACTS.md header) }
-    checkedOn: 2026-11-19
+    checkedOn: 2026-11-20
 
   hero:
     label: { text: '**Kirill Jegosin** · 18 · Kanta-Häme, Finland', facts: [P1, P2] }

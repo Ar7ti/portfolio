@@ -8,7 +8,7 @@ oneliner:
   text: A co-op tower defense on Roblox. **Up to 4 players** hold a floating island against **15 waves** and a boss.
   facts: [ST5, ST6]
 results:
-  - { value: Live, label: 'published on Roblox, 25 Oct 2026', facts: [ST1, ST2] }
+  - { value: Live, label: 'on Roblox, created 25 Oct 2026', facts: [ST1, ST2] }
   - { value: '223', label: 'commits, all mine', facts: [ST10], asOf: 2026-11-18 }
   - { value: '1.1', label: 'Ember Update: new map, new season', facts: [ST7] }
 media:
@@ -34,7 +34,7 @@ blocks:
     text: Moving **every place onto one live save store**. Old rewards are credited **exactly once**, so nobody loses progress or gets it twice.
     facts: [ST15]
   - lead: Proof it works.
-    text: 'My **Python scripts drive Roblox Studio**: they play a match, try bad placements, check phone layouts and measure frame times.'
+    text: 'My **Python scripts drive Roblox Studio**: they play through a wave, try bad placements, check phone layouts and measure frame times.'
     facts: [ST12]
   - lead: Next time.
     text: Get **real players testing before launch**, not after.
@@ -55,7 +55,7 @@ deep:
     - { text: '**React-lua UI** on PC and phone', facts: [ST14, ST8] }
     - { text: '**The server decides**: tower placement, waves, rewards', facts: [ST9] }
     - { text: '**One live save store** for every place', facts: [ST15] }
-    - { text: '**Python scripts** play test matches in Studio', facts: [ST12] }
+    - { text: '**Python scripts** play test rounds in Studio', facts: [ST12] }
   code:
     caption:
       {
