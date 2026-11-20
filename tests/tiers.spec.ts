@@ -102,12 +102,13 @@ test.describe('slow tier 2 downgrade', () => {
       const raf = window.requestAnimationFrame.bind(window);
       window.requestAnimationFrame = (cb) => raf(() => cb((fake += 40)));
     });
-    test.setTimeout(120_000);
-    await page.setViewportSize({ width: 900, height: 500 });
+    test.setTimeout(300_000);
+    // Small: CI renders it on the CPU (SwiftShader), where every pixel costs.
+    await page.setViewportSize({ width: 640, height: 360 });
     // ?gpu=software: CI has no GPU; let tier 2 run on SwiftShader so the downgrade can be measured.
     await page.goto('/?gpu=software');
     await page.waitForFunction(() => sessionStorage.getItem('sea:slow3d') === '1', null, {
-      timeout: 90_000,
+      timeout: 240_000,
     });
     // The downgrade lands on tier 1.
     await expect(page.locator('html')).not.toHaveAttribute('data-sea-tier', '2');
