@@ -437,11 +437,11 @@ void main() {
   vec3 col = skyColor(dir);
   // A few faint stars at night, high in the sky.
   if (uNight > 0.75 && dir.y > 0.08) {
-    vec3 q = dir * 90.0;
+    vec3 q = dir * 160.0;
     vec3 cell = floor(q);
     float h = fract(sin(dot(cell, vec3(12.9898, 78.233, 37.719))) * 43758.5453);
     float d = length(fract(q) - 0.5);
-    col += vec3(0.85, 0.85, 1.0) * step(0.955, h) * (1.0 - smoothstep(0.05, 0.16, d)) * (uNight - 0.75) * 5.0;
+    col += vec3(0.85, 0.85, 1.0) * step(0.93, h) * (1.0 - smoothstep(0.04, 0.12, d)) * (0.6 + 0.4 * sin(uNight * 40.0 + h * 50.0)) * (uNight - 0.75) * 5.0;
   }
   gl_FragColor = vec4(col, 1.0);
 }
