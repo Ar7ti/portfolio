@@ -97,8 +97,8 @@ float cellH(ivec2 c, float t) {
   vec2 p = vec2(c) + uGrid.xy;
   float m = texelFetch(uMask, c, 0).r;
   if (m > 0.5) {
-    float lift = swell(uIsland.xy, t) * 0.7;
-    return uBase + (m > 2.5 ? 6.2 : (m > 1.5 ? 2.6 : 1.4)) + lift + (swell(p, t) - swell(uIsland.xy, t)) * 0.35;
+    float lift = swell(uIsland.xy, t) * 0.25;
+    return uBase + (m > 2.5 ? 6.2 : (m > 1.5 ? 2.6 : 1.4)) + lift + (swell(p, t) - swell(uIsland.xy, t)) * 0.08;
   }
   return uBase + clamp(texelFetch(uHeight, c, 0).r, -1.1, 1.4) + swell(p, t);
 }
@@ -121,7 +121,7 @@ void main() {
   float camDist = length(vec3(p.x, top, p.y) - cameraPosition);
   // Far away the bricks merge into one surface: the gaps close and the studs sink. Their detail
   // would be smaller than a pixel there and only flicker (single-pixel "fireflies").
-  float farK = smoothstep(38.0, 85.0, camDist);
+  float farK = smoothstep(38.0, 85.0, camDist) * (texelFetch(uMask, ivec2(aCell), 0).r > 0.5 ? 0.0 : 1.0);
   vFar = farK;
   if (local.y > 0.001) local.y *= 1.0 - farK;
   local.xz *= mix(1.0, 1.0 / 0.96, farK);
@@ -257,12 +257,12 @@ void main() {
 
   vec3 albedo = mix(vAlbedo, vec3(0.95, 0.98, 1.0), clamp(vFoam, 0.0, 1.0) * vWater);
   // The island keeps its own (brighter) plastic colour at night, so the neon can light it.
-  if (vWater < 0.5) albedo *= 1.0 + 5.0 * uNightV;
+  if (vWater < 0.5) albedo *= 1.0 + 3.0 * uNightV;
   // Lighthouse: a red band below the lamp; the lamp (top block) glows warm at night.
   vec3 lamp = vec3(0.0);
   if (vTower > 0.5) {
     if (vLocal.y < -1.0 && vLocal.y > -1.9) albedo = vec3(0.6, 0.06, 0.05) * (1.0 + 2.0 * uNightV);
-    if (vLocal.y > -0.8) lamp = vec3(1.0, 0.62, 0.3) * 3.0 * uNightV;
+    if (vLocal.y > -0.8) lamp = vec3(1.0, 0.62, 0.3) * 1.4 * uNightV;
   }
   bool topFace = vNormal.y > 0.45 && vLocal.y > -0.01;
 
@@ -434,12 +434,12 @@ void main() {
   vec3 dir = normalize(vDir);
   vec3 col = skyColor(dir);
   // A few faint stars at night, high in the sky.
-  if (uNight > 0.3 && dir.y > 0.08) {
+  if (uNight > 0.75 && dir.y > 0.08) {
     vec3 q = dir * 90.0;
     vec3 cell = floor(q);
     float h = fract(sin(dot(cell, vec3(12.9898, 78.233, 37.719))) * 43758.5453);
     float d = length(fract(q) - 0.5);
-    col += vec3(0.85, 0.85, 1.0) * step(0.955, h) * (1.0 - smoothstep(0.05, 0.16, d)) * (uNight - 0.3) * 1.6;
+    col += vec3(0.85, 0.85, 1.0) * step(0.955, h) * (1.0 - smoothstep(0.05, 0.16, d)) * (uNight - 0.75) * 5.0;
   }
   gl_FragColor = vec4(col, 1.0);
 }
