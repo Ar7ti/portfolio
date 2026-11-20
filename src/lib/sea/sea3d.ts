@@ -85,7 +85,7 @@ function gridFor(aspect: number): Grid {
   // full haze, so the sea runs to the horizon at any width.
   return aspect < 1
     ? { width: 64, depth: 80, shift: 0.5, island: { x: 10, z: 2, r: 5 } }
-    : { width: 160, depth: 170, shift: 0.3, island: { x: 31, z: 4, r: 9 } };
+    : { width: 184, depth: 160, shift: 0.36, island: { x: 31, z: 4, r: 9 } };
 }
 
 export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {

@@ -156,7 +156,7 @@ export function createIslandProps(
   lamp.position.set(0, lampY, 0);
   group.add(sun, sun.target, key, key.target, hemi, fill, lamp);
   const neon = sticks.map((s) => {
-    const l = new PointLight(new Color(NEON[s.color]!), 0, 120, 1.2);
+    const l = new PointLight(new Color(NEON[s.color]!), 0, 80, 2);
     l.position.set(s.x, 6, s.z);
     scene.add(l);
     return l;
@@ -185,7 +185,7 @@ export function createIslandProps(
       lamp.intensity = on * (18 + 2 * Math.sin(t * 2));
       glass.emissiveIntensity = on * 0.9;
       lens.emissiveIntensity = on * 3.5;
-      for (const l of neon) l.intensity = on * 260;
+      for (const l of neon) l.intensity = on * 140;
     },
     dispose() {
       for (const g of geometries) g.dispose();
