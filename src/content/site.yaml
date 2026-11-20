@@ -29,7 +29,7 @@ site:
     checkedOn: 2026-11-19
 
   hero:
-    label: { text: 'Kirill Jegosin · 18 · Kanta-Häme, Finland', facts: [P1, P2] }
+    label: { text: '**Kirill Jegosin** · 18 · Kanta-Häme, Finland', facts: [P1, P2] }
     h1: ['I build games,', web products, '& AI tools.']
     line: { text: 'Open to **internships, summer jobs & junior roles**.', facts: [P11] }
     chips:
