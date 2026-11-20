@@ -61,6 +61,7 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 | SC9 | Teammates agreed to be linked: https://github.com/JustinasLa · https://github.com/akmet777 (Temuulen) · https://github.com/valtteripertila | S | Kirill 2026-11-19 |
 | SC10 | Junction 2026 had ~2,000 builders | S (Hostinger post wording "2000 builders") | Hostinger post |
 | SC11 | Kirill's code in the team repo is Python: `ingest/consumer.py`, `normalize.py`, `writer.py`, `signals/score.py`, `config.py` + tests (repo languages: Python, TypeScript, …) | V | GitHub API, his commits' files, read 2026-11-19 |
+| SC12 | Detector design in `signals/score.py` (team repo, commit 76b9f02): four signal families (content, timing, network, identity), a null-model p-value, organic guards; the verdict (coordinated / likely_organic / insufficient) is a deterministic rule, "not by an LLM" (module docstring). The verdict block, lines 987–1026, is by Ar7ti (git blame); score.py: 8 of 10 commits by Ar7ti | V | GitHub GraphQL blame + commits API, read 2026-11-20 |
 
 ## Sky Island Tower Defense (Roblox)
 
@@ -81,6 +82,7 @@ Status: **V** = verified from an independent or primary source; **S** = self-rep
 | ST10 | Private game repo Ar7ti/Tower-Defence-Game: 223 commits, all by Ar7ti, 2026-05-23 → 2026-11-18 | V | GitHub API |
 | ST11 | Built with Rojo, Luau, React-lua; made to learn programming | V / S | showcase README (stack); brief (motivation) |
 | ST12 | Code showcase: https://github.com/Ar7ti/sky-island-td-showcase (WaveService, EnemyMovement, React-lua UI, tools); anti-cheat/economy parts deliberately left out | V | showcase README |
+| ST16 | `WaveService:Track` in the public showcase (`src/match/server/Services/WaveService/WaveService.luau`, lines 96–117, commit c067a81): a splitting enemy's children are counted before the parent is released, so a wave cannot end in between | V | showcase repo source, read 2026-11-20 |
 
 ## Ocean Opportunity Radar
 

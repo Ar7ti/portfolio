@@ -129,3 +129,22 @@ test('home cases end in a link to the full case; the email CTA is only on case p
   await page.goto('/work/shill-or-chill');
   await expect(page.locator('.case-cta a')).toHaveAttribute('href', /^mailto:/);
 });
+
+test('case pages explain how it works and show his own code at a pinned commit', async ({
+  page,
+}) => {
+  for (const slug of ['shill-or-chill', 'sky-island-tower-defense']) {
+    await page.goto(`/work/${slug}`);
+    const deep = page.locator('.deep');
+    await expect(deep.getByRole('heading', { level: 2 })).toBeVisible();
+    expect(await deep.locator('.flow > li').count()).toBeGreaterThanOrEqual(4);
+    await expect(deep.locator('.code-link')).toHaveAttribute(
+      'href',
+      /^https:\/\/github\.com\/.+\/blob\/[0-9a-f]{40}\/.+#L\d+-L\d+$/,
+    );
+    await expect(deep.locator('pre code')).not.toBeEmpty();
+  }
+  // Home keeps the short version.
+  await page.goto('/');
+  await expect(page.locator('.deep')).toHaveCount(0);
+});

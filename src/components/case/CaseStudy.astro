@@ -10,6 +10,7 @@ import { matchReceipt } from '../../lib/receipts';
 import Claim from '../content/Claim.astro';
 import BigFigures from '../type/BigFigures.astro';
 import CaseBody from './CaseBody.astro';
+import CaseDeep from './CaseDeep.astro';
 import Receipts from './Receipts.astro';
 
 interface Props {
@@ -72,6 +73,8 @@ const titleLines = study.title.split(/(?<=\.)\s+/);
         ))}
       </div>
     )}
+
+    {level === 1 && study.deep && <CaseDeep deep={study.deep} slug={study.slug} />}
 
     {study.receipts && study.receipts.length > 0 && (
       <Receipts slug={study.slug} receipts={study.receipts} />

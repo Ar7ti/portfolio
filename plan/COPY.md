@@ -238,3 +238,26 @@ BUTTON  Back to the surface   ·   k.jegosin@gmail.com
 - Big figures in a row become a column on phones (figure + label side by side).
 - "2.6M views" stays on one line (`white-space: nowrap`).
 - Every heading and big figure checked at 360 and 390 px (automated: no element wider than its box, no page h-scroll).
+
+---
+
+## Case pages only: "How it works" (added in the review loop, 2026-11-20)
+
+```
+01 Shill or Chill   H3 "How the detector works"
+  FLOW  Bluesky firehose (Jetstream), live                                   [SC5]
+        Ingest → Postgres, with failover; broken records skipped   my part   [SC5]
+        Four signal families: content, timing, network, identity,
+        against a null model                                       my part   [SC12]
+        Organic guards: friend groups, openly automated accounts   my part   [SC5]
+        Verdict by rule, not by an LLM: coordinated, likely organic
+        or unsure                                                  my part   [SC12]
+  CODE  signals/score.py lines 998–1012 (verdict rule), pinned to 76b9f02     [SC12 SC11]
+02 Junction X Turku H3 "How Ocean Radar decides": deck in → AI pulls claims with exact
+        quotes → researches online, sources linked → a person confirms → only then the
+        score changes                                                       [OR1]
+03 Sky Island       H3 "How a match runs": React-lua UI on PC and phone → the server
+        decides placement, waves, rewards → one live save store → Python scripts play
+        test matches in Studio                                     [ST14 ST8 ST9 ST15 ST12]
+  CODE  WaveService.luau lines 96–117 (WaveService:Track), pinned to c067a81   [ST16 ST12]
+```

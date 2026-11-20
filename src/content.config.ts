@@ -174,6 +174,30 @@ const cases = defineCollection({
       subprojects: z
         .array(z.strictObject({ title: z.string(), oneliner: claim, ...caseBody }))
         .optional(),
+      /** Case page only: how it works (a flow) and one excerpt of his own code. */
+      deep: z
+        .strictObject({
+          heading: z.string(),
+          flow: z
+            .array(
+              z.strictObject({
+                text: z.string(),
+                mine: z.boolean().optional(),
+                facts: facts.min(1),
+              }),
+            )
+            .min(2),
+          code: z
+            .strictObject({
+              caption: claim,
+              file: z.string(),
+              href: z.url(),
+              body: z.string(),
+              facts: facts.min(1),
+            })
+            .optional(),
+        })
+        .optional(),
       receipts: z
         .array(
           z.strictObject({
