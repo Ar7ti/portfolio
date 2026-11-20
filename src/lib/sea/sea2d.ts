@@ -7,7 +7,7 @@
  * Island ray-marched inside its bounding box. The thick liquid (touch stirring, scroll waves)
  * runs on the CPU on a coarse grid and is uploaded as an 8-bit texture each frame.
  */
-import { DAY, mixPalette, NEON, type SeaPalette } from './palette';
+import { DAY, mixPalette, NEON, skyAt, sunAt, type SeaPalette } from './palette';
 import { islandMask, Liquid } from './liquid';
 import { isSoftwareRenderer } from './tiers';
 import type { SeaFactory, SeaOptions, SeaRenderer } from './types';
@@ -61,6 +61,14 @@ uniform vec3 uSkyB;
 uniform vec4 uSticks[7]; // base x, top x, neon index, active
 uniform vec3 uNeon[3];
 const float STICK_Z = -40.0;
+uniform vec3 uSunDir;
+uniform vec3 uSunColor;   // linear
+uniform float uSunPower;
+uniform float uSunGlow;
+uniform vec3 uSkyTop;
+uniform vec3 uSkyMid;
+uniform vec3 uHaze;
+uniform vec2 uRes;
 uniform sampler2D uLiquid;
 uniform vec4 uSimRect;   // x0, z0, width, depth (world units)
 uniform vec3 uIsland;    // centre x, centre z, radius (world units)
@@ -116,10 +124,30 @@ float studs(vec2 p, vec2 light) {
   return mix(stud, 1.0, smoothstep(0.25, 0.6, w));
 }
 
+// Colours arrive as sRGB; light in (approximately) linear space, tone map at the end.
+vec3 lin(vec3 c) { return c * c; }
+
+vec3 skyBase(vec3 dir) {
+  vec3 col = mix(lin(uHaze), lin(uSkyMid), smoothstep(0.0, 0.07, dir.y));
+  col = mix(col, lin(uSkyTop), smoothstep(0.05, 0.32, dir.y));
+  return mix(col, lin(uHaze) * 0.82, smoothstep(0.0, -0.12, dir.y));
+}
+
 vec3 sky(vec3 dir) {
-  // fog at the horizon → skyB (the sunset band at dusk) → skyA overhead
-  vec3 low = mix(uFog, uSkyB, smoothstep(0.0, 0.08, dir.y));
-  return mix(low, uSkyA, smoothstep(0.06, 0.35, dir.y));
+  float sd = max(dot(dir, uSunDir), 0.0);
+  return skyBase(dir) + uSunColor * (pow(sd, 5.0) * 0.12 + pow(sd, 80.0) * 0.4 + smoothstep(0.9993, 0.9997, sd) * 6.0) * uSunGlow;
+}
+
+vec3 aces(vec3 x) {
+  return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0);
+}
+
+vec3 finish(vec3 col) {
+  col = sqrt(aces(col * 0.9));
+  vec2 d = vUv * 0.5;
+  col *= 1.0 - dot(d, d) * 0.32;
+  float n = fract(sin(dot(gl_FragCoord.xy + uTime * 61.0, vec2(12.9898, 78.233))) * 43758.5453);
+  return col + (n - 0.5) * 0.03;
 }
 
 vec3 neon(float i) {
@@ -157,8 +185,8 @@ void main() {
 
   if (dir.y > -0.002) {
     vec3 skyCol = sky(dir);
-    if (uNight > 0.01) skyCol += stickGlow(uCamPos, dir, 1e5);
-    gl_FragColor = vec4(skyCol, 1.0);
+    if (uNight > 0.01) skyCol += lin(stickGlow(uCamPos, dir, 1e5));
+    gl_FragColor = vec4(finish(skyCol), 1.0);
     return;
   }
 
@@ -194,7 +222,10 @@ void main() {
         float ht = islandTop(h.xz, lift);
         bool side = (BASE + ht) - h.y > 0.12;
         vec3 base = ht > 2.0 + lift ? uGrass : uSand;
-        col = side ? base * 0.72 : base * studs(h.xz, light);
+        vec3 alb = lin(base);
+        vec3 nI = side ? normalize(vec3(h.xz - uIsland.xy, 0.0).xzy) : vec3(0.0, 1.0, 0.0);
+        float ndl = max(dot(nI, uSunDir), 0.0);
+        col = alb * (lin(uSkyMid) * 0.45 + uSunColor * uSunPower * ndl) * (side ? 0.7 : studs(h.xz, light));
         dist = t1;
         hitIsland = true;
         break;
@@ -222,8 +253,21 @@ void main() {
     float hx = swell(p.xz + vec2(e, 0.0), t) + liquid(p.xz + vec2(e, 0.0)) - (s + h);
     float hz = swell(p.xz + vec2(0.0, e), t) + liquid(p.xz + vec2(0.0, e)) - (s + h);
     vec3 n = normalize(vec3(-hx / e, 1.0, -hz / e));
-    float diffuse = clamp(dot(n, normalize(vec3(-0.45, 0.85, 0.35))), 0.0, 1.0);
-    col = water * (0.72 + 0.4 * diffuse) * studs(p.xz, light);
+    // Foam: pushed crests and a breaking ring around the island.
+    float dI = length(vec2(p.x - uIsland.x, (p.z - uIsland.y) * 1.25)) - uIsland.z;
+    float ring = smoothstep(2.8, 0.2, dI) * (0.55 + 0.45 * sin(t * 1.4 - dI * 2.6 + p.x * 0.7)) * (1.0 - uNight * 0.6) * (1.0 - uSink);
+    water = mix(water, uFoam, ring * 0.85);
+    // Glossy toy plastic: diffuse sun, GGX-ish highlight, Fresnel sky reflection.
+    vec3 V = -dir;
+    vec3 Hh = normalize(uSunDir + V);
+    float ndl = max(dot(n, uSunDir), 0.0);
+    float F = 0.04 + 0.96 * pow(1.0 - max(dot(n, V), 0.0), 5.0);
+    float sp = pow(max(dot(n, Hh), 0.0), 90.0) * 2.2;
+    float st = studs(p.xz, light);
+    vec3 alb = lin(water);
+    col = alb * (lin(uSkyMid) * (0.32 + uLight * 0.25) + uSunColor * uSunPower * ndl * 0.85) * st
+        + uSunColor * uSunPower * sp * F
+        + skyBase(reflect(dir, n)) * min(F, 0.6) * 0.42 * st;
     if (uNight > 0.01 && p.z > STICK_Z) {
       // Reflections: a streak from each stick towards the viewer, bent by the surface slope.
       float slope = (hx / e) * 2.0;
@@ -235,17 +279,16 @@ void main() {
         float width = 1.3 + tt2 * 3.2;
         float dx = p.x - xs;
         float inten = exp(-dx * dx / width) * (1.0 - tt2 * 0.55) * (0.55 + 0.45 * clamp(h + s + 0.6, 0.0, 1.0));
-        col += neon(st.z) * inten * 1.6 * uNight;
+        col += lin(neon(st.z)) * inten * 1.8 * uNight;
       }
     }
     dist = tt;
   }
 
-  col *= uLight;
-  float f = smoothstep(uFogNear, uFogFar, dist);
-  vec3 outCol = mix(col, uFog, f);
-  if (uNight > 0.01) outCol += stickGlow(uCamPos, dir, dist);
-  gl_FragColor = vec4(outCol, 1.0);
+  float f = smoothstep(uFogNear, uFogFar, dist) * 0.96;
+  vec3 outCol = mix(col, skyBase(normalize(vec3(dir.x, 0.0, dir.z))), f);
+  if (uNight > 0.01) outCol += lin(stickGlow(uCamPos, dir, dist));
+  gl_FragColor = vec4(finish(outCol), 1.0);
 }`;
 
 type Vec3 = [number, number, number];
@@ -487,14 +530,30 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
       skyB: u('uSkyB'),
       sticks: u('uSticks'),
       neon: u('uNeon'),
+      sunDir: u('uSunDir'),
+      sunColor: u('uSunColor'),
+      sunPower: u('uSunPower'),
+      sunGlow: u('uSunGlow'),
+      skyTop: u('uSkyTop'),
+      skyMid: u('uSkyMid'),
+      haze: u('uHaze'),
     };
 
     let camera = viewFor(1).camera;
     let island: Vec3 = [31, -9, 7];
     let simRect = { x0: -40, z0: -60, w: SIM_W * SIM_CELL, d: SIM_D * SIM_CELL };
 
-    function setPalette(p: SeaPalette): void {
+    function setPalette(p: SeaPalette, hourP = 0): void {
       if (!gl) return;
+      const skyNow = skyAt(hourP);
+      const sun = sunAt(hourP);
+      gl.uniform3fv(loc.skyTop, rgb(skyNow.top));
+      gl.uniform3fv(loc.skyMid, rgb(skyNow.mid));
+      gl.uniform3fv(loc.haze, rgb(skyNow.haze));
+      gl.uniform3fv(loc.sunDir, sun.dir);
+      gl.uniform3fv(loc.sunColor, sun.color);
+      gl.uniform1f(loc.sunPower, sun.power);
+      gl.uniform1f(loc.sunGlow, sun.glow);
       gl.uniform3fv(loc.deep, rgb(p.deep));
       gl.uniform3fv(loc.mid, rgb(p.mid));
       gl.uniform3fv(loc.foam, rgb(p.foam));
@@ -669,7 +728,7 @@ export const createSea2D: SeaFactory = (options: SeaOptions): SeaRenderer => {
     applyNight = (p: number) => {
       if (!gl) return;
       hour = p;
-      setPalette(mixPalette(p));
+      setPalette(mixPalette(p), p);
       gl.uniform1f(loc.night, p);
     };
 

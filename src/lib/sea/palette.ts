@@ -83,3 +83,50 @@ export function mixPalette(p: number): SeaPalette {
   }
   return out;
 }
+
+/**
+ * Sky of the WebGL tiers (both): deeper than the CSS sky tokens, so tone mapping keeps colour.
+ * Day → dusk at 0.5 → night.
+ */
+const SKY_DAY = { top: 0x3f8fd0, mid: 0x8cc6e6, haze: 0xc2e0ee };
+const SKY_DUSK = { top: 0x341a6b, mid: 0xc85a7c, haze: 0xf0956a };
+const SKY_NIGHT = { top: 0x05030c, mid: 0x1c0d30, haze: 0x4a1f55 };
+
+export function skyAt(p: number): { top: number; mid: number; haze: number } {
+  const t = Math.min(1, Math.max(0, p));
+  const [a, b, k] = t < 0.5 ? [SKY_DAY, SKY_DUSK, t * 2] : [SKY_DUSK, SKY_NIGHT, (t - 0.5) * 2];
+  return {
+    top: lerpColor(a.top, b.top, k),
+    mid: lerpColor(a.mid, b.mid, k),
+    haze: lerpColor(a.haze, b.haze, k),
+  };
+}
+
+export interface Sun {
+  /** Unit direction towards the sun (world: x right, y up, z towards the camera). */
+  dir: [number, number, number];
+  /** Linear RGB. */
+  color: [number, number, number];
+  power: number;
+  /** Strength of the sun disc and glow in the sky. */
+  glow: number;
+}
+
+/** High white sun → warm on the horizon at dusk → a cool moon, high on the left, at night. */
+export function sunAt(p: number): Sun {
+  const t = Math.min(1, Math.max(0, p));
+  const dusk = Math.min(1, t * 2);
+  const gone = Math.max(0, t * 2 - 1);
+  const elevation = 0.5 * (1 - dusk) + 0.03 * dusk - 0.2 * gone + 0.75 * gone;
+  const x = 0.75 - 1.6 * gone;
+  const l = Math.hypot(x, elevation, 1);
+  const mix3 = (a: number[], b: number[], k: number) => a.map((v, i) => v + (b[i]! - v) * k);
+  const warm = mix3([1, 0.94, 0.84], [1, 0.5, 0.28], dusk);
+  const color = mix3(warm, [0.55, 0.5, 1], gone) as [number, number, number];
+  return {
+    dir: [x / l, elevation / l, -1 / l],
+    color,
+    power: 1.9 * (1 - dusk) + 1.4 * dusk * (1 - gone) + 0.42 * gone,
+    glow: (1 + dusk * 0.8) * (1 - gone),
+  };
+}
