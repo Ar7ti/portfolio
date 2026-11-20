@@ -144,7 +144,8 @@
 
 @media (min-width: 861px) {
   :root {
-    --size-h1: clamp(48px, 7.2vw, 116px);
+    /* Also capped by the height, so short laptop screens (1280×720) keep the contacts in view. */
+    --size-h1: clamp(48px, min(7.2vw, 11.5vh), 116px);
     --size-h2: clamp(42px, 8.4vw, 140px);
     --size-h2-long: clamp(42px, 6.2vw, 100px);
     --size-h2-xl: clamp(56px, 9vw, 150px);
