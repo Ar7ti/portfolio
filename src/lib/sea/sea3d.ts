@@ -572,7 +572,9 @@ export const createSea3D: SeaFactory = (options: SeaOptions): SeaRenderer => {
         (st.core.material as ShaderMaterial).uniforms['uOpacity']!.value = flicker;
         (st.halo.material as ShaderMaterial).uniforms['uOpacity']!.value = flicker;
       }
-      composer.render();
+      // Software WebGL (tests/CI only): straight to the canvas, no post chain.
+      if (soft) renderer.render(scene, camera);
+      else composer.render();
       if (first) {
         first = false;
         canvas.classList.add('is-ready');
